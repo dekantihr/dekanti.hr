@@ -1,0 +1,13 @@
+-- Add scent notes columns to products table for AI-generated perfume notes
+-- Migration: add_scent_notes_to_products
+-- Date: 2026-05-05
+
+ALTER TABLE products 
+ADD COLUMN IF NOT EXISTS note_vrha VARCHAR(255),
+ADD COLUMN IF NOT EXISTS note_srca VARCHAR(255),
+ADD COLUMN IF NOT EXISTS note_baze VARCHAR(255);
+
+-- Add comments for documentation
+COMMENT ON COLUMN products.note_vrha IS 'Top notes of the perfume (e.g., bergamot, lemon, orange)';
+COMMENT ON COLUMN products.note_srca IS 'Heart/middle notes of the perfume (e.g., rose, jasmine, lavender)';
+COMMENT ON COLUMN products.note_baze IS 'Base notes of the perfume (e.g., musk, sandalwood, vanilla)';
