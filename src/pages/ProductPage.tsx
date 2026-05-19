@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Heart, ShoppingBag, Star, ChevronDown, ChevronUp, ArrowLeft, Check, Package, Truck, Shield, Sparkles, Leaf, Flower2, TreePine, Snowflake, Sun, AlertTriangle } from 'lucide-react';
+import { Heart, ShoppingBag, Star, ChevronDown, ArrowLeft, Check, Package, Truck, Shield, Sparkles, Leaf, Flower2, TreePine, Snowflake, Sun, AlertTriangle } from 'lucide-react';
 import { api } from '../services/api';
 import toast from 'react-hot-toast';
 
@@ -218,37 +218,41 @@ export default function ProductPage({ wishlist, onWishlistToggle, onAddToCart, u
             {/* Size Selector */}
             <div>
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-[#e8d5a3]/80 text-sm font-semibold font-['Inter'] tracking-wider uppercase">Odaberite veličinu</h3>
+                <h3 className="text-[#e8d5a3]/80 text-sm font-semibold font-['Inter'] tracking-wider uppercase">Odaberite veličinu decanta</h3>
                 <span className="text-[#c9a96e] font-['Playfair_Display'] text-2xl font-bold">{size?.cijena?.toFixed(2) || '0.00'}€</span>
               </div>
-              <div className="grid grid-cols-4 gap-3">
-                {product.product_sizes?.map((s: any, i: number) => (
-                  <button
-                    key={s.id}
-                    onClick={() => setSelectedSize(i)}
-                    disabled={s.zaliha === 0}
-                    className={`relative py-3 px-2 rounded-xl border text-center transition-all duration-200 ${
-                      i === selectedSize
-                        ? 'border-[#c9a96e] bg-[#c9a96e]/10 text-[#c9a96e]'
-                        : s.zaliha === 0
-                        ? 'border-[#333] bg-[#111] text-[#e8d5a3]/20 cursor-not-allowed'
-                        : 'border-[#c9a96e]/20 bg-[#111] text-[#e8d5a3]/60 hover:border-[#c9a96e]/50 hover:text-[#e8d5a3]/90'
-                    }`}
-                  >
-                    <div className="text-sm font-bold font-['Inter']">{s.velicina_ml}ml</div>
-                    <div className="text-[10px] font-['Inter'] mt-0.5">{s.cijena.toFixed(2)}€</div>
-                    {s.zaliha > 0 && s.zaliha <= 5 && (
-                      <span className="absolute -top-1.5 -right-1.5 bg-orange-500 text-white text-[8px] px-1 py-0.5 rounded-full font-bold">
-                        Zadnji!
-                      </span>
-                    )}
-                    {s.zaliha === 0 && (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-full h-[1px] bg-[#333] rotate-45" />
-                      </div>
-                    )}
-                  </button>
-                ))}
+              <div className="grid grid-cols-3 gap-3">
+                {product.product_sizes?.map((s: any, i: number) => {
+                  const sprays = s.velicina_ml * 12;
+                  return (
+                    <button
+                      key={s.id}
+                      onClick={() => setSelectedSize(i)}
+                      disabled={s.zaliha === 0}
+                      className={`relative py-4 px-3 rounded-xl border text-center transition-all duration-300 ${
+                        i === selectedSize
+                          ? 'border-[#c9a96e] bg-[#c9a96e]/10 text-[#c9a96e] shadow-[0_0_20px_rgba(201,169,110,0.15)]'
+                          : s.zaliha === 0
+                          ? 'border-[#333] bg-[#111] text-[#e8d5a3]/20 cursor-not-allowed'
+                          : 'border-[#c9a96e]/20 bg-[#111] text-[#e8d5a3]/60 hover:border-[#c9a96e]/50 hover:text-[#e8d5a3]/90 hover:bg-[#1a1a1a]'
+                      }`}
+                    >
+                      <div className="text-lg font-bold font-['Inter']">{s.velicina_ml}ml</div>
+                      <div className="text-[10px] font-['Inter'] mt-1 text-[#e8d5a3]/40">~{sprays} prskanja</div>
+                      <div className="text-xs font-['Inter'] mt-1.5 font-semibold">{s.cijena.toFixed(2)}€</div>
+                      {s.zaliha > 0 && s.zaliha <= 5 && (
+                        <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-[8px] px-1.5 py-0.5 rounded-full font-bold shadow-lg animate-pulse">
+                          Zadnji!
+                        </span>
+                      )}
+                      {s.zaliha === 0 && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-[#0a0a0a]/50 rounded-xl">
+                          <span className="text-[9px] text-[#e8d5a3]/30 uppercase tracking-wider">Rasprodano</span>
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
               {size && size.zaliha > 0 && size.zaliha <= 10 && (
                 <p className="flex items-center gap-1.5 text-orange-400/70 text-xs font-['Inter'] mt-2">
@@ -256,6 +260,9 @@ export default function ProductPage({ wishlist, onWishlistToggle, onAddToCart, u
                   Samo {size.zaliha} komada na zalihi
                 </p>
               )}
+              <p className="text-[#e8d5a3]/25 text-[10px] font-['Inter'] mt-2 text-center">
+                Naša premium bočica daje ~12 prskanja po 1ml
+              </p>
             </div>
 
             {/* Add to Cart */}
@@ -311,52 +318,163 @@ export default function ProductPage({ wishlist, onWishlistToggle, onAddToCart, u
             </div>
 
             {/* Long Description */}
-            <div className="bg-[#111111] border border-[#c9a96e]/10 rounded-2xl p-5">
+            <div className="bg-[#111111] border border-[#c9a96e]/10 rounded-2xl overflow-hidden">
               <button
                 onClick={() => setDescExpanded(!descExpanded)}
-                className="flex items-center justify-between w-full text-[#e8d5a3]/80 font-semibold font-['Inter'] text-sm"
+                className="flex items-center justify-between w-full text-[#e8d5a3]/80 font-semibold font-['Inter'] text-sm p-5 hover:bg-[#c9a96e]/5 transition-colors"
               >
-                Opis parfema
-                {descExpanded ? <ChevronUp size={15} className="text-[#c9a96e]" /> : <ChevronDown size={15} className="text-[#c9a96e]" />}
+                <span>Opis parfema</span>
+                <ChevronDown
+                  size={15}
+                  className={`text-[#c9a96e] transition-transform duration-300 ${descExpanded ? 'rotate-180' : ''}`}
+                />
               </button>
-              {descExpanded && (
-                <p className="text-[#e8d5a3]/50 text-sm font-['Inter'] font-light leading-relaxed mt-4">
-                  {product.opis_dugi}
-                </p>
-              )}
+              <div
+                className="grid transition-all duration-500 ease-out"
+                style={{
+                  gridTemplateRows: descExpanded ? '1fr' : '0fr',
+                }}
+              >
+                <div className="overflow-hidden">
+                  <div className="px-5 pb-5">
+                    <div className="h-[1px] bg-[#c9a96e]/10 mb-4" />
+                    <p className="text-[#e8d5a3]/60 text-sm font-['Inter'] font-light leading-relaxed animate-fadeIn">
+                      {product.opis_dugi || product.opis_kratki}
+                    </p>
+                    {product.opis_dugi && (
+                      <div className="mt-4 flex flex-wrap gap-2 animate-fadeInUp" style={{ animationDelay: '0.2s' }}>
+                        {['EDP koncentracija', 'Dugotrajan miris', 'Niche kvaliteta'].map((tag) => (
+                          <span key={tag} className="text-[10px] text-[#c9a96e]/60 border border-[#c9a96e]/15 px-2.5 py-1 rounded-full font-['Inter']">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Mirisna piramida */}
-        <div className="mt-16">
-          <div className="text-center mb-10">
-            <p className="text-[#c9a96e] text-[10px] tracking-[0.5em] uppercase font-semibold font-['Inter'] mb-2">Profil mirisa</p>
-            <h2 className="font-['Playfair_Display'] text-3xl font-bold text-[#e8d5a3]">Mirisna <span className="text-[#c9a96e] italic">piramida</span></h2>
+        <div className="mt-20">
+          <div className="text-center mb-12">
+            <p className="text-[#c9a96e] text-[10px] tracking-[0.5em] uppercase font-semibold font-['Inter'] mb-3">Profil mirisa</p>
+            <h2 className="font-['Playfair_Display'] text-3xl md:text-4xl font-bold text-[#e8d5a3] mb-3">Mirisna <span className="text-[#c9a96e] italic">piramida</span></h2>
+            <p className="text-[#e8d5a3]/40 text-sm font-['Inter'] font-light max-w-md mx-auto">
+              Svaki parfem razvija se u tri faze. Prvo osjetite svježe note, zatim srce parfema, a na kraju duboku bazu koja ostaje s vama.
+            </p>
           </div>
 
-          <div className="max-w-2xl mx-auto">
-            <div className="grid grid-cols-3 gap-4">
-              {[
-                { label: 'Glava', sublabel: 'Top notes', notes: topNotes, icon: <Leaf size={24} className="text-green-400" />, desc: 'Prve 15-30 min' },
-                { label: 'Srce', sublabel: 'Heart notes', notes: heartNotes, icon: <Flower2 size={24} className="text-pink-400" />, desc: 'Do 4 sata' },
-                { label: 'Baza', sublabel: 'Base notes', notes: baseNotes, icon: <TreePine size={24} className="text-amber-600" />, desc: 'Cijeli dan' },
-              ].map(tier => (
-                <div key={tier.label} className="bg-[#111111] border border-[#c9a96e]/15 rounded-2xl p-5 text-center">
-                  <div className="flex justify-center mb-2">{tier.icon}</div>
-                  <h3 className="text-[#c9a96e] font-['Playfair_Display'] font-bold text-sm mb-0.5">{tier.label}</h3>
-                  <p className="text-[#e8d5a3]/30 text-[9px] font-['Inter'] mb-1">{tier.sublabel}</p>
-                  <p className="text-[#e8d5a3]/20 text-[8px] font-['Inter'] mb-3">{tier.desc}</p>
-                  <div className="flex flex-wrap justify-center gap-1.5">
-                    {tier.notes.map((n: any) => (
-                      <span key={n.naziv} className="text-[10px] text-[#e8d5a3]/60 border border-[#c9a96e]/15 px-2 py-0.5 rounded-full font-['Inter']">
-                        {n.naziv}
-                      </span>
-                    ))}
-                    {tier.notes.length === 0 && <span className="text-[#e8d5a3]/20 text-xs">—</span>}
+          <div className="max-w-3xl mx-auto">
+            {/* Timeline connector */}
+            <div className="relative">
+              {/* Vertical line for mobile, horizontal for desktop */}
+              <div className="hidden md:block absolute top-1/2 left-0 right-0 h-[1px] bg-[#c9a96e]/10 -translate-y-1/2" />
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+                {[
+                  {
+                    label: 'Glava',
+                    subtitle: 'Prvi dojam',
+                    sublabel: 'Top notes',
+                    notes: topNotes,
+                    icon: <Leaf size={20} />,
+                    desc: 'Svježe, citrusne ili biljne note koje osjetite odmah nakon nanošenja. Traju 15-30 minuta.',
+                    duration: '0-30 min',
+                    gradient: 'from-green-500/20 to-emerald-500/10',
+                    borderColor: 'border-green-500/30',
+                    iconColor: 'text-green-400',
+                    bgGlow: 'bg-green-500/5',
+                  },
+                  {
+                    label: 'Srce',
+                    subtitle: 'Duša parfema',
+                    sublabel: 'Heart notes',
+                    notes: heartNotes,
+                    icon: <Flower2 size={20} />,
+                    desc: 'Cvjetne, začinske ili voćne note koje definiraju karakter parfema. Traju do 4 sata.',
+                    duration: '30 min - 4h',
+                    gradient: 'from-pink-500/20 to-rose-500/10',
+                    borderColor: 'border-pink-500/30',
+                    iconColor: 'text-pink-400',
+                    bgGlow: 'bg-pink-500/5',
+                  },
+                  {
+                    label: 'Baza',
+                    subtitle: 'Duboki ostanak',
+                    sublabel: 'Base notes',
+                    notes: baseNotes,
+                    icon: <TreePine size={20} />,
+                    desc: 'Topli drveni, mošusni ili amber note koji ostaju na koži do kraja dana.',
+                    duration: '4h+',
+                    gradient: 'from-amber-500/20 to-orange-500/10',
+                    borderColor: 'border-amber-500/30',
+                    iconColor: 'text-amber-400',
+                    bgGlow: 'bg-amber-500/5',
+                  },
+                ].map((tier, idx) => (
+                  <div
+                    key={tier.label}
+                    className={`relative bg-[#111111] border ${tier.borderColor} rounded-2xl p-6 md:p-5 group hover:border-[#c9a96e]/40 transition-all duration-500 hover:shadow-[0_0_30px_rgba(201,169,110,0.1)]`}
+                    style={{
+                      animationDelay: `${idx * 0.15}s`,
+                    }}
+                  >
+                    {/* Gradient background on hover */}
+                    <div className={`absolute inset-0 bg-gradient-to-br ${tier.gradient} rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+
+                    <div className="relative z-10">
+                      {/* Header */}
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className={`w-10 h-10 rounded-xl ${tier.bgGlow} border ${tier.borderColor} flex items-center justify-center ${tier.iconColor} group-hover:scale-110 transition-transform duration-300`}>
+                          {tier.icon}
+                        </div>
+                        <div>
+                          <h3 className="text-[#e8d5a3] font-['Playfair_Display'] font-bold text-base">{tier.label}</h3>
+                          <p className="text-[#c9a96e]/60 text-[10px] font-['Inter'] tracking-wider uppercase">{tier.subtitle}</p>
+                        </div>
+                        <span className="ml-auto text-[9px] text-[#e8d5a3]/25 font-['Inter'] border border-[#e8d5a3]/10 px-2 py-0.5 rounded-full">
+                          {tier.duration}
+                        </span>
+                      </div>
+
+                      {/* Description */}
+                      <p className="text-[#e8d5a3]/40 text-xs font-['Inter'] font-light leading-relaxed mb-4">
+                        {tier.desc}
+                      </p>
+
+                      {/* Notes pills */}
+                      <div className="flex flex-wrap gap-1.5">
+                        {tier.notes.length > 0 ? tier.notes.map((n: any, i: number) => (
+                          <span
+                            key={n.naziv}
+                            className="text-[11px] text-[#e8d5a3]/70 border border-[#c9a96e]/20 bg-[#0a0a0a]/50 px-3 py-1 rounded-full font-['Inter'] hover:bg-[#c9a96e]/10 hover:text-[#c9a96e] hover:border-[#c9a96e]/40 transition-all duration-300 cursor-default"
+                            style={{
+                              animationDelay: `${i * 0.05}s`,
+                            }}
+                          >
+                            {n.naziv}
+                          </span>
+                        )) : (
+                          <span className="text-[#e8d5a3]/20 text-xs italic font-['Inter']">Nije specificirano</span>
+                        )}
+                      </div>
+
+                      {/* Bottom accent line */}
+                      <div className={`mt-4 h-[2px] w-12 rounded-full ${tier.iconColor.replace('text-', 'bg-')} opacity-30 group-hover:w-20 transition-all duration-500`} />
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
+            </div>
+
+            {/* Visual timeline for mobile */}
+            <div className="md:hidden mt-6 flex items-center justify-center gap-2 text-[10px] text-[#e8d5a3]/25 font-['Inter']">
+              <span>0 min</span>
+              <div className="flex-1 h-[2px] bg-gradient-to-r from-green-500/30 via-pink-500/30 to-amber-500/30 rounded-full" />
+              <span>4h+</span>
             </div>
           </div>
         </div>
