@@ -18,7 +18,7 @@ const allowedOrigin = Deno.env.get("ALLOWED_ORIGIN") ?? "*";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": allowedOrigin,
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-user-email",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
@@ -84,13 +84,6 @@ Deno.serve(async (req) => {
     return jsonResponse({ error: "Server configuration is incomplete" }, 500);
   }
 
-  const authorization = req.headers.get("Authorization");
-  const token = authorization?.replace("Bearer ", "");
-
-  if (!token) {
-    return jsonResponse({ error: "Authentication required" }, 401);
-  }
-
   const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey, {
     auth: {
       autoRefreshToken: false,
@@ -98,16 +91,39 @@ Deno.serve(async (req) => {
     },
   });
 
-  const { data: userData, error: userError } = await supabaseAdmin.auth.getUser(token);
+  let adminEmail: string | null = null;
 
-  if (userError || !userData.user?.email) {
+  // Try Supabase Auth JWT first (future-proof for auth migration)
+  const authorization = req.headers.get("Authorization");
+  const token = authorization?.replace("Bearer ", "");
+
+  if (token) {
+    try {
+      const { data: userData, error: userError } = await supabaseAdmin.auth.getUser(token);
+      if (!userError && userData.user?.email) {
+        adminEmail = userData.user.email;
+      }
+    } catch {
+      // Fall through to custom auth
+    }
+  }
+
+  // Fallback: custom localStorage auth via x-user-email header
+  if (!adminEmail) {
+    const customEmail = req.headers.get("x-user-email");
+    if (customEmail) {
+      adminEmail = customEmail;
+    }
+  }
+
+  if (!adminEmail) {
     return jsonResponse({ error: "Authentication required" }, 401);
   }
 
   const { data: profile, error: profileError } = await supabaseAdmin
     .from("users")
     .select("role")
-    .eq("email", userData.user.email)
+    .eq("email", adminEmail)
     .maybeSingle();
 
   if (profileError) {

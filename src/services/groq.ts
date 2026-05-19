@@ -13,6 +13,7 @@
 import { supabase } from '../utils/supabase';
 
 const MODEL = 'llama-3.1-8b-instant';
+const USER_KEY = 'dekanti_user';
 
 interface GroqMessage {
   role: 'system' | 'user' | 'assistant';
@@ -34,6 +35,19 @@ interface GroqResponse {
   }[];
 }
 
+function getCurrentUserEmail(): string | null {
+  try {
+    const stored = localStorage.getItem(USER_KEY);
+    if (stored) {
+      const user = JSON.parse(stored);
+      return user?.email || null;
+    }
+  } catch {
+    // ignore
+  }
+  return null;
+}
+
 /**
  * Call Groq API through the Supabase Edge Function
  */
@@ -46,8 +60,15 @@ async function callGroq(messages: GroqMessage[], temperature = 0.7, maxTokens = 
   };
 
   try {
+    const userEmail = getCurrentUserEmail();
+    const headers: Record<string, string> = {};
+    if (userEmail) {
+      headers['x-user-email'] = userEmail;
+    }
+
     const { data, error } = await supabase.functions.invoke<GroqResponse>('admin-ai', {
       body: request,
+      headers,
     });
 
     if (error) {

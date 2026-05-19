@@ -53,3 +53,5 @@ Thumbs.db
 
 # Build artifacts
 *.tsbuildinfo
+.vercel
+.env*.local
