@@ -14,6 +14,7 @@ export interface CartItem {
 }
 
 export interface AppliedCoupon {
+  id?: number;
   kod: string;
   tip: 'postotak' | 'fiksni';
   vrijednost: number;

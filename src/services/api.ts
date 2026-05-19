@@ -371,19 +371,29 @@ export const api = {
 
       if (itemsError) throw itemsError;
 
+      // Reduce stock for each ordered item
+      for (const item of orderData.items) {
+        const { error: stockError } = await supabase.rpc('decrement_stock', {
+          p_product_size_id: item.product_size_id,
+          p_quantity: item.kolicina
+        });
+        if (stockError) {
+          console.warn('Stock not reduced for item:', item.product_size_id, stockError);
+        }
+      }
+
       // Update coupon usage if applicable
       if (orderData.kupon_id) {
         const { error: couponError } = await supabase.rpc(
           'increment_coupon_usage',
           { coupon_id: orderData.kupon_id }
         );
-        // Ignore error if function doesn't exist (we'll handle manually)
         if (couponError) {
           console.warn('Coupon usage not updated:', couponError);
         }
       }
 
-      return order;
+      return { ...order, order_items: orderItems };
     } catch (error) {
       console.error('Error creating order:', error);
       throw error;

@@ -31,7 +31,7 @@ interface FormData {
   nacin_placanja: 'pouzecem' | 'bankovna' | 'revolut';
 }
 
-export default function CheckoutPage({ items, subtotal, dostava, popust, ukupno, user, onOrderComplete, onClearCart }: CheckoutPageProps) {
+export default function CheckoutPage({ items, coupon, subtotal, dostava, popust, ukupno, user, onOrderComplete, onClearCart }: CheckoutPageProps) {
   const [step, setStep] = useState<Step>('podaci');
   const [orderNumber, setOrderNumber] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -92,7 +92,7 @@ export default function CheckoutPage({ items, subtotal, dostava, popust, ukupno,
         cijena_dostave: dostava,
         subtotal,
         popust_iznos: popust,
-        kupon_id: null,
+        kupon_id: coupon?.id ?? null,
         ukupno,
         items: items.map(item => ({
           product_size_id: item.product_size_id,
