@@ -126,7 +126,8 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
           .select(`
             *,
             brands (naziv),
-            product_sizes (id, velicina_ml, cijena, zaliha, sku)
+            product_sizes (id, velicina_ml, cijena, zaliha, sku),
+            product_images (url, alt_text, sort_order)
           `)
           .order('created_at', { ascending: false });
         

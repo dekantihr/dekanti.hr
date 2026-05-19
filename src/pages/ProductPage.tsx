@@ -469,8 +469,8 @@ export default function ProductPage({ wishlist, onWishlistToggle, onAddToCart, u
               {related.map((p: any) => (
                 <div key={p.id} className="bg-[#111111] border border-[#c9a96e]/10 hover:border-[#c9a96e]/25 rounded-2xl overflow-hidden transition-all group">
                   <Link to={`/parfemi/${p.slug}`}>
-                    <div className="relative h-40 overflow-hidden">
-                      <img src={p.images && p.images.length > 0 ? p.images[0] : ''} alt={p.naziv} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80" />
+                    <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-[#1a1a1a] to-[#0f0f0f]">
+                      <img src={p.images && p.images.length > 0 ? p.images[0] : ''} alt={p.naziv} className="w-full h-full object-contain object-center group-hover:scale-105 transition-transform duration-500 opacity-80" />
                     </div>
                     <div className="p-4">
                       <p className="text-[#c9a96e] text-[9px] tracking-[0.25em] uppercase font-['Inter'] mb-1">{p.brand?.naziv || p.brand}</p>

@@ -25,11 +25,11 @@ export default function ProductCard({ product, isWishlisted, onWishlistToggle, o
   return (
     <div className="group relative glass rounded-2xl overflow-hidden hover:border-[#c9a96e]/40 hover-lift hover-glow animate-staggerFadeIn" style={{ transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)' }}>
       {/* Image */}
-      <div className="relative overflow-hidden aspect-[3/4] bg-gradient-to-br from-[#1a1a1a] to-[#0f0f0f]">
+      <div className="relative overflow-hidden aspect-square bg-gradient-to-br from-[#1a1a1a] to-[#0f0f0f]">
         <img
           src={product.images && product.images.length > 0 ? product.images[0] : ''}
           alt={`${product.brand?.naziv || product.brand} ${product.naziv}`}
-          className="w-full h-full object-contain object-center p-4 transition-all duration-700 group-hover:scale-[1.08] opacity-90 group-hover:opacity-100"
+          className="w-full h-full object-contain object-center transition-all duration-700 group-hover:scale-[1.05] opacity-90 group-hover:opacity-100"
           loading="lazy"
         />
 
