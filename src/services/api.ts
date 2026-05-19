@@ -305,7 +305,7 @@ export const api = {
     postanski_broj: string;
     napomena?: string;
     nacin_dostave: 'hp_posta24' | 'osobno_preuzimanje';
-    nacin_placanja: 'pouzecem' | 'bankovna' | 'kartica';
+    nacin_placanja: 'pouzecem' | 'bankovna' | 'kartica' | 'revolut';
     cijena_dostave: number;
     subtotal: number;
     popust_iznos: number;
@@ -765,6 +765,45 @@ export const api = {
       console.error('Error updating tracking number:', error);
       throw error;
     }
+  },
+
+  /**
+   * Mark order as paid (admin only)
+   */
+  async markOrderPaid(orderNumber: string) {
+    try {
+      const { data, error } = await supabase
+        .from('orders')
+        .update({
+          placeno: true,
+          datum_placanja: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .eq('order_number', orderNumber)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error marking order as paid:', error);
+      throw error;
+    }
+  },
+
+  // ============================================================
+  // EMAIL
+  // ============================================================
+
+  async sendEmail(to: string, subject: string, html: string) {
+    try {
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/send-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to, subject, html }),
+      });
+      return res.ok ? await res.json() : null;
+    } catch { return null; }
   },
 
   // ============================================================

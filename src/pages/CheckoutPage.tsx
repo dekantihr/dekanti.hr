@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Check, ChevronRight, Package, CreditCard, ClipboardCheck } from 'lucide-react';
+import { Check, ChevronRight, Package, CreditCard, ClipboardCheck, Copy, ExternalLink, Truck } from 'lucide-react';
 import { CartItem, AppliedCoupon } from '../store/cartStore';
 import toast from 'react-hot-toast';
 import { api } from '../services/api';
@@ -28,13 +28,15 @@ interface FormData {
   grad: string;
   postanski_broj: string;
   napomena: string;
-  nacin_placanja: 'pouzecem' | 'bankovna';
+  nacin_placanja: 'pouzecem' | 'bankovna' | 'revolut';
 }
 
 export default function CheckoutPage({ items, subtotal, dostava, popust, ukupno, user, onOrderComplete, onClearCart }: CheckoutPageProps) {
   const [step, setStep] = useState<Step>('podaci');
   const [orderNumber, setOrderNumber] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentConfirmed, setPaymentConfirmed] = useState(false);
 
   const [form, setForm] = useState<FormData>({
     ime: user?.ime ?? '',
@@ -73,7 +75,7 @@ export default function CheckoutPage({ items, subtotal, dostava, popust, ukupno,
 
   const submitOrder = async () => {
     setIsProcessing(true);
-    
+
     try {
       const orderData = {
         user_id: user?.id ?? null,
@@ -90,7 +92,7 @@ export default function CheckoutPage({ items, subtotal, dostava, popust, ukupno,
         cijena_dostave: dostava,
         subtotal,
         popust_iznos: popust,
-        kupon_id: null, // We should probably store the coupon ID if we have it
+        kupon_id: null,
         ukupno,
         items: items.map(item => ({
           product_size_id: item.product_size_id,
@@ -104,10 +106,21 @@ export default function CheckoutPage({ items, subtotal, dostava, popust, ukupno,
 
       const result = await api.createOrder(orderData);
       setOrderNumber(result.order_number);
-      
+
       onOrderComplete(result);
       onClearCart();
-      setStep('potvrda');
+
+      api.sendEmail(
+        form.email,
+        `Narudžba ${result.order_number} — dekanti.hr`,
+        `<div style="max-width:560px;margin:0 auto;background:#0a0a0a;color:#e8d5a3;font-family:Arial,sans-serif;border-radius:16px;overflow:hidden;border:1px solid rgba(201,169,110,0.2)"><div style="background:#111;padding:24px;text-align:center;border-bottom:1px solid rgba(201,169,110,0.15)"><h1 style="font-family:Georgia,serif;color:#c9a96e;margin:0;font-size:24px;letter-spacing:2px">DEKANTI<span style="color:#e8d5a3">.HR</span></h1></div><div style="padding:32px 24px"><h2 style="color:#e8d5a3;font-size:20px;margin:0 0 8px">Hvala na narudžbi!</h2><p style="color:#e8d5a3;opacity:0.6;margin:0 0 24px;font-size:14px">Vaša narudžba je zaprimljena.</p><div style="background:#111;border:1px solid rgba(201,169,110,0.15);border-radius:12px;padding:16px;margin-bottom:24px"><p style="color:#e8d5a3;opacity:0.4;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin:0 0 4px">Broj narudžbe</p><p style="color:#c9a96e;font-size:22px;font-weight:bold;margin:0;font-family:Georgia,serif">${result.order_number}</p></div><p style="color:#e8d5a3;opacity:0.5;font-size:13px;margin:0 0 16px">Ukupno: <strong style="color:#c9a96e">${ukupno.toFixed(2)}€</strong></p><div style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:12px;padding:16px"><p style="color:#4ade80;font-size:13px;font-weight:bold;margin:0 0 4px">🚚 Brza dostava</p><p style="color:#4ade80;opacity:0.7;font-size:12px;margin:0">Pakiramo i šaljemo isti dan (06:00–18:00). HP Pošta24 — 1-2 radna dana.</p></div></div><div style="background:#111;padding:16px 24px;text-align:center;border-top:1px solid rgba(201,169,110,0.1)"><p style="color:#e8d5a3;opacity:0.3;font-size:11px;margin:0">dekanti.hr · Vaš niche parfem dućan</p></div></div>`
+      ).catch(() => {});
+
+      if (form.nacin_placanja === 'revolut') {
+        setShowPaymentModal(true);
+      } else {
+        setStep('potvrda');
+      }
     } catch (error: any) {
       console.error('Error submitting order:', error);
       toast.error('Greška pri slanju narudžbe. Molimo pokušajte ponovno.');
@@ -116,7 +129,30 @@ export default function CheckoutPage({ items, subtotal, dostava, popust, ukupno,
     }
   };
 
-  if (items.length === 0 && step !== 'potvrda') {
+  const handlePaymentConfirmed = async () => {
+    setPaymentConfirmed(true);
+    setShowPaymentModal(false);
+    setStep('potvrda');
+    try {
+      await api.markOrderPaid(orderNumber);
+    } catch (e) {
+      console.error('Failed to mark order as paid:', e);
+    }
+    toast.success('Uplata potvrđena! Hvala na narudžbi.', {
+      style: { background: '#111111', color: '#e8d5a3', border: '1px solid rgba(201,169,110,0.3)' },
+      iconTheme: { primary: '#c9a96e', secondary: '#0a0a0a' },
+    });
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast.success('Kopirano!', {
+      style: { background: '#111111', color: '#e8d5a3', border: '1px solid rgba(201,169,110,0.3)' },
+      iconTheme: { primary: '#c9a96e', secondary: '#0a0a0a' },
+    });
+  };
+
+  if (items.length === 0 && step !== 'potvrda' && !showPaymentModal) {
     return (
       <div className="bg-[#0a0a0a] min-h-screen pt-32 flex items-center justify-center">
         <div className="text-center">
@@ -249,6 +285,7 @@ export default function CheckoutPage({ items, subtotal, dostava, popust, ukupno,
                     {[
                       { value: 'pouzecem' as const, label: '💵 Pouzećem (COD)', desc: 'Plaćate gotovinom pri preuzimanju pošiljke' },
                       { value: 'bankovna' as const, label: '🏦 Bankovna transakcija', desc: 'Plaćanje na račun — podaci za uplatu u emailu' },
+                      { value: 'revolut' as const, label: '💳 Revolut', desc: 'Brzo plaćanje putem Revolut me linka' },
                     ].map(opt => (
                       <button
                         key={opt.value}
@@ -279,6 +316,13 @@ export default function CheckoutPage({ items, subtotal, dostava, popust, ukupno,
                       <p className="text-blue-300/60 text-xs font-['Inter']">Primatelj: dekanti.hr</p>
                       <p className="text-blue-300/60 text-xs font-['Inter']">Opis: Narudžba [broj narudžbe]</p>
                       <p className="text-blue-300/50 text-xs font-['Inter'] mt-2">* Pošiljka se šalje nakon potvrde uplate</p>
+                    </div>
+                  )}
+                  {form.nacin_placanja === 'revolut' && (
+                    <div className="mt-4 bg-purple-900/20 border border-purple-600/20 rounded-xl p-4">
+                      <p className="text-purple-300/80 text-xs font-['Inter'] font-semibold mb-2">💳 Revolut plaćanje</p>
+                      <p className="text-purple-300/60 text-xs font-['Inter']">Nakon potvrde narudžbe dobit ćete link za plaćanje s točnim iznosom.</p>
+                      <p className="text-purple-300/50 text-xs font-['Inter'] mt-2">* Pošiljka se šalje nakon potvrde uplate</p>
                     </div>
                   )}
                 </div>
@@ -329,7 +373,7 @@ export default function CheckoutPage({ items, subtotal, dostava, popust, ukupno,
                     <div>
                       <p className="text-[#e8d5a3]/30 text-[10px] uppercase tracking-wider font-['Inter'] mb-1">Plaćanje</p>
                       <p className="text-[#e8d5a3]/70 font-['Inter']">
-                        {form.nacin_placanja === 'pouzecem' ? '💵 Pouzećem' : '🏦 Bankovna transakcija'}
+                        {form.nacin_placanja === 'pouzecem' ? '💵 Pouzećem' : form.nacin_placanja === 'revolut' ? '💳 Revolut' : '🏦 Bankovna transakcija'}
                       </p>
                       <p className="text-[#e8d5a3]/50 font-['Inter'] text-xs mt-1">🚚 HP Pošta24</p>
                     </div>
@@ -356,6 +400,76 @@ export default function CheckoutPage({ items, subtotal, dostava, popust, ukupno,
               </div>
             )}
 
+            {/* Revolut Payment Modal */}
+            {showPaymentModal && (
+              <div className="bg-[#111111] border border-[#c9a96e]/20 rounded-3xl p-6 md:p-8">
+                <div className="text-center mb-6">
+                  <div className="w-16 h-16 bg-purple-500/10 border-2 border-purple-500/40 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <CreditCard size={28} className="text-purple-400" />
+                  </div>
+                  <h2 className="font-['Playfair_Display'] text-2xl font-bold text-[#e8d5a3] mb-2">Plaćanje putem Revoluta</h2>
+                  <p className="text-[#e8d5a3]/50 font-['Inter'] text-sm">
+                    Narudžba #{orderNumber} — Skenirajte QR ili kliknite link za plaćanje
+                  </p>
+                </div>
+
+                <div className="bg-[#0a0a0a] border border-[#c9a96e]/15 rounded-2xl p-5 mb-5">
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-[#e8d5a3]/50 text-xs font-['Inter'] uppercase tracking-wider">Iznos za platiti</span>
+                    <span className="text-[#c9a96e] font-['Playfair_Display'] text-3xl font-bold">{ukupno.toFixed(2)}€</span>
+                  </div>
+                  <div className="h-[1px] bg-[#c9a96e]/10 mb-4" />
+                  <div className="flex items-center gap-3 bg-purple-900/10 border border-purple-500/20 rounded-xl p-3">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[#e8d5a3]/40 text-[10px] font-['Inter'] uppercase tracking-wider mb-0.5">Revolut.me link</p>
+                      <p className="text-purple-300/80 text-sm font-['Inter'] truncate">revolut.me/dekantihr?amount={ukupno.toFixed(2)}</p>
+                    </div>
+                    <button
+                      onClick={() => copyToClipboard(`https://revolut.me/dekantihr?amount=${ukupno.toFixed(2)}`)}
+                      className="flex items-center gap-1.5 text-purple-400 border border-purple-500/30 px-3 py-1.5 rounded-lg text-xs font-['Inter'] hover:bg-purple-500/10 transition-all"
+                    >
+                      <Copy size={12} />
+                      Kopiraj
+                    </button>
+                  </div>
+                </div>
+
+                <div className="space-y-3 mb-6">
+                  <a
+                    href={`https://revolut.me/dekantihr?amount=${ukupno.toFixed(2)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full bg-purple-600 hover:bg-purple-500 text-white py-4 rounded-2xl font-bold text-sm tracking-wider uppercase transition-all flex items-center justify-center gap-2"
+                  >
+                    <ExternalLink size={16} />
+                    Otvori Revolut i plati {ukupno.toFixed(2)}€
+                  </a>
+
+                  <div className="bg-[#0a0a0a] border border-[#c9a96e]/10 rounded-xl p-4 text-left">
+                    <p className="text-[#e8d5a3]/60 text-xs font-['Inter'] mb-2 font-semibold">Kako platiti:</p>
+                    <ol className="space-y-1.5 text-[#e8d5a3]/40 text-xs font-['Inter'] list-decimal list-inside">
+                      <li>Kliknite gumb iznad ili kopirajte link</li>
+                      <li>U Revolut aplikaciji unesite točan iznos: <span className="text-[#c9a96e]">{ukupno.toFixed(2)}€</span></li>
+                      <li>U opis platite napišite broj narudžbe: <span className="text-[#c9a96e]">{orderNumber}</span></li>
+                      <li>Završite uplatu i vratite se natrag</li>
+                    </ol>
+                  </div>
+                </div>
+
+                <div className="border-t border-[#c9a96e]/10 pt-5">
+                  <button
+                    onClick={handlePaymentConfirmed}
+                    className="w-full bg-[#c9a96e] text-[#0a0a0a] py-4 rounded-2xl font-bold text-sm tracking-wider uppercase hover:bg-[#e8d5a3] transition-all mb-3"
+                  >
+                    ✓ Potvrdio sam uplatu
+                  </button>
+                  <p className="text-[#e8d5a3]/25 text-[10px] font-['Inter'] text-center">
+                    Kliknite nakon što ste uspješno platili putem Revoluta
+                  </p>
+                </div>
+              </div>
+            )}
+
             {/* Step 4: Potvrda */}
             {step === 'potvrda' && (
               <div className="text-center">
@@ -367,6 +481,23 @@ export default function CheckoutPage({ items, subtotal, dostava, popust, ukupno,
                   <p className="text-[#e8d5a3]/50 font-['Inter'] font-light mb-6">
                     Hvala na narudžbi! Poslali smo potvrdu na {form.email}
                   </p>
+
+                  {/* Same-day shipping info */}
+                  <div className="bg-green-900/15 border border-green-500/20 rounded-xl p-4 mb-6 text-left">
+                    <div className="flex items-start gap-3">
+                      <Truck size={18} className="text-green-400 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-green-300/80 text-sm font-['Inter'] font-semibold mb-1">Brza dostava</p>
+                        <p className="text-green-300/60 text-xs font-['Inter']">
+                          Pakiramo i šaljemo isti dan ako je narudžba primljena od 06:00 ujutro do 18:00 popodne.
+                        </p>
+                        <p className="text-green-300/50 text-xs font-['Inter'] mt-1">
+                          HP Pošta24 — 1-2 radna dana unutar Hrvatske
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="bg-[#0a0a0a] border border-[#c9a96e]/20 rounded-2xl p-5 mb-6">
                     <p className="text-[#e8d5a3]/40 text-xs font-['Inter'] uppercase tracking-wider mb-1">Broj narudžbe</p>
                     <p className="text-[#c9a96e] font-['Playfair_Display'] text-2xl font-bold">{orderNumber}</p>
@@ -382,7 +513,10 @@ export default function CheckoutPage({ items, subtotal, dostava, popust, ukupno,
                     </div>
                     <div className="flex justify-between text-sm font-['Inter']">
                       <span className="text-[#e8d5a3]/40">Plaćanje</span>
-                      <span className="text-[#e8d5a3]/70">{form.nacin_placanja === 'pouzecem' ? 'Pouzećem' : 'Bankovna transakcija'}</span>
+                      <span className="text-[#e8d5a3]/70">
+                        {form.nacin_placanja === 'pouzecem' ? 'Pouzećem' : form.nacin_placanja === 'revolut' ? 'Revolut' : 'Bankovna transakcija'}
+                        {form.nacin_placanja === 'revolut' && paymentConfirmed && <span className="text-green-400 ml-1">(plaćeno)</span>}
+                      </span>
                     </div>
                   </div>
                   {form.nacin_placanja === 'bankovna' && (
@@ -390,6 +524,12 @@ export default function CheckoutPage({ items, subtotal, dostava, popust, ukupno,
                       <p className="text-blue-300/80 text-xs font-['Inter'] font-semibold mb-2">📧 Podaci za uplatu su poslani na vaš email.</p>
                       <p className="text-blue-300/60 text-xs font-['Inter']">IBAN: HR12 1234 5678 9012 3456 7</p>
                       <p className="text-blue-300/60 text-xs font-['Inter']">Poziv na broj: {orderNumber}</p>
+                    </div>
+                  )}
+                  {form.nacin_placanja === 'revolut' && paymentConfirmed && (
+                    <div className="bg-purple-900/15 border border-purple-500/20 rounded-xl p-4 mb-6 text-left">
+                      <p className="text-purple-300/80 text-xs font-['Inter'] font-semibold mb-1">💳 Revolut uplata potvrđena</p>
+                      <p className="text-purple-300/50 text-xs font-['Inter']">Hvala! Vaša uplata je zabilježena i narudžba ide u obradu.</p>
                     </div>
                   )}
                   <div className="flex gap-3 justify-center">
@@ -406,7 +546,7 @@ export default function CheckoutPage({ items, subtotal, dostava, popust, ukupno,
           </div>
 
           {/* Order summary sidebar */}
-          {step !== 'potvrda' && (
+          {step !== 'potvrda' && !showPaymentModal && (
             <div>
               <div className="bg-[#111111] border border-[#c9a96e]/10 rounded-2xl p-5 sticky top-28">
                 <h3 className="text-[#e8d5a3]/70 font-['Playfair_Display'] font-bold text-lg mb-4">Narudžba</h3>

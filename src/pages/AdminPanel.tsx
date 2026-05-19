@@ -166,7 +166,6 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
     try {
       await api.updateOrderStatus(orderNumber, newStatus);
       
-      // Update local state
       setSupabaseOrders(prev => 
         prev.map(order => 
           order.order_number === orderNumber 
@@ -175,9 +174,17 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
         )
       );
 
-      // Update selected order if it's the one being changed
       if (selectedOrder?.order_number === orderNumber) {
         setSelectedOrder({ ...selectedOrder, status: newStatus });
+      }
+
+      if (newStatus === 'poslano') {
+        const order = supabaseOrders.find(o => o.order_number === orderNumber);
+        if (order?.tracking_broj && order?.email) {
+          const html = `<div style="max-width:560px;margin:0 auto;background:#0a0a0a;color:#e8d5a3;font-family:Arial,sans-serif;border-radius:16px;overflow:hidden;border:1px solid rgba(201,169,110,0.2)"><div style="background:#111;padding:24px;text-align:center;border-bottom:1px solid rgba(201,169,110,0.15)"><h1 style="font-family:Georgia,serif;color:#c9a96e;margin:0;font-size:24px;letter-spacing:2px">DEKANTI<span style="color:#e8d5a3">.HR</span></h1></div><div style="padding:32px 24px"><h2 style="color:#e8d5a3;font-size:20px;margin:0 0 8px">📦 Narudžba poslana!</h2><p style="color:#e8d5a3;opacity:0.6;margin:0 0 24px;font-size:14px">Vaša narudžba <strong>${orderNumber}</strong> je na putu.</p><div style="background:#111;border:1px solid rgba(201,169,110,0.15);border-radius:12px;padding:16px;margin-bottom:24px"><p style="color:#e8d5a3;opacity:0.4;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin:0 0 4px">Tracking broj</p><p style="color:#c9a96e;font-size:18px;font-weight:bold;margin:0;font-family:Georgia,serif">${order.tracking_broj}</p></div><p style="color:#e8d5a3;opacity:0.5;font-size:12px;margin:0">Pratite pošiljku na: <a href="https://posiljka.hp.hr/?broj=${order.tracking_broj}" style="color:#c9a96e">HP praćenje pošiljaka</a></p></div><div style="background:#111;padding:16px 24px;text-align:center;border-top:1px solid rgba(201,169,110,0.1)"><p style="color:#e8d5a3;opacity:0.3;font-size:11px;margin:0">dekanti.hr · Hvala na povjerenju!</p></div></div>`;
+          await api.sendEmail(order.email, `Narudžba ${orderNumber} poslana — tracking: ${order.tracking_broj}`, html);
+          toast.success('Email s trackingom poslan kupcu!');
+        }
       }
 
       toast.success(`Status promijenjen u: ${STATUS_LABELS[newStatus]}`, {
@@ -229,6 +236,12 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
 
       // Update selected order
       setSelectedOrder({ ...selectedOrder, tracking_broj: trackingNumber });
+
+      if (selectedOrder.status === 'poslano' && selectedOrder.email) {
+        const html = `<div style="max-width:560px;margin:0 auto;background:#0a0a0a;color:#e8d5a3;font-family:Arial,sans-serif;border-radius:16px;overflow:hidden;border:1px solid rgba(201,169,110,0.2)"><div style="background:#111;padding:24px;text-align:center;border-bottom:1px solid rgba(201,169,110,0.15)"><h1 style="font-family:Georgia,serif;color:#c9a96e;margin:0;font-size:24px;letter-spacing:2px">DEKANTI<span style="color:#e8d5a3">.HR</span></h1></div><div style="padding:32px 24px"><h2 style="color:#e8d5a3;font-size:20px;margin:0 0 8px">📦 Narudžba poslana!</h2><p style="color:#e8d5a3;opacity:0.6;margin:0 0 24px;font-size:14px">Vaša narudžba <strong>${selectedOrder.order_number}</strong> je na putu.</p><div style="background:#111;border:1px solid rgba(201,169,110,0.15);border-radius:12px;padding:16px;margin-bottom:24px"><p style="color:#e8d5a3;opacity:0.4;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin:0 0 4px">Tracking broj</p><p style="color:#c9a96e;font-size:18px;font-weight:bold;margin:0;font-family:Georgia,serif">${trackingNumber}</p></div><p style="color:#e8d5a3;opacity:0.5;font-size:12px;margin:0">Pratite na: <a href="https://posiljka.hp.hr/?broj=${trackingNumber}" style="color:#c9a96e">HP praćenje</a></p></div><div style="background:#111;padding:16px 24px;text-align:center;border-top:1px solid rgba(201,169,110,0.1)"><p style="color:#e8d5a3;opacity:0.3;font-size:11px;margin:0">dekanti.hr · Hvala na povjerenju!</p></div></div>`;
+        await api.sendEmail(selectedOrder.email, `Narudžba ${selectedOrder.order_number} poslana — tracking: ${trackingNumber}`, html);
+        toast.success('Email s trackingom poslan kupcu!');
+      }
 
       toast.success('Tracking broj spremljen!', {
         style: {
@@ -303,6 +316,45 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
     } catch (error) {
       console.error('Error saving order:', error);
       toast.error('Greška pri spremanju narudžbe');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  /**
+   * Mark order as paid (admin only)
+   */
+  const handleMarkPaid = async (orderNumber: string) => {
+    setSaving(true);
+    try {
+      await api.markOrderPaid(orderNumber);
+
+      // Update local state
+      setSupabaseOrders(prev =>
+        prev.map(order =>
+          order.order_number === orderNumber
+            ? { ...order, placeno: true, datum_placanja: new Date().toISOString() }
+            : order
+        )
+      );
+
+      if (selectedOrder?.order_number === orderNumber) {
+        setSelectedOrder({ ...selectedOrder, placeno: true, datum_placanja: new Date().toISOString() });
+      }
+
+      const order = supabaseOrders.find(o => o.order_number === orderNumber);
+      if (order?.email) {
+        const html = `<div style="max-width:560px;margin:0 auto;background:#0a0a0a;color:#e8d5a3;font-family:Arial,sans-serif;border-radius:16px;overflow:hidden;border:1px solid rgba(201,169,110,0.2)"><div style="background:#111;padding:24px;text-align:center;border-bottom:1px solid rgba(201,169,110,0.15)"><h1 style="font-family:Georgia,serif;color:#c9a96e;margin:0;font-size:24px;letter-spacing:2px">DEKANTI<span style="color:#e8d5a3">.HR</span></h1></div><div style="padding:32px 24px"><h2 style="color:#e8d5a3;font-size:20px;margin:0 0 8px">✅ Uplata potvrđena!</h2><p style="color:#e8d5a3;opacity:0.6;margin:0 0 24px;font-size:14px">Vaša uplata za narudžbu <strong>${orderNumber}</strong> je zaprimljena.</p><div style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:12px;padding:16px;margin-bottom:24px"><p style="color:#4ade80;font-size:13px;font-weight:bold;margin:0 0 4px">💰 Uplaćeno</p><p style="color:#4ade80;font-size:18px;font-weight:bold;margin:0;font-family:Georgia,serif">${order.ukupno.toFixed(2)}€</p></div><p style="color:#e8d5a3;opacity:0.5;font-size:12px;margin:0">Pakiramo i šaljemo isti dan (06:00–18:00). Dobit ćete tracking čim pošiljka bude predana.</p></div><div style="background:#111;padding:16px 24px;text-align:center;border-top:1px solid rgba(201,169,110,0.1)"><p style="color:#e8d5a3;opacity:0.3;font-size:11px;margin:0">dekanti.hr · Hvala na povjerenju!</p></div></div>`;
+        await api.sendEmail(order.email, `Uplata potvrđena — narudžba ${orderNumber}`, html);
+      }
+
+      toast.success('Narudžba označena kao plaćena!', {
+        style: { background: '#111111', color: '#e8d5a3', border: '1px solid rgba(201,169,110,0.25)', borderRadius: '12px', fontFamily: 'Inter, sans-serif', fontSize: '13px' },
+        iconTheme: { primary: '#c9a96e', secondary: '#0a0a0a' },
+      });
+    } catch (error) {
+      console.error('Error marking order as paid:', error);
+      toast.error('Greška pri označavanju uplate');
     } finally {
       setSaving(false);
     }
@@ -1765,19 +1817,49 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                       <button onClick={() => setSelectedOrder(null)} className="text-[#e8d5a3]/40 hover:text-[#c9a96e]"><X size={18} /></button>
                     </div>
 
-                    {/* Status change */}
-                    <div className="mb-4">
-                      <label className="text-[#e8d5a3]/40 text-xs uppercase tracking-wider font-['Inter'] mb-1.5 block">Status narudžbe</label>
-                      <div className="relative">
-                        <select
-                          value={selectedOrder.status}
-                          onChange={e => handleStatusChange(selectedOrder.order_number, e.target.value)}
-                          disabled={saving}
-                          className="w-full bg-[#0a0a0a] border border-[#c9a96e]/20 text-[#e8d5a3] px-4 py-2.5 rounded-xl text-sm font-['Inter'] focus:outline-none focus:border-[#c9a96e] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                        >
-                          {Object.entries(STATUS_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-                        </select>
-                        <ChevronDown size={13} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#c9a96e]/50 pointer-events-none" />
+                    {/* Status + Payment */}
+                    <div className="mb-4 space-y-3">
+                      <div>
+                        <label className="text-[#e8d5a3]/40 text-xs uppercase tracking-wider font-['Inter'] mb-1.5 block">Status narudžbe</label>
+                        <div className="relative">
+                          <select
+                            value={selectedOrder.status}
+                            onChange={e => handleStatusChange(selectedOrder.order_number, e.target.value)}
+                            disabled={saving}
+                            className="w-full bg-[#0a0a0a] border border-[#c9a96e]/20 text-[#e8d5a3] px-4 py-2.5 rounded-xl text-sm font-['Inter'] focus:outline-none focus:border-[#c9a96e] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                          >
+                            {Object.entries(STATUS_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                          </select>
+                          <ChevronDown size={13} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#c9a96e]/50 pointer-events-none" />
+                        </div>
+                      </div>
+
+                      {/* Payment status */}
+                      <div className="flex items-center justify-between bg-[#0a0a0a] border border-[#c9a96e]/10 rounded-xl p-3">
+                        <div>
+                          <p className="text-[#e8d5a3]/30 text-[10px] uppercase tracking-wider font-['Inter'] mb-0.5">Način plaćanja</p>
+                          <p className="text-[#e8d5a3]/70 text-xs font-['Inter']">
+                            {selectedOrder.nacin_placanja === 'pouzecem' ? '💵 Pouzećem' : selectedOrder.nacin_placanja === 'revolut' ? '💳 Revolut' : '🏦 Bankovna transakcija'}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {selectedOrder.placeno ? (
+                            <span className="text-green-400 text-xs font-semibold font-['Inter'] flex items-center gap-1">
+                              <Check size={12} /> Plaćeno
+                            </span>
+                          ) : (
+                            <span className="text-orange-400 text-xs font-semibold font-['Inter']">⏳ Čeka uplatu</span>
+                          )}
+                          {selectedOrder.nacin_placanja !== 'pouzecem' && !selectedOrder.placeno && (
+                            <button
+                              onClick={() => handleMarkPaid(selectedOrder.order_number)}
+                              disabled={saving}
+                              className="bg-green-600/20 text-green-400 border border-green-500/30 px-2.5 py-1 rounded-lg text-[10px] font-semibold hover:bg-green-600/30 transition-all disabled:opacity-50 font-['Inter']"
+                            >
+                              Označi plaćeno
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
 
@@ -1966,7 +2048,8 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                           </td>
                           <td className="px-4 py-3 text-[#e8d5a3]/40 text-xs font-['Inter']">{order.created_at}</td>
                           <td className="px-4 py-3 text-[#e8d5a3]/40 text-xs font-['Inter']">
-                            {order.nacin_placanja === 'pouzecem' ? '💵 COD' : '🏦 Bankovno'}
+                            {order.nacin_placanja === 'pouzecem' ? '💵 COD' : order.nacin_placanja === 'revolut' ? '💳 Revolut' : '🏦 Bankovno'}
+                          {order.placeno && <span className="ml-1 text-green-400 text-[8px]">✓</span>}
                           </td>
                           <td className="px-4 py-3">
                             <span className={`text-[9px] px-2 py-0.5 rounded-full border font-semibold font-['Inter'] ${STATUS_COLORS[order.status] ?? ''}`}>

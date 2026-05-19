@@ -32,9 +32,10 @@ const DEMO_ORDERS: Order[] = [
     ime: 'Maja', prezime: 'Novak',
     email: 'maja@test.com', telefon: '+38595654',
     adresa: 'Ribnjak 10', grad: 'Rijeka', postanski_broj: '51000',
-    nacin_placanja: 'bankovna',
+    nacin_placanja: 'revolut',
     cijena_dostave: 0, subtotal: 61.98, popust_iznos: 6.20, ukupno: 55.78,
-    items: [], created_at: '2024-03-10', tracking_broj: 'HR987654321HR'
+    items: [], created_at: '2024-03-10', tracking_broj: 'HR987654321HR',
+    placeno: true
   },
   {
     order_number: 'HR-2024-000003',
@@ -184,7 +185,8 @@ export default function TrackingPage({ orders }: TrackingPageProps) {
                 <p className="text-[#e8d5a3]/25 text-[10px] uppercase tracking-wider font-['Inter'] mb-1">Iznos</p>
                 <p className="text-[#c9a96e] font-['Playfair_Display'] font-bold text-xl">{result.ukupno.toFixed(2)}€</p>
                 <p className="text-[#e8d5a3]/40 text-xs font-['Inter']">
-                  {result.nacin_placanja === 'pouzecem' ? '💵 Pouzećem' : '🏦 Bankovno'}
+                  {result.nacin_placanja === 'pouzecem' ? '💵 Pouzećem' : result.nacin_placanja === 'revolut' ? '💳 Revolut' : '🏦 Bankovno'}
+                  {result.placeno && <span className="text-green-400 ml-1">✓ plaćeno</span>}
                 </p>
               </div>
             </div>
@@ -195,7 +197,7 @@ export default function TrackingPage({ orders }: TrackingPageProps) {
         <div className="mt-8 bg-[#111111] border border-[#c9a96e]/10 rounded-2xl p-5">
           <h3 className="text-[#e8d5a3]/70 text-sm font-semibold font-['Inter'] mb-3">ℹ️ Informacije o dostavi</h3>
           <ul className="space-y-2 text-xs text-[#e8d5a3]/40 font-['Inter']">
-            <li>• Narudžbe primljene do 14h pakiramo i šaljemo isti dan</li>
+            <li>• Narudžbe primljene od 06:00 do 18:00 pakiramo i šaljemo isti dan</li>
             <li>• HP Pošta24 dostava: 1-2 radna dana unutar Hrvatske</li>
             <li>• Tracking broj dobivate emailom kada pošiljka bude predana pošti</li>
             <li>• Za pitanja: info@dekanti.hr ili +385 91 234 5678</li>

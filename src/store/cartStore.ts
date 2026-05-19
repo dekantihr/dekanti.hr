@@ -163,7 +163,7 @@ export interface Order {
   grad: string;
   postanski_broj: string;
   napomena?: string;
-  nacin_placanja: 'pouzecem' | 'bankovna';
+  nacin_placanja: 'pouzecem' | 'bankovna' | 'revolut';
   cijena_dostave: number;
   subtotal: number;
   popust_iznos: number;
@@ -172,6 +172,8 @@ export interface Order {
   items: CartItem[];
   created_at: string;
   tracking_broj?: string;
+  placeno?: boolean;
+  datum_placanja?: string;
 }
 
 export function useOrders() {
