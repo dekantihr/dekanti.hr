@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Search, Package, Truck, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { Order } from '../store/cartStore';
+import ScrollReveal from '../components/ScrollReveal';
 
 interface TrackingPageProps {
   orders: Order[];
@@ -22,8 +23,8 @@ const DEMO_ORDERS: Order[] = [
     ime: 'Ivan', prezime: 'Perić',
     email: 'ivan@test.com', telefon: '+38598123',
     adresa: 'Vukovarska 23', grad: 'Split', postanski_broj: '21000',
-    nacin_placanja: 'pouzecem',
-    cijena_dostave: 4.50, subtotal: 43.98, popust_iznos: 0, ukupno: 48.48,
+    nacin_placanja: 'bankovna',
+    cijena_dostave: 0.80, subtotal: 43.98, popust_iznos: 0, ukupno: 44.78,
     items: [], created_at: '2024-03-01', tracking_broj: 'HR123456789HR'
   },
   {
@@ -43,8 +44,8 @@ const DEMO_ORDERS: Order[] = [
     ime: 'Tomislav', prezime: 'Babić',
     email: 'tomislav@test.com', telefon: '+38591987',
     adresa: 'Trg bana Jelačića 1', grad: 'Osijek', postanski_broj: '31000',
-    nacin_placanja: 'pouzecem',
-    cijena_dostave: 4.50, subtotal: 83.98, popust_iznos: 0, ukupno: 88.48,
+    nacin_placanja: 'bankovna',
+    cijena_dostave: 0.80, subtotal: 83.98, popust_iznos: 0, ukupno: 84.78,
     items: [], created_at: '2024-03-14'
   },
 ];
@@ -71,13 +72,15 @@ export default function TrackingPage({ orders }: TrackingPageProps) {
     <div className="bg-[#0a0a0a] min-h-screen pt-20 md:pt-28 pb-16">
       <div className="max-w-2xl mx-auto px-4 py-12">
         {/* Header */}
-        <div className="text-center mb-12">
-          <p className="text-[#c9a96e] text-[10px] tracking-[0.5em] uppercase font-semibold font-['Inter'] mb-3">dekanti.hr</p>
-          <h1 className="font-['Playfair_Display'] text-4xl md:text-5xl font-bold text-[#e8d5a3] mb-3">
-            Praćenje <span className="text-[#c9a96e] italic">narudžbe</span>
-          </h1>
-          <p className="text-[#e8d5a3]/40 font-['Inter'] font-light">Unesite broj narudžbe za provjeru statusa</p>
-        </div>
+        <ScrollReveal animation="fade-up">
+          <div className="text-center mb-12">
+            <p className="text-[#c9a96e] text-[10px] tracking-[0.5em] uppercase font-semibold font-['Inter'] mb-3">dekanti.hr</p>
+            <h1 className="font-['Playfair_Display'] text-4xl md:text-5xl font-bold text-[#e8d5a3] mb-3">
+              Praćenje <span className="text-[#c9a96e] italic">narudžbe</span>
+            </h1>
+            <p className="text-[#e8d5a3]/40 font-['Inter'] font-light">Unesite broj narudžbe za provjeru statusa</p>
+          </div>
+        </ScrollReveal>
 
         {/* Search */}
         <form onSubmit={handleSearch} className="mb-8">
@@ -162,12 +165,12 @@ export default function TrackingPage({ orders }: TrackingPageProps) {
             {/* Tracking */}
             {result.tracking_broj && (
               <div className="px-6 py-4 border-b border-[#c9a96e]/10 bg-[#c9a96e]/3">
-                <p className="text-[#e8d5a3]/40 text-[10px] uppercase tracking-wider font-['Inter'] mb-1">HP Pošta tracking broj</p>
+                <p className="text-[#e8d5a3]/40 text-[10px] uppercase tracking-wider font-['Inter'] mb-1">BoxNow kod za preuzimanje</p>
                 <div className="flex items-center gap-3">
                   <Truck size={16} className="text-[#c9a96e]" />
                   <span className="text-[#c9a96e] font-['Inter'] font-bold text-sm tracking-widest">{result.tracking_broj}</span>
-                  <a href="https://www.posta.hr/pracenje" target="_blank" rel="noopener noreferrer" className="text-[10px] text-[#c9a96e]/60 border border-[#c9a96e]/25 px-2 py-1 rounded-lg hover:bg-[#c9a96e]/5 transition-all font-['Inter']">
-                    Prati na HP →
+                  <a href="https://boxnow.hr" target="_blank" rel="noopener noreferrer" className="text-[10px] text-[#c9a96e]/60 border border-[#c9a96e]/25 px-2 py-1 rounded-lg hover:bg-[#c9a96e]/5 transition-all font-['Inter']">
+                    Prati na BoxNow →
                   </a>
                 </div>
               </div>
@@ -185,7 +188,7 @@ export default function TrackingPage({ orders }: TrackingPageProps) {
                 <p className="text-[#e8d5a3]/25 text-[10px] uppercase tracking-wider font-['Inter'] mb-1">Iznos</p>
                 <p className="text-[#c9a96e] font-['Playfair_Display'] font-bold text-xl">{result.ukupno.toFixed(2)}€</p>
                 <p className="text-[#e8d5a3]/40 text-xs font-['Inter']">
-                  {result.nacin_placanja === 'pouzecem' ? '💵 Pouzećem' : result.nacin_placanja === 'revolut' ? '💳 Revolut' : '🏦 Bankovno'}
+                  {result.nacin_placanja === 'revolut' ? '� Revolut' : result.nacin_placanja === 'bankovna' ? '🏦 Bankovno' : '💳 Kartica'}
                   {result.placeno && <span className="text-green-400 ml-1">✓ plaćeno</span>}
                 </p>
               </div>
@@ -194,15 +197,17 @@ export default function TrackingPage({ orders }: TrackingPageProps) {
         )}
 
         {/* Info box */}
-        <div className="mt-8 bg-[#111111] border border-[#c9a96e]/10 rounded-2xl p-5">
-          <h3 className="text-[#e8d5a3]/70 text-sm font-semibold font-['Inter'] mb-3">ℹ️ Informacije o dostavi</h3>
-          <ul className="space-y-2 text-xs text-[#e8d5a3]/40 font-['Inter']">
-            <li>• Narudžbe primljene od 06:00 do 18:00 pakiramo i šaljemo isti dan</li>
-            <li>• HP Pošta24 dostava: 1-2 radna dana unutar Hrvatske</li>
-            <li>• Tracking broj dobivate emailom kada pošiljka bude predana pošti</li>
-            <li>• Za pitanja: info@dekanti.hr ili +385 91 234 5678</li>
-          </ul>
-        </div>
+        <ScrollReveal animation="fade-up" delay={200}>
+          <div className="mt-8 bg-[#111111] border border-[#c9a96e]/10 rounded-2xl p-5">
+            <h3 className="text-[#e8d5a3]/70 text-sm font-semibold font-['Inter'] mb-3">ℹ️ Informacije o dostavi</h3>
+            <ul className="space-y-2 text-xs text-[#e8d5a3]/40 font-['Inter']">
+              <li>• Narudžbe primljene do 14:00 pakiramo i šaljemo isti dan</li>
+              <li>• BoxNow paketomat dostava: 1-2 radna dana unutar Hrvatske</li>
+              <li>• Kod za preuzimanje stiže SMS-om i emailom nakon predaje u paketomat</li>
+              <li>• Za pitanja: info@dekanti.hr ili Instagram @dekanti.hr</li>
+            </ul>
+          </div>
+        </ScrollReveal>
       </div>
     </div>
   );

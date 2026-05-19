@@ -4,6 +4,7 @@ import { ShoppingBag, Trash2, Plus, Minus, Tag, ArrowRight } from 'lucide-react'
 import { CartItem, AppliedCoupon } from '../store/cartStore';
 import { api } from '../services/api';
 import toast from 'react-hot-toast';
+import ScrollReveal from '../components/ScrollReveal';
 
 interface CartPageProps {
   items: CartItem[];
@@ -46,13 +47,21 @@ export default function CartPage({ items, coupon, onCouponSet, onUpdateQuantity,
     return (
       <div className="bg-[#0a0a0a] min-h-screen pt-32 flex items-center justify-center">
         <div className="text-center px-4">
-          <ShoppingBag size={60} className="text-[#c9a96e]/20 mx-auto mb-6" />
-          <h1 className="font-['Playfair_Display'] text-4xl font-bold text-[#e8d5a3] mb-3">Košarica je prazna</h1>
-          <p className="text-[#e8d5a3]/40 font-['Inter'] font-light mb-8">Otkrijte naše premium decant parfeme i dodajte ih u košaricu</p>
-          <Link to="/parfemi" className="inline-flex items-center gap-2 bg-[#c9a96e] text-[#0a0a0a] px-8 py-4 rounded-full font-bold text-sm tracking-wider uppercase hover:bg-[#e8d5a3] transition-all">
-            Pregledaj kolekciju
-            <ArrowRight size={16} />
-          </Link>
+          <ScrollReveal animation="scale">
+            <ShoppingBag size={60} className="text-[#c9a96e]/20 mx-auto mb-6" />
+          </ScrollReveal>
+          <ScrollReveal animation="fade-up" delay={100}>
+            <h1 className="font-['Playfair_Display'] text-4xl font-bold text-[#e8d5a3] mb-3">Košarica je prazna</h1>
+          </ScrollReveal>
+          <ScrollReveal animation="fade-up" delay={200}>
+            <p className="text-[#e8d5a3]/40 font-['Inter'] font-light mb-8">Otkrijte naše premium decant parfeme i dodajte ih u košaricu</p>
+          </ScrollReveal>
+          <ScrollReveal animation="fade-up" delay={300}>
+            <Link to="/parfemi" className="inline-flex items-center gap-2 bg-[#c9a96e] text-[#0a0a0a] px-8 py-4 rounded-full font-bold text-sm tracking-wider uppercase hover:bg-[#e8d5a3] transition-all">
+              Pregledaj kolekciju
+              <ArrowRight size={16} />
+            </Link>
+          </ScrollReveal>
         </div>
       </div>
     );
@@ -61,13 +70,15 @@ export default function CartPage({ items, coupon, onCouponSet, onUpdateQuantity,
   return (
     <div className="bg-[#0a0a0a] min-h-screen pt-20 md:pt-28 pb-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <p className="text-[#c9a96e] text-[10px] tracking-[0.5em] uppercase font-semibold font-['Inter'] mb-2">dekanti.hr</p>
-          <h1 className="font-['Playfair_Display'] text-4xl md:text-5xl font-bold text-[#e8d5a3]">
-            Vaša <span className="text-[#c9a96e] italic">košarica</span>
-          </h1>
-          <p className="text-[#e8d5a3]/40 font-['Inter'] mt-1">{items.reduce((s, i) => s + i.kolicina, 0)} artikal(a)</p>
-        </div>
+        <ScrollReveal animation="fade-up">
+          <div className="mb-8">
+            <p className="text-[#c9a96e] text-[10px] tracking-[0.5em] uppercase font-semibold font-['Inter'] mb-2">dekanti.hr</p>
+            <h1 className="font-['Playfair_Display'] text-4xl md:text-5xl font-bold text-[#e8d5a3]">
+              Vaša <span className="text-[#c9a96e] italic">košarica</span>
+            </h1>
+            <p className="text-[#e8d5a3]/40 font-['Inter'] mt-1">{items.reduce((s, i) => s + i.kolicina, 0)} artikal(a)</p>
+          </div>
+        </ScrollReveal>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Cart Items */}
@@ -178,7 +189,7 @@ export default function CartPage({ items, coupon, onCouponSet, onUpdateQuantity,
                   </div>
                 )}
                 <div className="flex justify-between text-sm font-['Inter']">
-                  <span className="text-[#e8d5a3]/50">Dostava (HP Pošta24)</span>
+                  <span className="text-[#e8d5a3]/50">Dostava (BoxNow)</span>
                   <span className={dostava === 0 ? 'text-green-400' : 'text-[#e8d5a3]/80'}>
                     {dostava === 0 ? 'BESPLATNO' : `${dostava.toFixed(2)}€`}
                   </span>
@@ -207,7 +218,7 @@ export default function CartPage({ items, coupon, onCouponSet, onUpdateQuantity,
 
               <div className="flex items-center justify-center gap-4 mt-4">
                 <span className="text-[#e8d5a3]/25 text-[10px] font-['Inter']">🔒 Sigurna kupnja</span>
-                <span className="text-[#e8d5a3]/25 text-[10px] font-['Inter']">💳 Pouzećem/bankovno</span>
+                <span className="text-[#e8d5a3]/25 text-[10px] font-['Inter']">💳 Kartica / Revolut</span>
               </div>
             </div>
           </div>

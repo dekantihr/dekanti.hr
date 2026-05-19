@@ -4,6 +4,7 @@ import { Check, ChevronRight, Package, CreditCard, ClipboardCheck, Copy, Externa
 import { CartItem, AppliedCoupon } from '../store/cartStore';
 import toast from 'react-hot-toast';
 import { api } from '../services/api';
+import ScrollReveal from '../components/ScrollReveal';
 
 interface CheckoutPageProps {
   items: CartItem[];
@@ -28,7 +29,7 @@ interface FormData {
   grad: string;
   postanski_broj: string;
   napomena: string;
-  nacin_placanja: 'pouzecem' | 'bankovna' | 'revolut';
+  nacin_placanja: 'bankovna' | 'revolut';
 }
 
 export default function CheckoutPage({ items, coupon, subtotal, dostava, popust, ukupno, user, onOrderComplete, onClearCart }: CheckoutPageProps) {
@@ -47,7 +48,7 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
     grad: '',
     postanski_broj: '',
     napomena: '',
-    nacin_placanja: 'pouzecem',
+    nacin_placanja: 'revolut',
   });
 
   const updateForm = (field: keyof FormData, value: string) => setForm(prev => ({ ...prev, [field]: value }));
@@ -87,7 +88,7 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
         grad: form.grad,
         postanski_broj: form.postanski_broj,
         napomena: form.napomena,
-        nacin_dostave: 'hp_posta24' as const,
+        nacin_dostave: 'boxnow' as const,
         nacin_placanja: form.nacin_placanja,
         cijena_dostave: dostava,
         subtotal,
@@ -113,7 +114,7 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
       api.sendEmail(
         form.email,
         `Narudžba ${result.order_number} — dekanti.hr`,
-        `<div style="max-width:560px;margin:0 auto;background:#0a0a0a;color:#e8d5a3;font-family:Arial,sans-serif;border-radius:16px;overflow:hidden;border:1px solid rgba(201,169,110,0.2)"><div style="background:#111;padding:24px;text-align:center;border-bottom:1px solid rgba(201,169,110,0.15)"><h1 style="font-family:Georgia,serif;color:#c9a96e;margin:0;font-size:24px;letter-spacing:2px">DEKANTI<span style="color:#e8d5a3">.HR</span></h1></div><div style="padding:32px 24px"><h2 style="color:#e8d5a3;font-size:20px;margin:0 0 8px">Hvala na narudžbi, ${form.ime}!</h2><p style="color:#e8d5a3;opacity:0.6;margin:0 0 24px;font-size:14px">Vaša narudžba je zaprimljena i spremamo je za slanje.</p><div style="background:#111;border:1px solid rgba(201,169,110,0.15);border-radius:12px;padding:16px;margin-bottom:24px"><p style="color:#e8d5a3;opacity:0.4;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin:0 0 4px">Broj narudžbe</p><p style="color:#c9a96e;font-size:22px;font-weight:bold;margin:0;font-family:Georgia,serif">${result.order_number}</p></div><p style="color:#e8d5a3;opacity:0.5;font-size:13px;margin:0 0 16px">Ukupno: <strong style="color:#c9a96e">${ukupno.toFixed(2)}€</strong></p><div style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:12px;padding:16px"><p style="color:#4ade80;font-size:13px;font-weight:bold;margin:0 0 4px">🚚 Brza dostava</p><p style="color:#4ade80;opacity:0.7;font-size:12px;margin:0">Pakiramo i šaljemo isti dan (06:00–18:00). HP Pošta24 — 1-2 radna dana.</p></div></div><div style="background:#111;padding:16px 24px;text-align:center;border-top:1px solid rgba(201,169,110,0.1)"><p style="color:#e8d5a3;opacity:0.3;font-size:11px;margin:0">dekanti.hr · Vaš niche parfem dućan</p></div></div>`
+        `<div style="max-width:560px;margin:0 auto;background:#0a0a0a;color:#e8d5a3;font-family:Arial,sans-serif;border-radius:16px;overflow:hidden;border:1px solid rgba(201,169,110,0.2)"><div style="background:#111;padding:24px;text-align:center;border-bottom:1px solid rgba(201,169,110,0.15)"><h1 style="font-family:Georgia,serif;color:#c9a96e;margin:0;font-size:24px;letter-spacing:2px">DEKANTI<span style="color:#e8d5a3">.HR</span></h1></div><div style="padding:32px 24px"><h2 style="color:#e8d5a3;font-size:20px;margin:0 0 8px">Hvala na narudžbi, ${form.ime}!</h2><p style="color:#e8d5a3;opacity:0.6;margin:0 0 24px;font-size:14px">Vaša narudžba je zaprimljena i spremamo je za slanje.</p><div style="background:#111;border:1px solid rgba(201,169,110,0.15);border-radius:12px;padding:16px;margin-bottom:24px"><p style="color:#e8d5a3;opacity:0.4;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin:0 0 4px">Broj narudžbe</p><p style="color:#c9a96e;font-size:22px;font-weight:bold;margin:0;font-family:Georgia,serif">${result.order_number}</p></div><p style="color:#e8d5a3;opacity:0.5;font-size:13px;margin:0 0 16px">Ukupno: <strong style="color:#c9a96e">${ukupno.toFixed(2)}€</strong></p><div style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:12px;padding:16px"><p style="color:#4ade80;font-size:13px;font-weight:bold;margin:0 0 4px">� BoxNow dostava</p><p style="color:#4ade80;opacity:0.7;font-size:12px;margin:0">Pakiramo i šaljemo isti dan (do 14:00). BoxNow paketomat — 1-2 radna dana.</p></div></div><div style="background:#111;padding:16px 24px;text-align:center;border-top:1px solid rgba(201,169,110,0.1)"><p style="color:#e8d5a3;opacity:0.3;font-size:11px;margin:0">dekanti.hr · Vaš niche parfem dućan</p></div></div>`
       ).catch(() => {});
 
       if (form.nacin_placanja === 'revolut') {
@@ -172,12 +173,14 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
     <div className="bg-[#0a0a0a] min-h-screen pt-20 md:pt-28 pb-16">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="mb-8">
-          <p className="text-[#c9a96e] text-[10px] tracking-[0.5em] uppercase font-semibold font-['Inter'] mb-2">dekanti.hr</p>
-          <h1 className="font-['Playfair_Display'] text-4xl md:text-5xl font-bold text-[#e8d5a3]">
-            {step === 'potvrda' ? 'Narudžba potvrđena!' : 'Naručivanje'}
-          </h1>
-        </div>
+        <ScrollReveal animation="fade-up">
+          <div className="mb-8">
+            <p className="text-[#c9a96e] text-[10px] tracking-[0.5em] uppercase font-semibold font-['Inter'] mb-2">dekanti.hr</p>
+            <h1 className="font-['Playfair_Display'] text-4xl md:text-5xl font-bold text-[#e8d5a3]">
+              {step === 'potvrda' ? 'Narudžba potvrđena!' : 'Naručivanje'}
+            </h1>
+          </div>
+        </ScrollReveal>
 
         {/* Steps */}
         {step !== 'potvrda' && (
@@ -263,7 +266,7 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
                         <div className="w-2.5 h-2.5 rounded-full bg-[#c9a96e]" />
                       </div>
                       <div>
-                        <p className="text-[#e8d5a3]/80 text-sm font-semibold font-['Inter']">🚚 HP Pošta24</p>
+                        <p className="text-[#e8d5a3]/80 text-sm font-semibold font-['Inter']">� BoxNow paketomat</p>
                         <p className="text-[#e8d5a3]/35 text-xs font-['Inter']">1-2 radna dana · Praćenje pošiljke</p>
                       </div>
                     </div>
@@ -283,7 +286,6 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
                   <label className="text-[#e8d5a3]/50 text-xs font-['Inter'] uppercase tracking-wider mb-3 block">Način plaćanja</label>
                   <div className="space-y-3">
                     {[
-                      { value: 'pouzecem' as const, label: '💵 Pouzećem (COD)', desc: 'Plaćate gotovinom pri preuzimanju pošiljke' },
                       { value: 'bankovna' as const, label: '🏦 Bankovna transakcija', desc: 'Plaćanje na račun — podaci za uplatu u emailu' },
                       { value: 'revolut' as const, label: '💳 Revolut', desc: 'Brzo plaćanje putem Revolut me linka' },
                     ].map(opt => (
@@ -373,9 +375,9 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
                     <div>
                       <p className="text-[#e8d5a3]/30 text-[10px] uppercase tracking-wider font-['Inter'] mb-1">Plaćanje</p>
                       <p className="text-[#e8d5a3]/70 font-['Inter']">
-                        {form.nacin_placanja === 'pouzecem' ? '💵 Pouzećem' : form.nacin_placanja === 'revolut' ? '💳 Revolut' : '🏦 Bankovna transakcija'}
+                        {form.nacin_placanja === 'revolut' ? '💳 Revolut' : '🏦 Bankovna transakcija'}
                       </p>
-                      <p className="text-[#e8d5a3]/50 font-['Inter'] text-xs mt-1">🚚 HP Pošta24</p>
+                      <p className="text-[#e8d5a3]/50 font-['Inter'] text-xs mt-1">� BoxNow paketomat</p>
                     </div>
                   </div>
                 </div>
@@ -489,10 +491,10 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
                       <div>
                         <p className="text-green-300/80 text-sm font-['Inter'] font-semibold mb-1">Brza dostava</p>
                         <p className="text-green-300/60 text-xs font-['Inter']">
-                          Pakiramo i šaljemo isti dan ako je narudžba primljena od 06:00 ujutro do 18:00 popodne.
+                          Pakiramo i šaljemo isti dan ako je narudžba primljena do 14:00.
                         </p>
                         <p className="text-green-300/50 text-xs font-['Inter'] mt-1">
-                          HP Pošta24 — 1-2 radna dana unutar Hrvatske
+                          BoxNow paketomat — 1-2 radna dana unutar Hrvatske
                         </p>
                       </div>
                     </div>
@@ -514,7 +516,7 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
                     <div className="flex justify-between text-sm font-['Inter']">
                       <span className="text-[#e8d5a3]/40">Plaćanje</span>
                       <span className="text-[#e8d5a3]/70">
-                        {form.nacin_placanja === 'pouzecem' ? 'Pouzećem' : form.nacin_placanja === 'revolut' ? 'Revolut' : 'Bankovna transakcija'}
+                        {form.nacin_placanja === 'revolut' ? 'Revolut' : 'Bankovna transakcija'}
                         {form.nacin_placanja === 'revolut' && paymentConfirmed && <span className="text-green-400 ml-1">(plaćeno)</span>}
                       </span>
                     </div>

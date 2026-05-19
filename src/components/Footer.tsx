@@ -91,11 +91,11 @@ export default function Footer() {
             <ul className="space-y-3">
               {[
                 { to: '/pracenje', label: 'Praćenje narudžbe' },
-                { to: '/dostava', label: 'Dostava i povrat' },
+                { to: '/dostava', label: 'Dostava i isporuka' },
+                { to: '/povrat', label: 'Povrat i reklamacije' },
                 { to: '/faq', label: 'Česta pitanja' },
                 { to: '/o-nama', label: 'O nama' },
                 { to: '/kontakt', label: 'Kontakt' },
-                { to: '/privatnost', label: 'Privatnost' },
               ].map(link => (
                 <li key={link.to}>
                   <Link to={link.to} className="text-[#e8d5a3]/50 hover:text-[#c9a96e] text-sm font-['Inter'] font-light transition-colors flex items-center gap-2 group">
@@ -153,9 +153,9 @@ export default function Footer() {
           <div className="flex flex-wrap justify-center gap-8 mb-6">
             {[
               { icon: <Package size={14} />, text: 'Isti dan pakiranje' },
-              { icon: <Truck size={14} />, text: 'HP Pošta24 dostava' },
-              { icon: <CreditCard size={14} />, text: 'Pouzećem i bankovno' },
-              { icon: <Shield size={14} />, text: 'Sigurna kupnja' },
+              { icon: <Truck size={14} />, text: 'BoxNow 1-2 dana' },
+              { icon: <CreditCard size={14} />, text: 'Sigurno plaćanje' },
+              { icon: <Shield size={14} />, text: 'Originalni parfemi' },
               { icon: <RotateCcw size={14} />, text: '14 dana povrat' },
             ].map(badge => (
               <div key={badge.text} className="flex items-center gap-2 text-[#e8d5a3]/40 hover:text-[#e8d5a3]/60 transition-colors duration-300 cursor-default">

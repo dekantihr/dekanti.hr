@@ -16,6 +16,7 @@ import AuthPage from './pages/AuthPage';
 import ProfilePage from './pages/ProfilePage';
 import AdminPanel from './pages/AdminPanel';
 import { AboutPage, NotFoundPage } from './pages/SimplePages';
+import { FAQPage, PrivacyPage, RefundPage, TermsPage, ShippingPage, CookiePage, ContactPage } from './pages/PolicyPages';
 import toast from 'react-hot-toast';
 
 function AppContent() {
@@ -131,6 +132,13 @@ function AppContent() {
           </ProtectedRoute>
         } />
         <Route path="/o-nama" element={<AboutPage />} />
+        <Route path="/faq" element={<FAQPage />} />
+        <Route path="/privatnost" element={<PrivacyPage />} />
+        <Route path="/povrat" element={<RefundPage />} />
+        <Route path="/uvjeti" element={<TermsPage />} />
+        <Route path="/dostava" element={<ShippingPage />} />
+        <Route path="/kolacici" element={<CookiePage />} />
+        <Route path="/kontakt" element={<ContactPage />} />
         <Route path="/admin" element={
           <ProtectedRoute requiredRole="admin">
             <AdminPanel

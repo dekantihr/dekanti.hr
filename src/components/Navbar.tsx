@@ -73,12 +73,12 @@ export default function Navbar({ itemCount, wishlistCount, user, onLogout }: Nav
           <span className="text-[#c9a96e]/30">•</span>
           <span className="flex items-center gap-1.5 hover:text-[#c9a96e] transition-colors">
             <Truck size={10} />
-            HP Pošta24
+            BoxNow 1-2 dana
           </span>
           <span className="text-[#c9a96e]/30">•</span>
           <span className="flex items-center gap-1.5 hover:text-[#c9a96e] transition-colors">
             <CreditCard size={10} />
-            Pouzećem i bankovno
+            Sigurno kartično plaćanje
           </span>
         </div>
       </div>

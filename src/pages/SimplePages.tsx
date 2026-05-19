@@ -1,71 +1,65 @@
 import { Link } from 'react-router-dom';
-import { Sparkles, Gem, Package, Truck } from 'lucide-react';
+import { ArrowLeft, Home } from 'lucide-react';
+import ScrollReveal from '../components/ScrollReveal';
 
 export function AboutPage() {
   return (
-    <div className="bg-[#0a0a0a] min-h-screen pt-20 md:pt-28 pb-16">
-      <div className="max-w-4xl mx-auto px-4 py-12">
-        <div className="text-center mb-16">
-          <p className="text-[#c9a96e] text-[10px] tracking-[0.5em] uppercase font-semibold font-['Inter'] mb-3">dekanti.hr</p>
-          <h1 className="font-['Playfair_Display'] text-5xl font-bold text-[#e8d5a3] mb-4">
+    <div className="min-h-screen bg-[#0a0a0a] pt-32 pb-20">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <ScrollReveal animation="fade-up">
+          <div className="flex items-center gap-2 mb-8">
+            <Link to="/" className="text-[#c9a96e]/60 hover:text-[#c9a96e] text-sm flex items-center gap-1 transition-colors">
+              <ArrowLeft size={14} /> Početna
+            </Link>
+            <span className="text-[#c9a96e]/30">/</span>
+            <span className="text-[#e8d5a3]/60 text-sm">O nama</span>
+          </div>
+        </ScrollReveal>
+
+        <ScrollReveal animation="fade-up" delay={100}>
+          <h1 className="font-['Cormorant_Garamond'] text-5xl md:text-6xl font-bold text-[#e8d5a3] mb-8">
             O <span className="text-[#c9a96e] italic">nama</span>
           </h1>
-          <div className="flex items-center gap-4 justify-center">
-            <div className="flex-1 h-[1px] max-w-[100px] bg-[#c9a96e]/20" />
-            <Sparkles size={14} className="text-[#c9a96e]" />
-            <div className="flex-1 h-[1px] max-w-[100px] bg-[#c9a96e]/20" />
-          </div>
-        </div>
+        </ScrollReveal>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
-          <div>
-            <h2 className="font-['Playfair_Display'] text-3xl font-bold text-[#e8d5a3] mb-4">Naša priča</h2>
-            <p className="text-[#e8d5a3]/50 font-['Inter'] font-light leading-relaxed mb-4">
-              dekanti.hr je hrvatska platforma za prodaju premium decant parfema. Naša misija je omogućiti svima da iskuse luksuzne mirise renomiranih svjetskih brandova po pristupačnim cijenama.
+        <div className="space-y-8 text-[#e8d5a3]/70 font-['Inter_Tight'] font-light leading-relaxed">
+          <ScrollReveal animation="fade-up" delay={200}>
+            <p className="text-lg">
+              Dekanti.hr je specijalizirana online platforma za prodaju premium decant parfema najpoznatijih svjetskih luksuznih brandova. Naša misija je približiti luksuz svakom ljubitelju mirisa — bez kompromisa po pitanju kvalitete, a uz znatno pristupačnije cijene.
             </p>
-            <p className="text-[#e8d5a3]/50 font-['Inter'] font-light leading-relaxed mb-4">
-              Dekantiranje parfema je umjetnost — svaki decant pažljivo punimo iz originalnih boca kako bismo vam dostavili autentično iskustvo mirisa bez skupocjenih originalnih pakiranja.
-            </p>
-            <p className="text-[#e8d5a3]/50 font-['Inter'] font-light leading-relaxed">
-              Svi naši parfemi su 100% autentični, od certificiranih dobavljača. Garantiramo kvalitetu ili novac natrag.
-            </p>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            {[
-              { number: '200+', label: 'Zadovoljnih kupaca' },
-              { number: '50+', label: 'Parfema u ponudi' },
-              { number: '5', label: 'Premium brandova' },
-              { number: '4.9/5', label: 'Prosječna ocjena' },
-            ].map(stat => (
-              <div key={stat.label} className="bg-[#111111] border border-[#c9a96e]/15 rounded-2xl p-5 text-center">
-                <p className="text-[#c9a96e] font-['Playfair_Display'] text-3xl font-bold mb-1">{stat.number}</p>
-                <p className="text-[#e8d5a3]/40 text-xs font-['Inter']">{stat.label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
+          </ScrollReveal>
 
-        <div className="bg-[#111111] border border-[#c9a96e]/10 rounded-3xl p-8 mb-10">
-          <h2 className="font-['Playfair_Display'] text-2xl font-bold text-[#e8d5a3] mb-6 text-center">Zašto dekanti.hr?</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              { icon: <Gem size={32} className="text-[#c9a96e]" />, title: '100% Autentični parfemi', desc: 'Svi parfemi su originalni, iz certificiranih izvora. Bez falsifikata, bez kompromisa.' },
-              { icon: <Package size={32} className="text-[#c9a96e]" />, title: 'Pažljivo pakiranje', desc: 'Svaki decant se pažljivo puni i pakira da bi stigao savršen do vaših vrata.' },
-              { icon: <Truck size={32} className="text-[#c9a96e]" />, title: 'Brza dostava', desc: 'HP Pošta24 dostava unutar 1-2 radna dana. Narudžbe do 14h šaljemo isti dan.' },
-            ].map(item => (
-              <div key={item.title} className="text-center">
-                <div className="flex justify-center mb-3">{item.icon}</div>
-                <h3 className="text-[#e8d5a3]/80 font-['Playfair_Display'] font-bold mb-2">{item.title}</h3>
-                <p className="text-[#e8d5a3]/40 text-sm font-['Inter'] font-light">{item.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
+          <ScrollReveal animation="fade-up" delay={300}>
+            <h2 className="font-['Cormorant_Garamond'] text-2xl font-semibold text-[#e8d5a3] mb-4">Naša priča</h2>
+            <p>
+              Svaki parfem dolazi iz originalnog flakona i toči se u sterilnim uvjetima neposredno prije slanja. Surađujemo s ovlaštenim distributerima unutar Europske unije koji nam ustupaju testerska pakiranja, višak zaliha (overstock) te ambalažu s manjim estetskim oštećenjima koja ne može ići u klasičnu maloprodaju.
+            </p>
+          </ScrollReveal>
 
-        <div className="text-center">
-          <Link to="/parfemi" className="inline-flex items-center gap-2 bg-[#c9a96e] text-[#0a0a0a] px-8 py-4 rounded-full font-bold text-sm tracking-wider uppercase hover:bg-[#e8d5a3] transition-all">
-            Pregledaj kolekciju →
-          </Link>
+          <ScrollReveal animation="fade-up" delay={400}>
+            <h2 className="font-['Cormorant_Garamond'] text-2xl font-semibold text-[#e8d5a3] mb-4">Zašto odabrati nas?</h2>
+            <ul className="space-y-3">
+              {[
+                'Originalni luksuzni parfemi točeni iz autentičnih bočica',
+                'Premium decant pakiranja od 2ml, 5ml, 10ml i 20ml',
+                'Sterilni uvjeti točenja i maksimalna svježina',
+                'Dostava preko BoxNow paketomata od samo 0,80 €',
+                'Sigurno kartično plaćanje i digitalni nalozi',
+              ].map((item, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#c9a96e] mt-2 flex-shrink-0" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </ScrollReveal>
+
+          <ScrollReveal animation="fade-up" delay={500}>
+            <h2 className="font-['Cormorant_Garamond'] text-2xl font-semibold text-[#e8d5a3] mb-4">Kontakt</h2>
+            <p>
+              Za sva pitanja, sugestije ili suradnju slobodno nas kontaktirajte putem emaila <span className="text-[#c9a96e]">info@dekanti.hr</span> ili putem Instagrama <span className="text-[#c9a96e]">@dekanti.hr</span>.
+            </p>
+          </ScrollReveal>
         </div>
       </div>
     </div>
@@ -74,19 +68,30 @@ export function AboutPage() {
 
 export function NotFoundPage() {
   return (
-    <div className="bg-[#0a0a0a] min-h-screen pt-32 flex items-center justify-center">
-      <div className="text-center px-4">
-        <div className="font-['Playfair_Display'] text-8xl font-bold text-[#c9a96e]/20 mb-4">404</div>
-        <h1 className="font-['Playfair_Display'] text-4xl font-bold text-[#e8d5a3] mb-3">Stranica nije pronađena</h1>
-        <p className="text-[#e8d5a3]/40 font-['Inter'] font-light mb-8">Tražena stranica ne postoji ili je premještena.</p>
-        <div className="flex gap-3 justify-center">
-          <Link to="/" className="bg-[#c9a96e] text-[#0a0a0a] px-6 py-3 rounded-full font-bold text-sm hover:bg-[#e8d5a3] transition-all font-['Inter']">
-            Početna stranica
+    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center px-4">
+      <div className="text-center">
+        <ScrollReveal animation="scale">
+          <h1 className="font-['Cormorant_Garamond'] text-8xl md:text-9xl font-bold text-[#c9a96e]/20 mb-4">404</h1>
+        </ScrollReveal>
+        <ScrollReveal animation="fade-up" delay={150}>
+          <h2 className="font-['Cormorant_Garamond'] text-3xl md:text-4xl font-semibold text-[#e8d5a3] mb-4">
+            Stranica nije pronađena
+          </h2>
+        </ScrollReveal>
+        <ScrollReveal animation="fade-up" delay={250}>
+          <p className="text-[#e8d5a3]/50 font-['Inter_Tight'] font-light mb-8 max-w-md mx-auto">
+            Čini se da ste zalutali u nepoznati miris. Vratite se na početnu stranicu i nastavite istraživati našu kolekciju.
+          </p>
+        </ScrollReveal>
+        <ScrollReveal animation="fade-up" delay={350}>
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 bg-[#c9a96e] text-[#0a0a0a] px-8 py-4 rounded-full font-['Inter'] font-semibold text-sm tracking-wide uppercase hover:bg-[#e8d5a3] transition-colors"
+          >
+            <Home size={16} />
+            Nazad na početnu
           </Link>
-          <Link to="/parfemi" className="border border-[#c9a96e]/30 text-[#c9a96e] px-6 py-3 rounded-full text-sm hover:bg-[#c9a96e]/5 transition-all font-['Inter']">
-            Pregledaj parfeme
-          </Link>
-        </div>
+        </ScrollReveal>
       </div>
     </div>
   );
