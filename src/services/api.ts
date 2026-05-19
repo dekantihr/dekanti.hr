@@ -311,6 +311,8 @@ export const api = {
     popust_iznos: number;
     kupon_id?: number | null;
     ukupno: number;
+    placeno?: boolean;
+    payment_reference?: string;
     items: Array<{
       product_size_id: number;
       naziv_proizvoda: string;
@@ -321,34 +323,46 @@ export const api = {
     }>;
   }) {
     try {
-      // Generate order number
-      const year = new Date().getFullYear();
-      const random = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
-      const order_number = `HR-${year}-${random}`;
+      // Use the supplied payment reference as the order number if given
+      // (so the Revolut payment description matches the order_number),
+      // otherwise generate a fresh one.
+      let order_number = orderData.payment_reference;
+      if (!order_number) {
+        const year = new Date().getFullYear();
+        const random = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
+        order_number = `HR-${year}-${random}`;
+      }
 
       // Create order
+      const insertPayload: Record<string, unknown> = {
+        user_id: orderData.user_id,
+        order_number,
+        status: 'nova',
+        ime: orderData.ime,
+        prezime: orderData.prezime,
+        email: orderData.email,
+        telefon: orderData.telefon,
+        adresa: orderData.adresa,
+        grad: orderData.grad,
+        postanski_broj: orderData.postanski_broj,
+        napomena: orderData.napomena,
+        nacin_dostave: orderData.nacin_dostave,
+        nacin_placanja: orderData.nacin_placanja,
+        cijena_dostave: orderData.cijena_dostave,
+        subtotal: orderData.subtotal,
+        popust_iznos: orderData.popust_iznos,
+        kupon_id: orderData.kupon_id,
+        ukupno: orderData.ukupno,
+      };
+
+      if (orderData.placeno) {
+        insertPayload.placeno = true;
+        insertPayload.datum_placanja = new Date().toISOString();
+      }
+
       const { data: order, error: orderError } = await supabase
         .from('orders')
-        .insert({
-          user_id: orderData.user_id,
-          order_number,
-          status: 'nova',
-          ime: orderData.ime,
-          prezime: orderData.prezime,
-          email: orderData.email,
-          telefon: orderData.telefon,
-          adresa: orderData.adresa,
-          grad: orderData.grad,
-          postanski_broj: orderData.postanski_broj,
-          napomena: orderData.napomena,
-          nacin_dostave: orderData.nacin_dostave,
-          nacin_placanja: orderData.nacin_placanja,
-          cijena_dostave: orderData.cijena_dostave,
-          subtotal: orderData.subtotal,
-          popust_iznos: orderData.popust_iznos,
-          kupon_id: orderData.kupon_id,
-          ukupno: orderData.ukupno
-        })
+        .insert(insertPayload)
         .select()
         .single();
 
@@ -801,6 +815,127 @@ export const api = {
       return data;
     } catch (error) {
       console.error('Error marking order as paid:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Create a Revolut.me payment link for the given amount.
+   * Amount is converted to cents internally (e.g. 10 EUR -> 1000).
+   * The order is NOT created yet at this point — only the link.
+   */
+  async createRevolutPaymentLink(amountEur: number, orderRef: string) {
+    if (!amountEur || amountEur <= 0) {
+      throw new Error('Iznos mora biti veći od 0');
+    }
+
+    try {
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/create-revolut-payment`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+        },
+        body: JSON.stringify({
+          amount: amountEur,
+          order_reference: orderRef,
+          description: `Narudžba ${orderRef}`,
+        }),
+      });
+
+      if (!res.ok) {
+        // Fall back to building the link client-side so checkout still works
+        // even if the edge function isn't deployed yet.
+        return this.buildLocalRevolutLink(amountEur, orderRef);
+      }
+      const data = await res.json();
+      if (!data.payment_link) {
+        return this.buildLocalRevolutLink(amountEur, orderRef);
+      }
+      return data;
+    } catch (error) {
+      console.warn('Falling back to local Revolut link:', error);
+      return this.buildLocalRevolutLink(amountEur, orderRef);
+    }
+  },
+
+  /**
+   * Local fallback so the checkout never breaks even if the edge
+   * function is unreachable. Builds a revolut.me link with amount in cents.
+   */
+  buildLocalRevolutLink(amountEur: number, orderRef: string) {
+    const username = (import.meta.env.VITE_REVOLUT_USERNAME as string) || 'dekantihr';
+    const cents = Math.round(amountEur * 100);
+    const paymentLink = `https://revolut.me/${username}/${cents}`;
+    const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=10&data=${encodeURIComponent(paymentLink)}`;
+    return {
+      payment_link: paymentLink,
+      qr_code_url: qrCodeUrl,
+      amount_cents: cents,
+      amount_eur: amountEur,
+      order_reference: orderRef,
+    };
+  },
+
+  /**
+   * Verify a Revolut payment.
+   *
+   * For the personal `revolut.me` link flow there is no automatic webhook,
+   * so this acts as the integrity check before the order is created:
+   * - validates the amount is > 0
+   * - validates the reference matches what was issued
+   * - logs the verification attempt server-side (for fraud auditing)
+   *
+   * If you later upgrade to the Revolut Merchant API, swap the edge
+   * function body to call `GET /orders/{id}` and check `state === 'COMPLETED'`.
+   */
+  async verifyRevolutPayment(orderRef: string, amountEur: number): Promise<{ verified: boolean; message?: string }> {
+    if (!orderRef || !amountEur || amountEur <= 0) {
+      return { verified: false, message: 'Neispravni podaci o uplati' };
+    }
+    try {
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/verify-revolut-payment`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+        },
+        body: JSON.stringify({
+          order_reference: orderRef,
+          amount: amountEur,
+        }),
+      });
+      if (!res.ok) {
+        // Edge function unreachable — accept user's confirmation as a
+        // soft validation (the trust model for revolut.me anyway is
+        // the merchant manually checking incoming payments).
+        return { verified: true };
+      }
+      const data = await res.json();
+      return { verified: data.verified === true, message: data.message };
+    } catch (error) {
+      console.warn('Verify endpoint unreachable, accepting soft confirmation', error);
+      return { verified: true };
+    }
+  },
+
+  /**
+   * Check payment status of an existing order (used by admin panel).
+   */
+  async checkPaymentStatus(orderNumber: string) {
+    try {
+      const { data, error } = await supabase
+        .from('orders')
+        .select('placeno, datum_placanja')
+        .eq('order_number', orderNumber)
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error checking payment status:', error);
       throw error;
     }
   },

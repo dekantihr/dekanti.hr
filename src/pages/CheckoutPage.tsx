@@ -38,6 +38,21 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
   const [isProcessing, setIsProcessing] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentConfirmed, setPaymentConfirmed] = useState(false);
+  const [paymentLink, setPaymentLink] = useState('');
+  const [qrCodeUrl, setQrCodeUrl] = useState('');
+  const [isCheckingPayment, setIsCheckingPayment] = useState(false);
+  // Snapshot of totals + items captured at the moment user clicks "Confirm order"
+  // This prevents the modal from showing 0.00 after the cart is cleared,
+  // and is also used to actually create the order AFTER payment is validated.
+  const [pendingOrder, setPendingOrder] = useState<{
+    items: CartItem[];
+    subtotal: number;
+    dostava: number;
+    popust: number;
+    ukupno: number;
+    couponId: number | null;
+    paymentRef: string;
+  } | null>(null);
 
   const [form, setForm] = useState<FormData>({
     ime: user?.ime ?? '',
@@ -74,75 +89,151 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
     return true;
   };
 
+  // Build the order payload from a snapshot of the cart (so it stays
+  // correct after the cart is cleared in state).
+  const buildOrderData = (snapshot: NonNullable<typeof pendingOrder>, paid: boolean) => ({
+    user_id: user?.id ?? null,
+    ime: form.ime,
+    prezime: form.prezime,
+    email: form.email,
+    telefon: form.telefon,
+    adresa: form.adresa,
+    grad: form.grad,
+    postanski_broj: form.postanski_broj,
+    napomena: form.napomena,
+    nacin_dostave: 'hp_posta24' as const,
+    nacin_placanja: form.nacin_placanja,
+    cijena_dostave: snapshot.dostava,
+    subtotal: snapshot.subtotal,
+    popust_iznos: snapshot.popust,
+    kupon_id: snapshot.couponId,
+    ukupno: snapshot.ukupno,
+    placeno: paid,
+    payment_reference: snapshot.paymentRef,
+    items: snapshot.items.map(item => ({
+      product_size_id: item.product_size_id,
+      naziv_proizvoda: item.naziv,
+      brand_naziv: item.brand,
+      ml: item.ml,
+      cijena: item.cijena,
+      kolicina: item.kolicina
+    }))
+  });
+
+  const sendConfirmationEmail = (orderNumberStr: string, totalEur: number) => {
+    api.sendEmail(
+      form.email,
+      `Narudžba ${orderNumberStr} — dekanti.hr`,
+      `<div style="max-width:560px;margin:0 auto;background:#0a0a0a;color:#e8d5a3;font-family:Arial,sans-serif;border-radius:16px;overflow:hidden;border:1px solid rgba(201,169,110,0.2)"><div style="background:#111;padding:24px;text-align:center;border-bottom:1px solid rgba(201,169,110,0.15)"><h1 style="font-family:Georgia,serif;color:#c9a96e;margin:0;font-size:24px;letter-spacing:2px">DEKANTI<span style="color:#e8d5a3">.HR</span></h1></div><div style="padding:32px 24px"><h2 style="color:#e8d5a3;font-size:20px;margin:0 0 8px">Hvala na narudžbi, ${form.ime}!</h2><p style="color:#e8d5a3;opacity:0.6;margin:0 0 24px;font-size:14px">Vaša narudžba je zaprimljena i spremamo je za slanje.</p><div style="background:#111;border:1px solid rgba(201,169,110,0.15);border-radius:12px;padding:16px;margin-bottom:24px"><p style="color:#e8d5a3;opacity:0.4;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin:0 0 4px">Broj narudžbe</p><p style="color:#c9a96e;font-size:22px;font-weight:bold;margin:0;font-family:Georgia,serif">${orderNumberStr}</p></div><p style="color:#e8d5a3;opacity:0.5;font-size:13px;margin:0 0 16px">Ukupno: <strong style="color:#c9a96e">${totalEur.toFixed(2)}€</strong></p><div style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:12px;padding:16px"><p style="color:#4ade80;font-size:13px;font-weight:bold;margin:0 0 4px">📦 BoxNow dostava</p><p style="color:#4ade80;opacity:0.7;font-size:12px;margin:0">Pakiramo i šaljemo isti dan (do 14:00). BoxNow paketomat — 1-2 radna dana.</p></div></div><div style="background:#111;padding:16px 24px;text-align:center;border-top:1px solid rgba(201,169,110,0.1)"><p style="color:#e8d5a3;opacity:0.3;font-size:11px;margin:0">dekanti.hr · Vaš niche parfem dućan</p></div></div>`
+    ).catch(() => {});
+  };
+
   const submitOrder = async () => {
+    if (items.length === 0) return;
     setIsProcessing(true);
 
     try {
-      const orderData = {
-        user_id: user?.id ?? null,
-        ime: form.ime,
-        prezime: form.prezime,
-        email: form.email,
-        telefon: form.telefon,
-        adresa: form.adresa,
-        grad: form.grad,
-        postanski_broj: form.postanski_broj,
-        napomena: form.napomena,
-        nacin_dostave: 'boxnow' as const,
-        nacin_placanja: form.nacin_placanja,
-        cijena_dostave: dostava,
+      // Generate the order number ahead of time so we can use it as the
+      // payment reference inside the Revolut payment description.
+      const year = new Date().getFullYear();
+      const random = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
+      const futureOrderNumber = `HR-${year}-${random}`;
+
+      // Snapshot cart values before they are cleared
+      const snapshot = {
+        items: [...items],
         subtotal,
-        popust_iznos: popust,
-        kupon_id: coupon?.id ?? null,
+        dostava,
+        popust,
         ukupno,
-        items: items.map(item => ({
-          product_size_id: item.product_size_id,
-          naziv_proizvoda: item.naziv,
-          brand_naziv: item.brand,
-          ml: item.ml,
-          cijena: item.cijena,
-          kolicina: item.kolicina
-        }))
+        couponId: coupon?.id ?? null,
+        paymentRef: futureOrderNumber,
       };
 
-      const result = await api.createOrder(orderData);
-      setOrderNumber(result.order_number);
-
-      onOrderComplete(result);
-      onClearCart();
-
-      api.sendEmail(
-        form.email,
-        `Narudžba ${result.order_number} — dekanti.hr`,
-        `<div style="max-width:560px;margin:0 auto;background:#0a0a0a;color:#e8d5a3;font-family:Arial,sans-serif;border-radius:16px;overflow:hidden;border:1px solid rgba(201,169,110,0.2)"><div style="background:#111;padding:24px;text-align:center;border-bottom:1px solid rgba(201,169,110,0.15)"><h1 style="font-family:Georgia,serif;color:#c9a96e;margin:0;font-size:24px;letter-spacing:2px">DEKANTI<span style="color:#e8d5a3">.HR</span></h1></div><div style="padding:32px 24px"><h2 style="color:#e8d5a3;font-size:20px;margin:0 0 8px">Hvala na narudžbi, ${form.ime}!</h2><p style="color:#e8d5a3;opacity:0.6;margin:0 0 24px;font-size:14px">Vaša narudžba je zaprimljena i spremamo je za slanje.</p><div style="background:#111;border:1px solid rgba(201,169,110,0.15);border-radius:12px;padding:16px;margin-bottom:24px"><p style="color:#e8d5a3;opacity:0.4;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin:0 0 4px">Broj narudžbe</p><p style="color:#c9a96e;font-size:22px;font-weight:bold;margin:0;font-family:Georgia,serif">${result.order_number}</p></div><p style="color:#e8d5a3;opacity:0.5;font-size:13px;margin:0 0 16px">Ukupno: <strong style="color:#c9a96e">${ukupno.toFixed(2)}€</strong></p><div style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:12px;padding:16px"><p style="color:#4ade80;font-size:13px;font-weight:bold;margin:0 0 4px">� BoxNow dostava</p><p style="color:#4ade80;opacity:0.7;font-size:12px;margin:0">Pakiramo i šaljemo isti dan (do 14:00). BoxNow paketomat — 1-2 radna dana.</p></div></div><div style="background:#111;padding:16px 24px;text-align:center;border-top:1px solid rgba(201,169,110,0.1)"><p style="color:#e8d5a3;opacity:0.3;font-size:11px;margin:0">dekanti.hr · Vaš niche parfem dućan</p></div></div>`
-      ).catch(() => {});
-
       if (form.nacin_placanja === 'revolut') {
+        // ===== REVOLUT FLOW =====
+        // 1. DO NOT create the order yet
+        // 2. Generate the payment link with the correct amount in cents
+        // 3. Show payment modal
+        // 4. Wait for user to confirm payment
+        // 5. Verify the payment, THEN create the order
+        const payment = await api.createRevolutPaymentLink(snapshot.ukupno, futureOrderNumber);
+        setPaymentLink(payment.payment_link);
+        setQrCodeUrl(payment.qr_code_url);
+        setOrderNumber(futureOrderNumber);
+        setPendingOrder(snapshot);
         setShowPaymentModal(true);
       } else {
+        // ===== BANK TRANSFER FLOW =====
+        // Create the order immediately (will be paid offline)
+        const orderData = buildOrderData(snapshot, false);
+        const result = await api.createOrder(orderData);
+        setOrderNumber(result.order_number);
+        onOrderComplete(result);
+        onClearCart();
+        sendConfirmationEmail(result.order_number, snapshot.ukupno);
         setStep('potvrda');
       }
     } catch (error: any) {
       console.error('Error submitting order:', error);
-      toast.error('Greška pri slanju narudžbe. Molimo pokušajte ponovno.');
+      toast.error(error?.message || 'Greška pri slanju narudžbe. Molimo pokušajte ponovno.');
     } finally {
       setIsProcessing(false);
     }
   };
 
+  // Called after the user has paid via Revolut and clicks "I've paid".
+  // This is when we actually create the order in the database.
   const handlePaymentConfirmed = async () => {
-    setPaymentConfirmed(true);
-    setShowPaymentModal(false);
-    setStep('potvrda');
+    if (!pendingOrder) return;
+    setIsCheckingPayment(true);
+
     try {
-      await api.markOrderPaid(orderNumber);
-    } catch (e) {
-      console.error('Failed to mark order as paid:', e);
+      // Validate payment (in production with Revolut Business API this would
+      // hit a real verification endpoint that checks the merchant account
+      // for an incoming payment matching the reference + amount).
+      const verification = await api.verifyRevolutPayment(
+        pendingOrder.paymentRef,
+        pendingOrder.ukupno
+      );
+
+      if (!verification.verified) {
+        toast.error(verification.message || 'Uplata još nije zabilježena. Pričekajte par sekundi i pokušajte ponovno.');
+        setIsCheckingPayment(false);
+        return;
+      }
+
+      // Payment validated — NOW create the order
+      const orderData = buildOrderData(pendingOrder, true);
+      const result = await api.createOrder(orderData);
+
+      setOrderNumber(result.order_number);
+      setPaymentConfirmed(true);
+      setShowPaymentModal(false);
+      setStep('potvrda');
+      onOrderComplete(result);
+      onClearCart();
+      sendConfirmationEmail(result.order_number, pendingOrder.ukupno);
+
+      toast.success('Uplata potvrđena! Hvala na narudžbi.', {
+        style: { background: '#111111', color: '#e8d5a3', border: '1px solid rgba(201,169,110,0.3)' },
+        iconTheme: { primary: '#c9a96e', secondary: '#0a0a0a' },
+      });
+    } catch (error: any) {
+      console.error('Failed to confirm payment:', error);
+      toast.error(error?.message || 'Greška pri potvrdi uplate. Pokušajte ponovno.');
+    } finally {
+      setIsCheckingPayment(false);
     }
-    toast.success('Uplata potvrđena! Hvala na narudžbi.', {
-      style: { background: '#111111', color: '#e8d5a3', border: '1px solid rgba(201,169,110,0.3)' },
-      iconTheme: { primary: '#c9a96e', secondary: '#0a0a0a' },
-    });
+  };
+
+  // Allow the user to cancel the payment modal without creating an order.
+  const handleCancelPayment = () => {
+    setShowPaymentModal(false);
+    setPendingOrder(null);
+    setPaymentLink('');
+    setQrCodeUrl('');
+    setOrderNumber('');
   };
 
   const copyToClipboard = (text: string) => {
@@ -403,72 +494,119 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
             )}
 
             {/* Revolut Payment Modal */}
-            {showPaymentModal && (
-              <div className="bg-[#111111] border border-[#c9a96e]/20 rounded-3xl p-6 md:p-8">
+            {showPaymentModal && pendingOrder && (
+              <div className="bg-gradient-to-b from-[#141414] to-[#111111] border border-[#c9a96e]/20 rounded-3xl p-6 md:p-8 shadow-2xl">
+                {/* Header */}
                 <div className="text-center mb-6">
-                  <div className="w-16 h-16 bg-purple-500/10 border-2 border-purple-500/40 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <CreditCard size={28} className="text-purple-400" />
+                  <div className="w-16 h-16 bg-gradient-to-br from-purple-500/20 to-purple-600/10 border-2 border-purple-500/40 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-purple-500/10">
+                    <CreditCard size={28} className="text-purple-300" />
                   </div>
-                  <h2 className="font-['Playfair_Display'] text-2xl font-bold text-[#e8d5a3] mb-2">Plaćanje putem Revoluta</h2>
-                  <p className="text-[#e8d5a3]/50 font-['Inter'] text-sm">
-                    Narudžba #{orderNumber} — Skenirajte QR ili kliknite link za plaćanje
+                  <h2 className="font-['Playfair_Display'] text-2xl md:text-3xl font-bold text-[#e8d5a3] mb-1">Plaćanje Revolutom</h2>
+                  <p className="text-[#e8d5a3]/40 font-['Inter'] text-xs tracking-wide">
+                    Referenca: <span className="text-[#c9a96e]">{orderNumber}</span>
                   </p>
                 </div>
 
+                {/* Amount + QR + Link */}
                 <div className="bg-[#0a0a0a] border border-[#c9a96e]/15 rounded-2xl p-5 mb-5">
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="text-[#e8d5a3]/50 text-xs font-['Inter'] uppercase tracking-wider">Iznos za platiti</span>
-                    <span className="text-[#c9a96e] font-['Playfair_Display'] text-3xl font-bold">{ukupno.toFixed(2)}€</span>
+                  {/* Amount */}
+                  <div className="flex items-center justify-between mb-5">
+                    <span className="text-[#e8d5a3]/40 text-[10px] font-['Inter'] uppercase tracking-[0.2em]">Iznos</span>
+                    <div className="text-right">
+                      <span className="text-[#c9a96e] font-['Playfair_Display'] text-4xl font-bold leading-none">
+                        {pendingOrder.ukupno.toFixed(2)}€
+                      </span>
+                      <p className="text-[#e8d5a3]/30 text-[10px] font-['Inter'] mt-1">
+                        ({Math.round(pendingOrder.ukupno * 100)} cents)
+                      </p>
+                    </div>
                   </div>
-                  <div className="h-[1px] bg-[#c9a96e]/10 mb-4" />
-                  <div className="flex items-center gap-3 bg-purple-900/10 border border-purple-500/20 rounded-xl p-3">
+
+                  {/* QR Code */}
+                  {qrCodeUrl && (
+                    <div className="flex justify-center mb-5">
+                      <div className="bg-white p-3 rounded-2xl shadow-lg">
+                        <img src={qrCodeUrl} alt="QR kod za plaćanje" className="w-44 h-44" />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Payment link */}
+                  <div className="flex items-center gap-2 bg-purple-900/10 border border-purple-500/20 rounded-xl p-3">
                     <div className="flex-1 min-w-0">
-                      <p className="text-[#e8d5a3]/40 text-[10px] font-['Inter'] uppercase tracking-wider mb-0.5">Revolut.me link</p>
-                      <p className="text-purple-300/80 text-sm font-['Inter'] truncate">revolut.me/dekantihr?amount={ukupno.toFixed(2)}</p>
+                      <p className="text-[#e8d5a3]/30 text-[9px] font-['Inter'] uppercase tracking-[0.15em] mb-0.5">Revolut.me link</p>
+                      <p className="text-purple-200/90 text-xs font-['Inter'] font-mono truncate">{paymentLink}</p>
                     </div>
                     <button
-                      onClick={() => copyToClipboard(`https://revolut.me/dekantihr?amount=${ukupno.toFixed(2)}`)}
-                      className="flex items-center gap-1.5 text-purple-400 border border-purple-500/30 px-3 py-1.5 rounded-lg text-xs font-['Inter'] hover:bg-purple-500/10 transition-all"
+                      onClick={() => copyToClipboard(paymentLink)}
+                      className="flex items-center gap-1.5 text-purple-300 border border-purple-500/30 px-3 py-2 rounded-lg text-[11px] font-['Inter'] font-semibold hover:bg-purple-500/15 transition-all flex-shrink-0"
+                      type="button"
                     >
-                      <Copy size={12} />
+                      <Copy size={11} />
                       Kopiraj
                     </button>
                   </div>
                 </div>
 
-                <div className="space-y-3 mb-6">
-                  <a
-                    href={`https://revolut.me/dekantihr?amount=${ukupno.toFixed(2)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full bg-purple-600 hover:bg-purple-500 text-white py-4 rounded-2xl font-bold text-sm tracking-wider uppercase transition-all flex items-center justify-center gap-2"
-                  >
-                    <ExternalLink size={16} />
-                    Otvori Revolut i plati {ukupno.toFixed(2)}€
-                  </a>
+                {/* Open Revolut button */}
+                <a
+                  href={paymentLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white py-4 rounded-2xl font-bold text-sm tracking-[0.1em] uppercase transition-all flex items-center justify-center gap-2 mb-3 shadow-lg shadow-purple-600/20"
+                >
+                  <ExternalLink size={15} />
+                  Plati {pendingOrder.ukupno.toFixed(2)}€ Revolutom
+                </a>
 
-                  <div className="bg-[#0a0a0a] border border-[#c9a96e]/10 rounded-xl p-4 text-left">
-                    <p className="text-[#e8d5a3]/60 text-xs font-['Inter'] mb-2 font-semibold">Kako platiti:</p>
-                    <ol className="space-y-1.5 text-[#e8d5a3]/40 text-xs font-['Inter'] list-decimal list-inside">
-                      <li>Kliknite gumb iznad ili kopirajte link</li>
-                      <li>U Revolut aplikaciji unesite točan iznos: <span className="text-[#c9a96e]">{ukupno.toFixed(2)}€</span></li>
-                      <li>U opis platite napišite broj narudžbe: <span className="text-[#c9a96e]">{orderNumber}</span></li>
-                      <li>Završite uplatu i vratite se natrag</li>
-                    </ol>
-                  </div>
+                {/* Instructions */}
+                <div className="bg-[#0a0a0a] border border-[#c9a96e]/10 rounded-xl p-4 mb-5">
+                  <p className="text-[#e8d5a3]/70 text-xs font-['Inter'] font-semibold mb-2.5 flex items-center gap-1.5">
+                    <span className="w-4 h-4 rounded-full bg-[#c9a96e]/15 text-[#c9a96e] text-[9px] flex items-center justify-center font-bold">i</span>
+                    Kako platiti
+                  </p>
+                  <ol className="space-y-1.5 text-[#e8d5a3]/45 text-xs font-['Inter'] leading-relaxed">
+                    <li className="flex gap-2"><span className="text-[#c9a96e] font-semibold">1.</span> Otvorite Revolut aplikaciju (klik gumb ili skenirajte QR)</li>
+                    <li className="flex gap-2"><span className="text-[#c9a96e] font-semibold">2.</span> Iznos je već popunjen: <span className="text-[#c9a96e] font-semibold">{pendingOrder.ukupno.toFixed(2)}€</span></li>
+                    <li className="flex gap-2"><span className="text-[#c9a96e] font-semibold">3.</span> U opis upišite: <span className="text-[#c9a96e] font-mono font-semibold">{orderNumber}</span></li>
+                    <li className="flex gap-2"><span className="text-[#c9a96e] font-semibold">4.</span> Završite uplatu, vratite se i kliknite "Platio sam"</li>
+                  </ol>
                 </div>
 
-                <div className="border-t border-[#c9a96e]/10 pt-5">
+                {/* Confirm + cancel */}
+                <div className="space-y-2">
                   <button
                     onClick={handlePaymentConfirmed}
-                    className="w-full bg-[#c9a96e] text-[#0a0a0a] py-4 rounded-2xl font-bold text-sm tracking-wider uppercase hover:bg-[#e8d5a3] transition-all mb-3"
+                    disabled={isCheckingPayment}
+                    className="w-full bg-[#c9a96e] text-[#0a0a0a] py-4 rounded-2xl font-bold text-sm tracking-[0.1em] uppercase hover:bg-[#e8d5a3] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-[#c9a96e]/10"
+                    type="button"
                   >
-                    ✓ Potvrdio sam uplatu
+                    {isCheckingPayment ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-[#0a0a0a]/30 border-t-[#0a0a0a] rounded-full animate-spin" />
+                        Provjeravam uplatu...
+                      </>
+                    ) : (
+                      <>
+                        <Check size={16} />
+                        Platio sam — potvrdi narudžbu
+                      </>
+                    )}
                   </button>
-                  <p className="text-[#e8d5a3]/25 text-[10px] font-['Inter'] text-center">
-                    Kliknite nakon što ste uspješno platili putem Revoluta
-                  </p>
+                  <button
+                    onClick={handleCancelPayment}
+                    disabled={isCheckingPayment}
+                    className="w-full text-[#e8d5a3]/40 py-2.5 rounded-xl text-xs font-['Inter'] hover:text-[#e8d5a3]/70 transition-all disabled:opacity-30"
+                    type="button"
+                  >
+                    Odustani od plaćanja
+                  </button>
                 </div>
+
+                <p className="text-[#e8d5a3]/25 text-[10px] font-['Inter'] text-center mt-3 leading-relaxed">
+                  Narudžba se kreira tek nakon <span className="text-[#c9a96e]/60">uspješne uplate</span>.<br />
+                  Bez uplate nema narudžbe ni rezervacije.
+                </p>
               </div>
             )}
 
@@ -494,7 +632,7 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
                           Pakiramo i šaljemo isti dan ako je narudžba primljena do 14:00.
                         </p>
                         <p className="text-green-300/50 text-xs font-['Inter'] mt-1">
-                          BoxNow paketomat — 1-2 radna dana unutar Hrvatske
+                          HP Pošta24 — 1-2 radna dana unutar Hrvatske
                         </p>
                       </div>
                     </div>
