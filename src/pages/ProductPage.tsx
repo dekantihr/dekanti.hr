@@ -417,7 +417,7 @@ export default function ProductPage({ wishlist, onWishlistToggle, onAddToCart, u
                 ].map((tier, idx) => (
                   <div
                     key={tier.label}
-                    className={`relative bg-[#111111] border ${tier.borderColor} rounded-2xl p-6 md:p-5 group hover:border-[#c9a96e]/40 transition-all duration-500 hover:shadow-[0_0_30px_rgba(201,169,110,0.1)]`}
+                    className={`relative bg-[#111111] border ${tier.borderColor} rounded-2xl p-5 group hover:border-[#c9a96e]/40 transition-all duration-500 hover:shadow-[0_0_30px_rgba(201,169,110,0.1)]`}
                     style={{
                       animationDelay: `${idx * 0.15}s`,
                     }}
@@ -426,18 +426,20 @@ export default function ProductPage({ wishlist, onWishlistToggle, onAddToCart, u
                     <div className={`absolute inset-0 bg-gradient-to-br ${tier.gradient} rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
 
                     <div className="relative z-10">
-                      {/* Header */}
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className={`w-10 h-10 rounded-xl ${tier.bgGlow} border ${tier.borderColor} flex items-center justify-center ${tier.iconColor} group-hover:scale-110 transition-transform duration-300`}>
+                      {/* Header - single row, never wraps */}
+                      <div className="flex items-center gap-3 mb-4 flex-nowrap">
+                        <div className={`w-11 h-11 rounded-full ${tier.bgGlow} flex items-center justify-center ${tier.iconColor} shrink-0`}>
                           {tier.icon}
                         </div>
-                        <div>
-                          <h3 className="text-[#e8d5a3] font-['Playfair_Display'] font-bold text-base">{tier.label}</h3>
-                          <p className="text-[#c9a96e]/60 text-[10px] font-['Inter'] tracking-wider uppercase">{tier.subtitle}</p>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2">
+                            <h3 className="text-[#e8d5a3] font-['Playfair_Display'] font-bold text-base whitespace-nowrap">{tier.label}</h3>
+                            <span className="text-[9px] text-[#e8d5a3]/20 font-['Inter'] border border-[#e8d5a3]/10 px-2 py-0.5 rounded-full whitespace-nowrap shrink-0">
+                              {tier.duration}
+                            </span>
+                          </div>
+                          <p className="text-[#c9a96e]/50 text-[10px] font-['Inter'] tracking-wider uppercase">{tier.subtitle}</p>
                         </div>
-                        <span className="ml-auto text-[9px] text-[#e8d5a3]/25 font-['Inter'] border border-[#e8d5a3]/10 px-2 py-0.5 rounded-full">
-                          {tier.duration}
-                        </span>
                       </div>
 
                       {/* Description */}
@@ -450,7 +452,7 @@ export default function ProductPage({ wishlist, onWishlistToggle, onAddToCart, u
                         {tier.notes.length > 0 ? tier.notes.map((n: any, i: number) => (
                           <span
                             key={n.naziv}
-                            className="text-[11px] text-[#e8d5a3]/70 border border-[#c9a96e]/20 bg-[#0a0a0a]/50 px-3 py-1 rounded-full font-['Inter'] hover:bg-[#c9a96e]/10 hover:text-[#c9a96e] hover:border-[#c9a96e]/40 transition-all duration-300 cursor-default"
+                            className="text-[11px] text-[#e8d5a3]/70 border border-[#c9a96e]/20 bg-[#0a0a0a]/50 px-3 py-1 rounded-full font-['Inter'] capitalize hover:bg-[#c9a96e]/10 hover:text-[#c9a96e] hover:border-[#c9a96e]/40 transition-all duration-300 cursor-default"
                             style={{
                               animationDelay: `${i * 0.05}s`,
                             }}
