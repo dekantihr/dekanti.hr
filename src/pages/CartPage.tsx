@@ -218,7 +218,7 @@ export default function CartPage({ items, coupon, onCouponSet, onUpdateQuantity,
 
               <div className="flex items-center justify-center gap-4 mt-4">
                 <span className="text-[#e8d5a3]/25 text-[10px] font-['Inter']">🔒 Sigurna kupnja</span>
-                <span className="text-[#e8d5a3]/25 text-[10px] font-['Inter']">💳 Kartica / Revolut</span>
+                <span className="text-[#e8d5a3]/25 text-[10px] font-['Inter']">💳 Revolut · 🏦 Bankovno</span>
               </div>
             </div>
           </div>

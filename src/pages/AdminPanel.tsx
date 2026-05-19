@@ -4,7 +4,7 @@ import {
   LayoutDashboard, ShoppingBag, Package, Users, Star, Tag, Mail,
   BarChart2, TrendingUp, ArrowUpRight, ArrowDownRight, Eye, Edit,
   Check, X, ChevronDown, Download, Bell, LogOut, Menu, Trash2, Sparkles,
-  Upload
+  Upload, CreditCard
 } from 'lucide-react';
 
 import { Order } from '../store/cartStore';
@@ -22,6 +22,7 @@ interface AdminPanelProps {
 type AdminView = 'dashboard' | 'narudzbe' | 'proizvodi' | 'brendovi' | 'kupci' | 'recenzije' | 'kuponi' | 'newsletter' | 'statistike';
 
 const STATUS_COLORS: Record<string, string> = {
+  cekanje_uplate: 'bg-purple-500/15 text-purple-300 border-purple-500/30',
   nova: 'bg-yellow-400/15 text-yellow-400 border-yellow-400/30',
   u_obradi: 'bg-blue-400/15 text-blue-400 border-blue-400/30',
   poslano: 'bg-purple-400/15 text-purple-400 border-purple-400/30',
@@ -30,7 +31,12 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 const STATUS_LABELS: Record<string, string> = {
-  nova: 'Nova', u_obradi: 'U obradi', poslano: 'Poslano', isporuceno: 'Isporučeno', otkazano: 'Otkazano'
+  cekanje_uplate: 'Čeka uplatu',
+  nova: 'Nova',
+  u_obradi: 'U obradi',
+  poslano: 'Poslano',
+  isporuceno: 'Isporučeno',
+  otkazano: 'Otkazano',
 };
 
 export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
@@ -329,17 +335,30 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
     try {
       await api.markOrderPaid(orderNumber);
 
+      const wasAwaiting = supabaseOrders.find(o => o.order_number === orderNumber)?.status === 'cekanje_uplate';
+      const newStatus = wasAwaiting ? 'nova' : undefined;
+
       // Update local state
       setSupabaseOrders(prev =>
         prev.map(order =>
           order.order_number === orderNumber
-            ? { ...order, placeno: true, datum_placanja: new Date().toISOString() }
+            ? {
+                ...order,
+                placeno: true,
+                datum_placanja: new Date().toISOString(),
+                ...(newStatus ? { status: newStatus } : {}),
+              }
             : order
         )
       );
 
       if (selectedOrder?.order_number === orderNumber) {
-        setSelectedOrder({ ...selectedOrder, placeno: true, datum_placanja: new Date().toISOString() });
+        setSelectedOrder({
+          ...selectedOrder,
+          placeno: true,
+          datum_placanja: new Date().toISOString(),
+          ...(newStatus ? { status: newStatus } : {}),
+        });
       }
 
       const order = supabaseOrders.find(o => o.order_number === orderNumber);
@@ -1555,7 +1574,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
 
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={16} /> },
-    { id: 'narudzbe', label: 'Narudžbe', icon: <ShoppingBag size={16} />, badge: allOrders.filter(o => o.status === 'nova').length },
+    { id: 'narudzbe', label: 'Narudžbe', icon: <ShoppingBag size={16} />, badge: allOrders.filter(o => o.status === 'nova' || o.status === 'cekanje_uplate').length },
     { id: 'proizvodi', label: 'Proizvodi', icon: <Package size={16} /> },
     { id: 'brendovi', label: 'Brendovi', icon: <Star size={16} /> },
     { id: 'kupci', label: 'Kupci', icon: <Users size={16} /> },
@@ -1668,7 +1687,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                 {[
                   { label: 'Ukupan prihod', value: `${totalRevenue.toFixed(0)}€`, change: '+12.5%', up: true, icon: <TrendingUp size={18} /> },
                   { label: 'Narudžbe danas', value: `${todayOrders}`, change: '+3 danas', up: true, icon: <ShoppingBag size={18} /> },
-                  { label: 'Ukupno narudžbi', value: `${allOrders.length}`, change: '+2 ovaj tjedan', up: true, icon: <Package size={18} /> },
+                  { label: 'Čekaju uplatu', value: `${allOrders.filter(o => o.status === 'cekanje_uplate').length}`, change: 'Revolut', up: false, icon: <CreditCard size={18} /> },
                   { label: 'Čekaju odobrenje', value: `${pendingReviews.length}`, change: 'recenzija', up: false, icon: <Star size={18} /> },
                 ].map(kpi => (
                   <div key={kpi.label} className="bg-[#111111] border border-[#c9a96e]/10 rounded-2xl p-4">
@@ -1792,7 +1811,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
               {/* Actions bar */}
               <div className="flex flex-wrap items-center gap-3">
                 <div className="flex gap-2 flex-wrap">
-                  {['sve', 'nova', 'u_obradi', 'poslano', 'isporuceno', 'otkazano'].map(s => (
+                  {['sve', 'cekanje_uplate', 'nova', 'u_obradi', 'poslano', 'isporuceno', 'otkazano'].map(s => (
                     <button key={s} className="text-xs px-3 py-1.5 rounded-lg border border-[#c9a96e]/15 text-[#e8d5a3]/50 hover:border-[#c9a96e]/40 hover:text-[#c9a96e] font-['Inter'] transition-all capitalize">
                       {s === 'sve' ? 'Sve' : STATUS_LABELS[s]}
                     </button>
