@@ -86,7 +86,7 @@ export interface Database {
           grad: string;
           postanski_broj: string;
           napomena: string | null;
-          nacin_dostave: 'boxnow' | 'osobno_preuzimanje';
+          nacin_dostave: 'hp_posta24' | 'osobno_preuzimanje';
           nacin_placanja: 'pouzecem' | 'bankovna' | 'kartica';
           cijena_dostave: number;
           subtotal: number;
