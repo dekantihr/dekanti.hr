@@ -14,6 +14,7 @@ interface EmailRequest {
   to: string;
   subject: string;
   html: string;
+  replyTo?: string;
 }
 
 function jsonResponse(body: unknown, status = 200) {
@@ -33,7 +34,8 @@ Deno.serve(async (req) => {
   }
 
   if (!RESEND_API_KEY) {
-    return jsonResponse({ error: "RESEND_API_KEY not configured" }, 500);
+    console.error("RESEND_API_KEY not configured in environment");
+    return jsonResponse({ error: "Email service not configured" }, 500);
   }
 
   let payload: EmailRequest;
@@ -47,6 +49,17 @@ Deno.serve(async (req) => {
     return jsonResponse({ error: "Missing required fields: to, subject, html" }, 400);
   }
 
+  const emailPayload: Record<string, unknown> = {
+    from: FROM_EMAIL,
+    to: payload.to,
+    subject: payload.subject,
+    html: payload.html,
+  };
+
+  if (payload.replyTo) {
+    emailPayload.reply_to = payload.replyTo;
+  }
+
   try {
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -54,21 +67,17 @@ Deno.serve(async (req) => {
         "Content-Type": "application/json",
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
-      body: JSON.stringify({
-        from: FROM_EMAIL,
-        to: payload.to,
-        subject: payload.subject,
-        html: payload.html,
-      }),
+      body: JSON.stringify(emailPayload),
     });
 
     const data = await res.json();
 
     if (!res.ok) {
-      console.error("Resend error:", data);
+      console.error("Resend error:", JSON.stringify(data));
       return jsonResponse({ error: "Failed to send email", details: data }, 502);
     }
 
+    console.log("Email sent:", data.id, "to:", payload.to);
     return jsonResponse({ success: true, id: data.id });
   } catch (err) {
     console.error("Email send error:", err);
