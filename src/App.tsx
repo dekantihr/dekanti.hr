@@ -5,6 +5,7 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
 import ErrorBoundary from './components/ErrorBoundary';
+import ScrollToTop from './components/ScrollToTop';
 import HomePage from './pages/HomePage';
 import CatalogPage from './pages/CatalogPage';
 import ProductPage from './pages/ProductPage';
@@ -56,6 +57,7 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
+      <ScrollToTop />
       {!isAdminRoute && (
         <Navbar
           itemCount={itemCount}

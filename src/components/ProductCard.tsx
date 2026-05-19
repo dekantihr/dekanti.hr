@@ -25,7 +25,7 @@ export default function ProductCard({ product, isWishlisted, onWishlistToggle, o
   return (
     <div className="group relative glass rounded-2xl overflow-hidden hover:border-[#c9a96e]/40 hover-lift hover-glow animate-staggerFadeIn" style={{ transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)' }}>
       {/* Image */}
-      <div className="relative overflow-hidden aspect-square bg-gradient-to-br from-[#1a1a1a] to-[#0f0f0f]">
+      <Link to={`/parfemi/${product.slug}`} className="relative overflow-hidden aspect-square bg-gradient-to-br from-[#1a1a1a] to-[#0f0f0f] block">
         <img
           src={product.images && product.images.length > 0 ? product.images[0] : ''}
           alt={`${product.brand?.naziv || product.brand} ${product.naziv}`}
@@ -52,13 +52,13 @@ export default function ProductCard({ product, isWishlisted, onWishlistToggle, o
 
         {/* Wishlist */}
         <button
-          onClick={(e) => { e.preventDefault(); onWishlistToggle(product.id); }}
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); onWishlistToggle(product.id); }}
           className={`absolute top-3 right-3 w-9 h-9 rounded-full flex items-center justify-center hover:scale-110 active:scale-95 ${
             isWishlisted
               ? 'bg-gradient-to-br from-[#c9a96e] to-[#e8d5a3] text-[#0a0a0a] shadow-[0_0_16px_rgba(201,169,110,0.6)]'
               : 'glass text-[#e8d5a3]/50 hover:bg-[#c9a96e]/20 hover:text-[#c9a96e] border border-[#c9a96e]/20'
           }`}
-          style={{ 
+          style={{
             transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
             boxShadow: isWishlisted ? '0 0 16px rgba(201,169,110,0.6)' : '0 0 0 rgba(201,169,110,0)'
           }}
@@ -70,9 +70,9 @@ export default function ProductCard({ product, isWishlisted, onWishlistToggle, o
         {/* Quick Add */}
         <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 translate-y-3 group-hover:translate-y-0" style={{ transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)' }}>
           <button
-            onClick={(e) => { e.preventDefault(); if (defaultSize) onAddToCart(product, defaultSize.id); }}
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); if (defaultSize) onAddToCart(product, defaultSize.id); }}
             className="w-full bg-gradient-to-r from-[#c9a96e] to-[#e8d5a3] text-[#0a0a0a] text-xs font-bold tracking-[0.15em] uppercase py-2.5 rounded-xl flex items-center justify-center gap-2 btn-ripple font-['Inter'] active:scale-[0.98]"
-            style={{ 
+            style={{
               transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
               boxShadow: '0 0 0 rgba(201,169,110,0)'
             }}
@@ -88,7 +88,7 @@ export default function ProductCard({ product, isWishlisted, onWishlistToggle, o
             Dodaj u košaricu
           </button>
         </div>
-      </div>
+      </Link>
 
       {/* Content */}
       <Link to={`/parfemi/${product.slug}`} className="block p-4">
