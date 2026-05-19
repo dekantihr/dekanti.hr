@@ -352,7 +352,11 @@ export const api = {
         .select()
         .single();
 
-      if (orderError) throw orderError;
+      if (orderError) {
+        console.error('Supabase order error:', orderError);
+        console.error('Order data:', orderData);
+        throw orderError;
+      }
 
       // Create order items
       const orderItems = orderData.items.map(item => ({
