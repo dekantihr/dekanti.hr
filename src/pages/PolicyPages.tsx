@@ -55,7 +55,7 @@ export function FAQPage() {
     <PolicyLayout title="Često postavljana pitanja" subtitle="FAQ" icon={<HelpCircle size={18} />}>
       <Section number={1} title="Otkuda nabavljate parfeme i zašto ne prodajete cijele bočice?">
         <p>
-          Dekanti.hr se bavi isključivo prodajom dekanta (putnih i testnih pakiranja) koje točimo iz originalnih flakona. Naš fokus je na tzv. sivom tržištu (Gray Market) unutar Europske unije. Surađujemo s ovlaštenim distributerima koji nam ustupaju testerska pakiranja, višak zaliha (overstock) te ambalažu s manjim estetskim oštećenjima koja ne može ići u klasičnu maloprodaju.
+          dekanti.hr se bavi isključivo prodajom dekanta (putnih i testnih pakiranja) koje točimo iz originalnih flakona. Naš fokus je na tzv. sivom tržištu (Gray Market) unutar Europske unije. Surađujemo s ovlaštenim distributerima koji nam ustupaju testerska pakiranja, višak zaliha (overstock) te ambalažu s manjim estetskim oštećenjima koja ne može ići u klasičnu maloprodaju.
         </p>
         <p>
           Budući da su cijele bočice rezervirane za službene prezentacije i testiranja, mi ih otkupljujemo u velikim količinama i pretkačemo u manje mililitraže, omogućujući vam pristup luksuzu po znatno nižim cijenama.
@@ -73,7 +73,7 @@ export function FAQPage() {
 
       <Section number={3} title="Zašto ne nudite plaćanje pouzećem (COD)?">
         <p>
-          Kako bismo osigurali najnižu moguću cijenu dostave (od samo 0,80 € preko BoxNow paketomata) i maksimalnu brzinu obrade, automatizirali smo naš sustav naplate. Plaćanje pouzećem znatno poskupljuje uslugu dostave zbog bankovnih i kurirskih naknada za manipulaciju gotovinom.
+          Kako bismo osigurali najnižu moguću cijenu dostave i maksimalnu brzinu obrade, automatizirali smo naš sustav naplate. Plaćanje pouzećem znatno poskupljuje uslugu dostave zbog bankovnih i kurirskih naknada za manipulaciju gotovinom.
         </p>
         <p>
           Izbacivanjem pouzeća štitimo i vaš novčanik od skrivenih troškova. Naše kartično plaćanje i uplate putem sigurnih digitalnih linkova (Revolut / M-Banking) osigurani su najvišim standardima enkripcije i jamče vam 100% sigurnu kupnju.
@@ -130,7 +130,7 @@ export function PrivacyPage() {
 
       <Section number={3} title="Dijeljenje podataka s trećim stranama">
         <p>
-          Vaše podatke (ime, mobitel) dijelimo isključivo s dostavnom službom (BoxNow) kako bi vam se mogao generirati kod za preuzimanje paketa. Podaci se nikada neće prodavati ili dijeliti s marketinškim agencijama.
+          Vaše podatke (ime, mobitel) dijelimo isključivo s dostavnom službom (HP Pošta24) kako bi vam se mogao generirati kod za preuzimanje paketa. Podaci se nikada neće prodavati ili dijeliti s marketinškim agencijama.
         </p>
         <p>
           U slučaju slanja newslettera koristimo sigurne servise za masovno slanje emaila koji su usklađeni s GDPR regulativom. U svakom trenutku možete se odjaviti s liste pretplatnika klikom na link u emailu.
@@ -202,7 +202,7 @@ export function TermsPage() {
     <PolicyLayout title="Uvjeti korištenja" subtitle="Uvjeti" icon={<FileText size={18} />}>
       <Section number={1} title="Opće odredbe">
         <p>
-          Ovi uvjeti korištenja reguliraju odnos između Dekanti.hr (u daljnjem tekstu: "Platforma", "mi") i korisnika web stranice. Korištenjem naše web stranice potvrđujete da ste pročitali, razumjeli i prihvatili ove uvjete.
+          Ovi uvjeti korištenja reguliraju odnos između dekanti.hr (u daljnjem tekstu: "Platforma", "mi") i korisnika web stranice. Korištenjem naše web stranice potvrđujete da ste pročitali, razumjeli i prihvatili ove uvjete.
         </p>
         <p>
           Platforma zadržava pravo izmjene ovih uvjeta u bilo kojem trenutku. Značajne izmjene bit će objavljene na web stranici i/ili poslane putem emaila.
@@ -223,7 +223,7 @@ export function TermsPage() {
 
       <Section number={3} title="Dostava">
         <p>
-          Dostavu vršimo isključivo putem BoxNow paketomata širom Hrvatske. Cijena dostave iznosi 0,80 € za sve narudžbe. Besplatna dostava na narudžbe iznad 50 €.
+          Dostavu vršimo isključivo putem HP Pošta24 paketomata širom Hrvatske. Cijena dostave iznosi 3,50 € za sve narudžbe. Besplatna dostava na narudžbe iznad 50 €.
         </p>
         <p>
           Rok isporuke je 1–2 radna dana od trenutka predaje paketa kurirskoj službi. U blagdanskim razdobljima rok isporuke može biti duži.
@@ -241,7 +241,7 @@ export function TermsPage() {
 
       <Section number={5} title="Odgovornost">
         <p>
-          Dekanti.hr ne odgovara za eventualne alergijske reakcije na parfemske sastojke. Preporučujemo da prije kupnje provjerite listu sastojaka ako imate poznate alergije.
+          dekanti.hr ne odgovara za eventualne alergijske reakcije na parfemske sastojke. Preporučujemo da prije kupnje provjerite listu sastojaka ako imate poznate alergije.
         </p>
         <p>
           Parfemske note i trajnost mirisa mogu varirati ovisno o PH vrijednosti kože, načinu primjene i klimatskim uvjetima.
@@ -262,16 +262,16 @@ export function ShippingPage() {
     <PolicyLayout title="Dostava i isporuka" subtitle="Dostava" icon={<Truck size={18} />}>
       <Section number={1} title="Način dostave">
         <p>
-          Sve narudžbe šaljemo isključivo putem BoxNow paketomata — najbrže i najpovoljnije rješenje dostave u Hrvatskoj. Nakon što paket predamo kurirskoj službi, na vaš broj mobitela stiže SMS s kodom za preuzimanje.
+          Sve narudžbe šaljemo isključivo putem HP Pošta24 paketomata — najbrže i najpovoljnije rješenje dostave u Hrvatskoj. Nakon što paket predamo kurirskoj službi, na vaš broj mobitela stiže SMS s kodom za preuzimanje.
         </p>
         <p>
-          BoxNow paketomati dostupni su na više od 200 lokacija diljem Hrvatske, a mnogi rade 24/7 što vam omogućuje preuzimanje u vrijeme koje vama najbolje odgovara.
+          HP Pošta24 paketomati dostupni su na više od 200 lokacija diljem Hrvatske, a mnogi rade 24/7 što vam omogućuje preuzimanje u vrijeme koje vama najbolje odgovara.
         </p>
       </Section>
 
       <Section number={2} title="Cijena dostave">
         <p>
-          Standardna cijena dostave iznosi <span className="text-[#c9a96e] font-semibold">0,80 €</span> po narudžbi — bez obzira na broj proizvoda ili težinu paketa.
+          Standardna cijena dostave iznosi <span className="text-[#c9a96e] font-semibold">3,50 €</span> po narudžbi — bez obzira na broj proizvoda ili težinu paketa.
         </p>
         <p>
           Na svim narudžbama iznad <span className="text-[#c9a96e] font-semibold">50 €</span> dostava je <span className="text-[#c9a96e] font-semibold">besplatna</span>.
@@ -292,7 +292,7 @@ export function ShippingPage() {
           Nakon što paket bude predan kuriru, na vaš email stiže obavijest s poveznicom za praćenje. Također možete pratiti status narudžbe putem naše stranice <Link to="/pracenje" className="text-[#c9a96e] hover:underline">Praćenje narudžbe</Link>.
         </p>
         <p>
-          Paket možete pratiti i unutar BoxNow aplikacije unosom koda za preuzimanje koji stiže SMS-om.
+          Paket možete pratiti i putem HP Pošta24 aplikacije ili web stranice unosom koda za preuzimanje koji stiže SMS-om.
         </p>
       </Section>
 
@@ -388,10 +388,10 @@ export function ContactPage() {
 
       <Section number={4} title="Adresa">
         <p>
-          Dekanti.hr je isključivo online platforma i nemamo fizičku maloprodaju. Sve narudžbe šaljemo putem BoxNow paketomata.
+          dekanti.hr je isključivo online platforma i nemamo fizičku maloprodaju. Sve narudžbe šaljemo putem HP Pošta24 paketomata.
         </p>
         <p className="text-sm mt-2">
-          Sjedište tvrtke: Ilica 1, 10000 Zagreb, Hrvatska
+          Sjedište tvrtke: Zagreb, Hrvatska
         </p>
       </Section>
     </PolicyLayout>
