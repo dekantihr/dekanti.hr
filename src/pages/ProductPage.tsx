@@ -237,18 +237,23 @@ export default function ProductPage({ wishlist, onWishlistToggle, onAddToCart, u
                           : 'border-[#c9a96e]/20 bg-[#111] text-[#e8d5a3]/60 hover:border-[#c9a96e]/50 hover:text-[#e8d5a3]/90 hover:bg-[#1a1a1a]'
                       }`}
                     >
-                      <div className="text-lg font-bold font-['Inter']">{s.velicina_ml}ml</div>
-                      <div className="text-[10px] font-['Inter'] mt-1 text-[#e8d5a3]/40">~{sprays} prskanja</div>
-                      <div className="text-xs font-['Inter'] mt-1.5 font-semibold">{s.cijena.toFixed(2)}€</div>
+                      {s.zaliha === 0 ? (
+                        <>
+                          <div className="text-lg font-bold font-['Inter'] line-through opacity-30">{s.velicina_ml}ml</div>
+                          <div className="text-[10px] font-['Inter'] mt-1 text-red-400/50 uppercase tracking-wider font-semibold">Rasprodano</div>
+                          <div className="text-xs font-['Inter'] mt-1.5 opacity-20">{s.cijena.toFixed(2)}€</div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="text-lg font-bold font-['Inter']">{s.velicina_ml}ml</div>
+                          <div className="text-[10px] font-['Inter'] mt-1 text-[#e8d5a3]/40">~{sprays} prskanja</div>
+                          <div className="text-xs font-['Inter'] mt-1.5 font-semibold">{s.cijena.toFixed(2)}€</div>
+                        </>
+                      )}
                       {s.zaliha > 0 && s.zaliha <= 5 && (
                         <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-[8px] px-1.5 py-0.5 rounded-full font-bold shadow-lg animate-pulse">
                           Zadnji!
                         </span>
-                      )}
-                      {s.zaliha === 0 && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-[#0a0a0a]/50 rounded-xl">
-                          <span className="text-[9px] text-[#e8d5a3]/30 uppercase tracking-wider">Rasprodano</span>
-                        </div>
                       )}
                     </button>
                   );
