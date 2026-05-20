@@ -387,12 +387,9 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
                         <Check size={11} className="text-[#0a0a0a]" strokeWidth={3} />
                       </div>
                       <div className="flex items-center gap-4">
-                        {/* BoxNow logo placeholder — white box with text */}
-                        <div className="w-14 h-14 rounded-xl bg-white flex items-center justify-center flex-shrink-0 shadow-md">
-                          <div className="text-center">
-                            <div className="text-[#1a1a1a] font-black text-[9px] leading-tight tracking-tight">BOX</div>
-                            <div className="text-[#e85d04] font-black text-[9px] leading-tight tracking-tight">NOW</div>
-                          </div>
+                        {/* BoxNow logo */}
+                        <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 shadow-md">
+                          <img src="/logos/boxnow.svg" alt="BoxNow" className="w-full h-full object-cover" />
                         </div>
                         <div className="flex-1">
                           <p className="text-[#e8d5a3] text-sm font-bold font-['Inter'] mb-0.5">BoxNow paketomat</p>
@@ -442,11 +439,8 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
                       >
                         <div className="p-4 flex items-center gap-4">
                           {/* Revolut logo */}
-                          <div className="w-12 h-12 rounded-xl bg-[#191c1f] flex items-center justify-center flex-shrink-0 shadow-md border border-white/5">
-                            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-                              <path d="M14 0C6.268 0 0 6.268 0 14s6.268 14 14 14 14-6.268 14-14S21.732 0 14 0z" fill="#191c1f"/>
-                              <path d="M17.5 7H11v14h3v-5h1.5l3 5H22l-3.3-5.3A4 4 0 0017.5 7zm0 6H14V10h3.5a1.5 1.5 0 010 3z" fill="white"/>
-                            </svg>
+                          <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center flex-shrink-0 shadow-md border border-white/5 overflow-hidden p-1.5">
+                            <img src="/logos/revolut.svg" alt="Revolut" className="w-full h-full object-contain" />
                           </div>
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-0.5">
@@ -629,11 +623,8 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
                     <div>
                       <div className="flex items-center gap-3 mb-2">
                         {/* Revolut wordmark */}
-                        <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-3 py-2">
-                          <svg width="20" height="20" viewBox="0 0 28 28" fill="none">
-                            <path d="M17.5 7H11v14h3v-5h1.5l3 5H22l-3.3-5.3A4 4 0 0017.5 7zm0 6H14V10h3.5a1.5 1.5 0 010 3z" fill="white"/>
-                          </svg>
-                          <span className="text-white font-bold text-sm tracking-tight">Revolut</span>
+                        <div className="flex items-center gap-2 bg-white rounded-xl px-3 py-2 shadow-sm">
+                          <img src="/logos/revolut.svg" alt="Revolut" className="h-5 w-auto object-contain" />
                         </div>
                         <span className="text-purple-300/60 text-xs font-['Inter']">plaćanje</span>
                       </div>
