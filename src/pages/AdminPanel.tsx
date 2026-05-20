@@ -64,7 +64,10 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
   const [showProductModal, setShowProductModal] = useState(false);
   const [uploadingImages, setUploadingImages] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  const [dragImageIdx, setDragImageIdx] = useState<number | null>(null);
+  const [dragOverImageIdx, setDragOverImageIdx] = useState<number | null>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
+  const touchDragRef = useRef<{ startIdx: number; startX: number; startY: number; el: HTMLElement | null }>({ startIdx: -1, startX: 0, startY: 0, el: null });
   const trackingInputRef = useRef<HTMLInputElement>(null);
 
   if (!user || user.role !== 'admin') return <Navigate to="/prijava" replace />;
@@ -2556,40 +2559,127 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                         )}
                       </div>
 
-                      {/* Image Preview Grid */}
+                      {/* Image Preview Grid - drag to reorder */}
                       {(selectedProduct.product_images || []).filter((img: any) => img.url).length > 0 && (
-                        <div className="grid grid-cols-3 gap-2">
-                          {(selectedProduct.product_images || []).filter((img: any) => img.url).map((img: any, idx: number) => (
-                            <div key={idx} className="relative group aspect-square rounded-xl overflow-hidden bg-[#0a0a0a] border border-[#c9a96e]/10">
-                              <img 
-                                src={img.url} 
-                                alt={img.alt_text || ''} 
-                                className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
-                                onError={e => { (e.target as HTMLImageElement).src = ''; (e.target as HTMLImageElement).alt = '⚠'; }}
-                              />
-                              {/* Remove button */}
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  const newImages = (selectedProduct.product_images || []).filter((_: any, i: number) => i !== idx);
-                                  setSelectedProduct({ ...selectedProduct, product_images: newImages });
-                                  // Also try to delete from storage (fire & forget)
-                                  if (img.url) api.deleteProductImage(img.url).catch(() => {});
+                        <>
+                          <p className="text-[#e8d5a3]/20 text-[10px] font-['Inter'] mb-2">Povucite slike za promjenu redoslijeda · #1 je glavna slika</p>
+                          <div className="grid grid-cols-3 gap-2">
+                            {(selectedProduct.product_images || []).filter((img: any) => img.url).map((img: any, idx: number) => (
+                              <div
+                                key={img.url + idx}
+                                draggable
+                                onDragStart={e => {
+                                  setDragImageIdx(idx);
+                                  e.dataTransfer.effectAllowed = 'move';
                                 }}
-                                disabled={saving || uploadingImages}
-                                className="absolute top-1.5 right-1.5 w-6 h-6 bg-black/70 hover:bg-red-600/80 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all"
-                                title="Obriši sliku"
+                                onDragOver={e => {
+                                  e.preventDefault();
+                                  e.dataTransfer.dropEffect = 'move';
+                                  setDragOverImageIdx(idx);
+                                }}
+                                onDragLeave={() => setDragOverImageIdx(null)}
+                                onDrop={e => {
+                                  e.preventDefault();
+                                  if (dragImageIdx === null || dragImageIdx === idx) {
+                                    setDragImageIdx(null);
+                                    setDragOverImageIdx(null);
+                                    return;
+                                  }
+                                  const imgs = [...(selectedProduct.product_images || []).filter((i: any) => i.url)];
+                                  const [moved] = imgs.splice(dragImageIdx, 1);
+                                  imgs.splice(idx, 0, moved);
+                                  setSelectedProduct({ ...selectedProduct, product_images: imgs });
+                                  setDragImageIdx(null);
+                                  setDragOverImageIdx(null);
+                                }}
+                                onDragEnd={() => {
+                                  setDragImageIdx(null);
+                                  setDragOverImageIdx(null);
+                                }}
+                                onTouchStart={e => {
+                                  const touch = e.touches[0];
+                                  touchDragRef.current = { startIdx: idx, startX: touch.clientX, startY: touch.clientY, el: e.currentTarget as HTMLElement };
+                                  (e.currentTarget as HTMLElement).style.opacity = '0.5';
+                                  setDragImageIdx(idx);
+                                }}
+                                onTouchMove={e => {
+                                  e.preventDefault();
+                                  const touch = e.touches[0];
+                                  const el = document.elementFromPoint(touch.clientX, touch.clientY);
+                                  const cell = el?.closest('[data-imgidx]') as HTMLElement | null;
+                                  if (cell) {
+                                    const overIdx = parseInt(cell.dataset.imgidx || '-1', 10);
+                                    if (overIdx >= 0) setDragOverImageIdx(overIdx);
+                                  }
+                                }}
+                                onTouchEnd={e => {
+                                  const { startIdx } = touchDragRef.current;
+                                  if (touchDragRef.current.el) touchDragRef.current.el.style.opacity = '';
+                                  const touch = e.changedTouches[0];
+                                  const el = document.elementFromPoint(touch.clientX, touch.clientY);
+                                  const cell = el?.closest('[data-imgidx]') as HTMLElement | null;
+                                  if (cell) {
+                                    const dropIdx = parseInt(cell.dataset.imgidx || '-1', 10);
+                                    if (dropIdx >= 0 && dropIdx !== startIdx) {
+                                      const imgs = [...(selectedProduct.product_images || []).filter((i: any) => i.url)];
+                                      const [moved] = imgs.splice(startIdx, 1);
+                                      imgs.splice(dropIdx, 0, moved);
+                                      setSelectedProduct({ ...selectedProduct, product_images: imgs });
+                                    }
+                                  }
+                                  setDragImageIdx(null);
+                                  setDragOverImageIdx(null);
+                                  touchDragRef.current = { startIdx: -1, startX: 0, startY: 0, el: null };
+                                }}
+                                data-imgidx={idx}
+                                className={`relative group aspect-square rounded-xl overflow-hidden bg-[#0a0a0a] border transition-all cursor-grab active:cursor-grabbing select-none
+                                  ${dragImageIdx === idx ? 'opacity-40 scale-95 border-[#c9a96e]/60' : ''}
+                                  ${dragOverImageIdx === idx && dragImageIdx !== idx ? 'border-[#c9a96e] ring-2 ring-[#c9a96e]/40 scale-105' : 'border-[#c9a96e]/10'}
+                                `}
                               >
-                                <X size={12} className="text-white" />
-                              </button>
-                              {/* Sort order badge */}
-                              <div className="absolute bottom-1.5 left-1.5 bg-black/60 text-[#c9a96e] text-[9px] font-bold px-1.5 py-0.5 rounded-md font-['Inter']">
-                                #{idx + 1}
+                                <img 
+                                  src={img.url} 
+                                  alt={img.alt_text || ''} 
+                                  className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity pointer-events-none"
+                                  onError={e => { (e.target as HTMLImageElement).src = ''; (e.target as HTMLImageElement).alt = '⚠'; }}
+                                  draggable={false}
+                                />
+                                {/* Drag handle hint */}
+                                <div className="absolute top-1.5 left-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <div className="w-5 h-5 bg-black/60 rounded-md flex items-center justify-center">
+                                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                                      <circle cx="3" cy="3" r="1" fill="#c9a96e"/>
+                                      <circle cx="7" cy="3" r="1" fill="#c9a96e"/>
+                                      <circle cx="3" cy="7" r="1" fill="#c9a96e"/>
+                                      <circle cx="7" cy="7" r="1" fill="#c9a96e"/>
+                                    </svg>
+                                  </div>
+                                </div>
+                                {/* Remove button */}
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    const newImages = (selectedProduct.product_images || []).filter((_: any, i: number) => i !== idx);
+                                    setSelectedProduct({ ...selectedProduct, product_images: newImages });
+                                    if (img.url) api.deleteProductImage(img.url).catch(() => {});
+                                  }}
+                                  disabled={saving || uploadingImages}
+                                  className="absolute top-1.5 right-1.5 w-6 h-6 bg-black/70 hover:bg-red-600/80 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all"
+                                  title="Obriši sliku"
+                                >
+                                  <X size={12} className="text-white" />
+                                </button>
+                                {/* Sort order badge */}
+                                <div className={`absolute bottom-1.5 left-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded-md font-['Inter'] transition-colors
+                                  ${idx === 0 ? 'bg-[#c9a96e]/80 text-black' : 'bg-black/60 text-[#c9a96e]'}
+                                `}>
+                                  {idx === 0 ? '★ Glavna' : `#${idx + 1}`}
+                                </div>
                               </div>
-                            </div>
-                          ))}
-                        </div>
+                            ))}
+                          </div>
+                        </>
                       )}
 
                       {/* URL input fallback - collapsed by default */}

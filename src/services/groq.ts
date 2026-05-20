@@ -12,7 +12,7 @@
 
 import { supabase } from '../utils/supabase';
 
-const MODEL = 'llama-3.1-8b-instant';
+const MODEL = 'llama-3.3-70b-versatile';
 const USER_KEY = 'dekanti_user';
 
 interface GroqMessage {
@@ -112,7 +112,7 @@ Opis treba biti privlačan, profesionalan i fokusiran na kvalitetu proizvoda.`
 }
 
 /**
- * Generate scent notes (top, heart, base)
+ * Generate scent notes (top, heart, base) — fetches real data from Fragrantica
  */
 export async function generateScentNotes(
   naziv: string,
@@ -121,31 +121,61 @@ export async function generateScentNotes(
   const messages: GroqMessage[] = [
     {
       role: 'system',
-      content: 'Ti si parfemski stručnjak koji poznaje note parfema. Generiraj realistične note parfema na hrvatskom jeziku. Odgovori SAMO u JSON formatu bez dodatnog teksta.'
+      content: `You are a fragrance expert with encyclopedic knowledge of perfumes. Your task is to provide ACCURATE, REAL fragrance notes for specific perfumes — not invented ones.
+
+CRITICAL RULES:
+1. Use ONLY real, documented notes for this specific perfume from Fragrantica, Parfumo, or official brand sources
+2. If real data is provided below, extract notes from it precisely
+3. If you know this perfume well from your training data, use those exact notes
+4. Do NOT invent or guess notes — accuracy is essential for a perfume shop
+5. Respond ONLY in JSON format, no other text
+6. Notes should be in Croatian language (e.g. "bergamot" stays "bergamot", "ruža" for rose, "sandalovina" for sandalwood, "mošus" for musk, "vanilija" for vanilla, "pačuli" for patchouli, "cedrovino" for cedarwood, "tamjan" for frankincense, "iris" stays "iris", "jasmin" stays "jasmin")`
     },
     {
       role: 'user',
-      content: `Za parfem "${naziv}" od branda "${brand}", generiraj note parfema.
+      content: `Provide the REAL, ACCURATE fragrance notes for: "${naziv}" by ${brand}
 
-Odgovori u JSON formatu:
+This is a real perfume sold in our shop. Use your knowledge of this specific perfume.
+
+Respond ONLY in this JSON format:
 {
   "note_vrha": "bergamot, limun, naranča",
-  "note_srca": "ruža, jasmin, lavanda",
+  "note_srca": "ruža, jasmin, iris",
   "note_baze": "mošus, sandalovina, vanilija"
 }
 
-Koristi realne sastojke koji se koriste u parfemima. Odgovori SAMO JSON bez dodatnog teksta.`
+Use the actual documented notes for this perfume. If you are not certain about specific notes, use the most commonly cited ones from fragrance databases.`
     }
   ];
 
-  const response = await callGroq(messages, 0.7, 200);
-  
+  // Build the request with fetch_notes to trigger Fragrantica scraping
+  const request = {
+    model: 'llama-3.3-70b-versatile',
+    messages,
+    temperature: 0.2, // Very low — we want factual, not creative
+    max_tokens: 250,
+    fetch_notes: { naziv, brand }, // Triggers server-side Fragrantica fetch
+  };
+
   try {
-    // Extract JSON from response (in case there's extra text)
-    const jsonMatch = response.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      throw new Error('Invalid JSON response');
+    const userEmail = getCurrentUserEmail();
+    const headers: Record<string, string> = {};
+    if (userEmail) {
+      headers['x-user-email'] = userEmail;
     }
+
+    const { data, error } = await supabase.functions.invoke<GroqResponse>('admin-ai', {
+      body: request,
+      headers,
+    });
+
+    if (error) throw error;
+
+    const response = data?.choices[0]?.message?.content?.trim() || '';
+    
+    // Extract JSON from response
+    const jsonMatch = response.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('Invalid JSON response');
     
     const parsed = JSON.parse(jsonMatch[0]);
     return {
@@ -153,14 +183,9 @@ Koristi realne sastojke koji se koriste u parfemima. Odgovori SAMO JSON bez doda
       note_srca: parsed.note_srca || '',
       note_baze: parsed.note_baze || '',
     };
-  } catch (error) {
-    console.error('Failed to parse scent notes:', error);
-    // Fallback to generic notes
-    return {
-      note_vrha: 'citrus, bergamot',
-      note_srca: 'ruža, jasmin',
-      note_baze: 'mošus, sandalovina',
-    };
+  } catch (error: any) {
+    console.error('Failed to generate scent notes:', error);
+    throw new Error(error.message || 'Greška pri generiranju nota parfema');
   }
 }
 
