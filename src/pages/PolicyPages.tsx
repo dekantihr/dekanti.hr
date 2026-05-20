@@ -193,6 +193,27 @@ export function RefundPage() {
           Troškove povrata snosi kupac. Nakon što primimo i pregledamo vraćeni proizvod, povrat novca izvršit ćemo u roku od 14 dana na isti način plaćanja.
         </p>
       </Section>
+
+      <Section number={5} title="Neispravna uplata (krivi iznos)">
+        <p>
+          Ako je kupac putem Revoluta ili bankovnog transfera uplatio iznos koji se razlikuje od iznosa narudžbe, vrijede sljedeća pravila:
+        </p>
+        <ul className="space-y-2 mt-2">
+          {[
+            'Uplata niža od navedenog iznosa: narudžba se ne obrađuje i ne šalje dok se razlika ne doplati. Kupac je dužan kontaktirati nas na info@dekanti.hr s dokazom uplate i brojem narudžbe.',
+            'Uplata viša od navedenog iznosa: razlika se ne vraća automatski. Kupac može zatražiti povrat razlike pisanim zahtjevom na info@dekanti.hr u roku od 14 dana od uplate. Povrat se vrši na isti Revolut račun ili IBAN s kojeg je uplata stigla.',
+            'Namjerna uplata nižeg iznosa uz tvrdnju da je uplata bila ispravna: smatra se pokušajem prijevare. U tom slučaju narudžba se trajno otkazuje, uplata se ne vraća, a slučaj se može prijaviti nadležnim tijelima.',
+          ].map((item, i) => (
+            <li key={i} className="flex items-start gap-3">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#c9a96e] mt-2 flex-shrink-0" />
+              {item}
+            </li>
+          ))}
+        </ul>
+        <p className="mt-3">
+          Kupac je klikom na gumb <span className="text-[#c9a96e] font-semibold">"Platio sam — pošalji narudžbu"</span> i označavanjem potvrdnog okvira na stranici za plaćanje izričito potvrdio da je upoznat s ovim uvjetima i da je uplatio točan iznos. Ta potvrda bilježi se u sustavu kao dokaz prihvaćanja uvjeta.
+        </p>
+      </Section>
     </PolicyLayout>
   );
 }
@@ -217,20 +238,45 @@ export function TermsPage() {
           Narudžba se smatra zaprimljenom tek nakon uspješnog plaćanja. U slučaju da plaćanje nije uspješno, narudžba se automatski otkazuje nakon 30 minuta.
         </p>
         <p>
-          Prihvaćamo sljedeće načine plaćanja: kartično plaćanje (Visa, Mastercard, Maestro), Revolut i digitalne bankovne uplate.
+          Prihvaćamo sljedeće načine plaćanja: Revolut i digitalne bankovne uplate.
         </p>
       </Section>
 
-      <Section number={3} title="Dostava">
+      <Section number={3} title="Obveza plaćanja točnog iznosa — Revolut">
         <p>
-          Dostavu vršimo isključivo putem HP Pošta24 paketomata širom Hrvatske. Cijena dostave iznosi 3,50 € za sve narudžbe. Besplatna dostava na narudžbe iznad 50 €.
+          Kod plaćanja putem Revoluta, kupac je <span className="text-[#c9a96e] font-semibold">dužan uplatiti točno onaj iznos koji je prikazan na stranici za plaćanje</span> i koji je generiran sustavom narudžbe. Iznos je izražen u eurima (EUR).
+        </p>
+        <p>
+          Svaka uplata koja se razlikuje od navedenog iznosa — bez obzira je li viša ili niža — smatra se <span className="text-[#c9a96e] font-semibold">neispravnom uplatom</span> i povlači sljedeće posljedice:
+        </p>
+        <ul className="space-y-2 mt-2">
+          {[
+            'Narudžba neće biti obrađena niti poslana dok se uplata ne uskladi s navedenim iznosom.',
+            'Uplata niža od navedenog iznosa neće biti prihvaćena kao valjana — narudžba ostaje u statusu "čeka uplatu" dok se razlika ne doplati.',
+            'Uplata viša od navedenog iznosa tretira se kao greška kupca — razlika se ne vraća automatski, već isključivo na pisani zahtjev kupca upućen na info@dekanti.hr.',
+            'dekanti.hr ne snosi odgovornost za kašnjenje ili neisporuku narudžbe uzrokovanu neispravnom uplatom.',
+          ].map((item, i) => (
+            <li key={i} className="flex items-start gap-3">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#c9a96e] mt-2 flex-shrink-0" />
+              {item}
+            </li>
+          ))}
+        </ul>
+        <p className="mt-3">
+          Klikom na gumb <span className="text-[#c9a96e] font-semibold">"Platio sam — pošalji narudžbu"</span> na stranici za plaćanje, kupac potvrđuje da je upoznat s ovim uvjetima i da je uplatio točan iznos naveden u narudžbi. Ova potvrda bilježi se u sustavu zajedno s brojem narudžbe, iznosom i vremenskom oznakom te služi kao dokaz prihvaćanja uvjeta plaćanja.
+        </p>
+      </Section>
+
+      <Section number={4} title="Dostava">
+        <p>
+          Dostavu vršimo isključivo putem BoxNow paketomata širom Hrvatske. Cijena dostave iznosi 4,50 € za sve narudžbe. Besplatna dostava na narudžbe iznad 50 €.
         </p>
         <p>
           Rok isporuke je 1–2 radna dana od trenutka predaje paketa kurirskoj službi. U blagdanskim razdobljima rok isporuke može biti duži.
         </p>
       </Section>
 
-      <Section number={4} title="Zalihe i dostupnost">
+      <Section number={5} title="Zalihe i dostupnost">
         <p>
           Svi proizvodi na web stranici dostupni su unutar navedenih zaliha. U rijetkim slučajevima može se dogoditi da je proizvod istovremeno naručen od više kupaca i da zaliha bude iscrpljena prije obrade vaše narudžbe.
         </p>
@@ -239,7 +285,7 @@ export function TermsPage() {
         </p>
       </Section>
 
-      <Section number={5} title="Odgovornost">
+      <Section number={6} title="Odgovornost">
         <p>
           dekanti.hr ne odgovara za eventualne alergijske reakcije na parfemske sastojke. Preporučujemo da prije kupnje provjerite listu sastojaka ako imate poznate alergije.
         </p>
@@ -248,7 +294,7 @@ export function TermsPage() {
         </p>
       </Section>
 
-      <Section number={6} title="Intelektualno vlasništvo">
+      <Section number={7} title="Intelektualno vlasništvo">
         <p>
           Svi sadržaji na web stranici (slike, tekstovi, logotipi, dizajn) zaštićeni su autorskim pravima i mogu se koristiti isključivo u osobne, nekomercijalne svrhe.
         </p>

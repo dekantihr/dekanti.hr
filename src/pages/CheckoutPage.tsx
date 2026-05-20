@@ -38,6 +38,7 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
   const [isProcessing, setIsProcessing] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentConfirmed, setPaymentConfirmed] = useState(false);
+  const [paymentTermsAccepted, setPaymentTermsAccepted] = useState(false);
   // Snapshot of totals + items captured at the moment user clicks
   // "Confirm order". Used so the modal still shows the correct numbers
   // after the cart has been cleared in the parent state.
@@ -253,6 +254,7 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
     setShowPaymentModal(false);
     setPendingOrder(null);
     setOrderNumber('');
+    setPaymentTermsAccepted(false);
   };
 
   const copyToClipboard = (text: string) => {
@@ -619,12 +621,40 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
                   </p>
                 </div>
 
+                {/* Terms acceptance checkbox */}
+                <label className="flex items-start gap-3 cursor-pointer group mb-4 bg-[#0a0a0a] border border-[#c9a96e]/15 rounded-xl p-4 hover:border-[#c9a96e]/30 transition-colors">
+                  <div className="flex-shrink-0 mt-0.5">
+                    <div
+                      onClick={() => setPaymentTermsAccepted(v => !v)}
+                      className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all cursor-pointer ${
+                        paymentTermsAccepted
+                          ? 'bg-[#c9a96e] border-[#c9a96e]'
+                          : 'border-[#c9a96e]/40 hover:border-[#c9a96e]/70'
+                      }`}
+                    >
+                      {paymentTermsAccepted && <Check size={12} className="text-[#0a0a0a]" strokeWidth={3} />}
+                    </div>
+                  </div>
+                  <p className="text-[#e8d5a3]/60 text-xs font-['Inter'] leading-relaxed">
+                    Potvrđujem da sam uplatio/la <span className="text-[#c9a96e] font-semibold">točno {pendingOrder.ukupno.toFixed(2)}€</span> na Revolut račun{' '}
+                    <span className="text-[#c9a96e]">{revolutHandle}</span> s opisom{' '}
+                    <span className="text-purple-300 font-mono">{orderNumber}</span>.{' '}
+                    Razumijem da uplata drugačijeg iznosa neće rezultirati isporukom narudžbe i da povrat nije automatski — sukladno{' '}
+                    <Link to="/uvjeti" target="_blank" className="text-[#c9a96e] underline underline-offset-2 hover:text-[#e8d5a3] transition-colors">
+                      Uvjetima korištenja
+                    </Link>{' '}i{' '}
+                    <Link to="/povrat" target="_blank" className="text-[#c9a96e] underline underline-offset-2 hover:text-[#e8d5a3] transition-colors">
+                      Pravilima povrata
+                    </Link>.
+                  </p>
+                </label>
+
                 {/* Confirm + cancel */}
                 <div className="space-y-2">
                   <button
                     onClick={handleMarkAsPaid}
-                    disabled={isProcessing}
-                    className="w-full bg-[#c9a96e] text-[#0a0a0a] py-4 rounded-2xl font-bold text-sm tracking-[0.1em] uppercase hover:bg-[#e8d5a3] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-[#c9a96e]/10"
+                    disabled={isProcessing || !paymentTermsAccepted}
+                    className="w-full bg-[#c9a96e] text-[#0a0a0a] py-4 rounded-2xl font-bold text-sm tracking-[0.1em] uppercase hover:bg-[#e8d5a3] transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-[#c9a96e]/10"
                     type="button"
                   >
                     {isProcessing ? (
@@ -639,6 +669,11 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
                       </>
                     )}
                   </button>
+                  {!paymentTermsAccepted && (
+                    <p className="text-[#e8d5a3]/35 text-[10px] font-['Inter'] text-center">
+                      Označite potvrdni okvir iznad kako biste nastavili
+                    </p>
+                  )}
                   <button
                     onClick={handleCancelPayment}
                     disabled={isProcessing}
