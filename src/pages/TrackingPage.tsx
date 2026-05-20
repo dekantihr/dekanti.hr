@@ -1,14 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Search, Package, Truck, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { Order } from '../store/cartStore';
+import { supabase } from '../utils/supabase';
 import ScrollReveal from '../components/ScrollReveal';
 
 interface TrackingPageProps {
   orders: Order[];
 }
 
-const STATUS_CONFIG = {
+const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; icon: React.ReactNode; step: number }> = {
+  cekanje_uplate: { label: 'Čeka uplatu', color: 'text-purple-400', bg: 'bg-purple-400/10 border-purple-400/30', icon: <Clock size={16} />, step: 0 },
   nova: { label: 'Nova narudžba', color: 'text-yellow-400', bg: 'bg-yellow-400/10 border-yellow-400/30', icon: <Clock size={16} />, step: 0 },
   u_obradi: { label: 'U obradi', color: 'text-blue-400', bg: 'bg-blue-400/10 border-blue-400/30', icon: <Package size={16} />, step: 1 },
   poslano: { label: 'Poslano', color: 'text-purple-400', bg: 'bg-purple-400/10 border-purple-400/30', icon: <Truck size={16} />, step: 2 },
@@ -16,56 +18,69 @@ const STATUS_CONFIG = {
   otkazano: { label: 'Otkazano', color: 'text-red-400', bg: 'bg-red-400/10 border-red-400/30', icon: <XCircle size={16} />, step: -1 },
 };
 
-const DEMO_ORDERS: Order[] = [
-  {
-    order_number: 'HR-2024-000001',
-    status: 'isporuceno',
-    ime: 'Ivan', prezime: 'Perić',
-    email: 'ivan@test.com', telefon: '+38598123',
-    adresa: 'Vukovarska 23', grad: 'Split', postanski_broj: '21000',
-    nacin_placanja: 'bankovna',
-    cijena_dostave: 0.80, subtotal: 43.98, popust_iznos: 0, ukupno: 44.78,
-    items: [], created_at: '2024-03-01', tracking_broj: 'HR123456789HR'
-  },
-  {
-    order_number: 'HR-2024-000002',
-    status: 'poslano',
-    ime: 'Maja', prezime: 'Novak',
-    email: 'maja@test.com', telefon: '+38595654',
-    adresa: 'Ribnjak 10', grad: 'Rijeka', postanski_broj: '51000',
-    nacin_placanja: 'revolut',
-    cijena_dostave: 0, subtotal: 61.98, popust_iznos: 6.20, ukupno: 55.78,
-    items: [], created_at: '2024-03-10', tracking_broj: 'HR987654321HR',
-    placeno: true
-  },
-  {
-    order_number: 'HR-2024-000003',
-    status: 'u_obradi',
-    ime: 'Tomislav', prezime: 'Babić',
-    email: 'tomislav@test.com', telefon: '+38591987',
-    adresa: 'Trg bana Jelačića 1', grad: 'Osijek', postanski_broj: '31000',
-    nacin_placanja: 'bankovna',
-    cijena_dostave: 0.80, subtotal: 83.98, popust_iznos: 0, ukupno: 84.78,
-    items: [], created_at: '2024-03-14'
-  },
-];
-
 export default function TrackingPage({ orders }: TrackingPageProps) {
   const [searchParams] = useSearchParams();
   const [query, setQuery] = useState(searchParams.get('broj') ?? '');
-  const [result, setResult] = useState<Order | null>(null);
+  const [result, setResult] = useState<any | null>(null);
   const [notFound, setNotFound] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const allOrders = [...orders, ...DEMO_ORDERS];
+  // Auto-search if order number is in URL
+  useEffect(() => {
+    const broj = searchParams.get('broj');
+    if (broj) {
+      setQuery(broj);
+      searchOrder(broj);
+    }
+  }, []);
+
+  const searchOrder = async (orderNumber: string) => {
+    const trimmed = orderNumber.trim().toUpperCase();
+    if (!trimmed) return;
+
+    setLoading(true);
+    setResult(null);
+    setNotFound(false);
+
+    try {
+      // 1. Search Supabase first (real orders)
+      const { data, error } = await supabase
+        .from('orders')
+        .select('*')
+        .ilike('order_number', trimmed)
+        .single();
+
+      if (!error && data) {
+        setResult(data);
+        setLoading(false);
+        return;
+      }
+
+      // 2. Fall back to localStorage orders (current session)
+      const localOrder = orders.find(
+        o => o.order_number.toUpperCase() === trimmed
+      );
+      if (localOrder) {
+        setResult(localOrder);
+        setLoading(false);
+        return;
+      }
+
+      // Not found anywhere
+      setNotFound(true);
+    } catch {
+      setNotFound(true);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    const found = allOrders.find(o => o.order_number.toUpperCase() === query.trim().toUpperCase());
-    if (found) { setResult(found); setNotFound(false); }
-    else { setResult(null); setNotFound(true); }
+    searchOrder(query);
   };
 
-  const config = result ? STATUS_CONFIG[result.status] : null;
+  const config = result ? (STATUS_CONFIG[result.status] ?? STATUS_CONFIG['nova']) : null;
   const steps = ['Nova', 'U obradi', 'Poslano', 'Isporučeno'];
 
   return (
@@ -91,16 +106,16 @@ export default function TrackingPage({ orders }: TrackingPageProps) {
                 type="text"
                 value={query}
                 onChange={e => setQuery(e.target.value)}
-                placeholder="HR-2024-000001"
+                placeholder="HR-2026-000001"
                 className="w-full bg-[#111111] border border-[#c9a96e]/20 text-[#e8d5a3] placeholder-[#e8d5a3]/25 pl-11 pr-4 py-4 rounded-2xl text-sm focus:outline-none focus:border-[#c9a96e]/50 font-['Inter'] tracking-wider"
               />
             </div>
-            <button type="submit" className="bg-[#c9a96e] text-[#0a0a0a] px-6 py-4 rounded-2xl font-bold text-sm tracking-wider uppercase hover:bg-[#e8d5a3] transition-all">
-              Traži
+            <button type="submit" disabled={loading} className="bg-[#c9a96e] text-[#0a0a0a] px-6 py-4 rounded-2xl font-bold text-sm tracking-wider uppercase hover:bg-[#e8d5a3] transition-all disabled:opacity-60 flex items-center gap-2">
+              {loading ? <div className="w-4 h-4 border-2 border-[#0a0a0a]/30 border-t-[#0a0a0a] rounded-full animate-spin" /> : 'Traži'}
             </button>
           </div>
           <p className="text-[#e8d5a3]/20 text-xs font-['Inter'] mt-2 text-center">
-            Probaj: HR-2024-000001, HR-2024-000002, HR-2024-000003
+            Unesite broj narudžbe iz potvrdnog emaila (npr. HR-2026-123456)
           </p>
         </form>
 
