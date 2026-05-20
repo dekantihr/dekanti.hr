@@ -419,7 +419,7 @@ export default function HomePage({ wishlist, onWishlistToggle, onAddToCart }: Ho
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
               { icon: <Package size={18} />, title: 'Isti dan pakiranje', desc: 'Narudžbe do 14h' },
-              { icon: <Truck size={18} />, title: 'HP Pošta24', desc: 'Dostava 1-2 radna dana' },
+              { icon: <Truck size={18} />, title: 'BoxNow paketomat', desc: 'Dostava 1-2 radna dana' },
               { icon: <Shield size={18} />, title: 'Sigurna kupnja', desc: 'Pouzećem ili bankovno' },
               { icon: <RotateCcw size={18} />, title: '14 dana povrat', desc: 'Bez pitanja' },
             ].map((badge, idx) => (
@@ -760,7 +760,7 @@ export default function HomePage({ wishlist, onWishlistToggle, onAddToCart }: Ho
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-6 pt-6 border-t border-[#c9a96e]/10">
             {[
               { icon: <Package size={12} />, text: 'Isti dan pakiranje' },
-              { icon: <Truck size={12} />, text: 'HP Pošta24' },
+              { icon: <Truck size={12} />, text: 'BoxNow paketomat' },
               { icon: <Shield size={12} />, text: 'Sigurna kupnja' },
             ].map(item => (
               <div key={item.text} className="flex items-center gap-2 text-[#e8d5a3]/30 text-xs font-['Inter']">

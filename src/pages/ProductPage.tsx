@@ -312,7 +312,7 @@ export default function ProductPage({ wishlist, onWishlistToggle, onAddToCart, u
             <div className="grid grid-cols-3 gap-3">
               {[
                 { icon: <Package size={16} />, text: 'Isti dan pakiranje' },
-                { icon: <Truck size={16} />, text: 'HP Pošta24' },
+                { icon: <Truck size={16} />, text: 'BoxNow paketomat' },
                 { icon: <Shield size={16} />, text: 'Sigurna kupnja' },
               ].map(b => (
                 <div key={b.text} className="flex flex-col items-center gap-1.5 bg-[#111111] border border-[#c9a96e]/8 rounded-xl p-3 text-center">

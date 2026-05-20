@@ -172,7 +172,7 @@ export default function ProfilePage({ user, orders, wishlist, onWishlistToggle }
                       <div className="text-sm font-['Inter'] text-[#e8d5a3]/40">
                         {order.nacin_placanja === 'pouzecem' ? '💵 Pouzećem' : order.nacin_placanja === 'revolut' ? '💳 Revolut' : '🏦 Bankovno'}
                         {order.placeno && <span className="text-green-400 ml-1">✓ plaćeno</span>}
-                        {' · 🚚 HP Pošta24'}
+                        {' · 🚚 BoxNow paketomat'}
                       </div>
                       <div className="flex items-center gap-3">
                         <span className="text-[#c9a96e] font-['DM_Sans'] font-bold text-lg">{order.ukupno.toFixed(2)}€</span>

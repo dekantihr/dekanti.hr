@@ -130,7 +130,7 @@ export function PrivacyPage() {
 
       <Section number={3} title="Dijeljenje podataka s trećim stranama">
         <p>
-          Vaše podatke (ime, mobitel) dijelimo isključivo s dostavnom službom (HP Pošta24) kako bi vam se mogao generirati kod za preuzimanje paketa. Podaci se nikada neće prodavati ili dijeliti s marketinškim agencijama.
+          Vaše podatke (ime, mobitel) dijelimo isključivo s dostavnom službom (BoxNow) kako bi vam se mogao generirati kod za preuzimanje paketa. Podaci se nikada neće prodavati ili dijeliti s marketinškim agencijama.
         </p>
         <p>
           U slučaju slanja newslettera koristimo sigurne servise za masovno slanje emaila koji su usklađeni s GDPR regulativom. U svakom trenutku možete se odjaviti s liste pretplatnika klikom na link u emailu.
@@ -308,10 +308,10 @@ export function ShippingPage() {
     <PolicyLayout title="Dostava i isporuka" subtitle="Dostava" icon={<Truck size={18} />}>
       <Section number={1} title="Način dostave">
         <p>
-          Sve narudžbe šaljemo isključivo putem HP Pošta24 paketomata — najbrže i najpovoljnije rješenje dostave u Hrvatskoj. Nakon što paket predamo kurirskoj službi, na vaš broj mobitela stiže SMS s kodom za preuzimanje.
+          Sve narudžbe šaljemo isključivo putem BoxNow paketomata — najbrže i najpovoljnije rješenje dostave u Hrvatskoj. Nakon što paket predamo kurirskoj službi, na vaš broj mobitela stiže SMS s kodom za preuzimanje.
         </p>
         <p>
-          HP Pošta24 paketomati dostupni su na više od 200 lokacija diljem Hrvatske, a mnogi rade 24/7 što vam omogućuje preuzimanje u vrijeme koje vama najbolje odgovara.
+          BoxNow paketomati dostupni su na više od 200 lokacija diljem Hrvatske, a mnogi rade 24/7 što vam omogućuje preuzimanje u vrijeme koje vama najbolje odgovara.
         </p>
       </Section>
 
@@ -338,7 +338,7 @@ export function ShippingPage() {
           Nakon što paket bude predan kuriru, na vaš email stiže obavijest s poveznicom za praćenje. Također možete pratiti status narudžbe putem naše stranice <Link to="/pracenje" className="text-[#c9a96e] hover:underline">Praćenje narudžbe</Link>.
         </p>
         <p>
-          Paket možete pratiti i putem HP Pošta24 aplikacije ili web stranice unosom koda za preuzimanje koji stiže SMS-om.
+          Paket možete pratiti i putem BoxNow aplikacije ili web stranice unosom koda za preuzimanje koji stiže SMS-om.
         </p>
       </Section>
 
@@ -434,7 +434,7 @@ export function ContactPage() {
 
       <Section number={4} title="Adresa">
         <p>
-          dekantihr.com je isključivo online platforma i nemamo fizičku maloprodaju. Sve narudžbe šaljemo putem HP Pošta24 paketomata.
+          dekantihr.com je isključivo online platforma i nemamo fizičku maloprodaju. Sve narudžbe šaljemo putem BoxNow paketomata.
         </p>
         <p className="text-sm mt-2">
           Sjedište tvrtke: Zagreb, Hrvatska
