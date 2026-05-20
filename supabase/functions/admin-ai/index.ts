@@ -44,7 +44,7 @@ function jsonResponse(body: unknown, status = 200) {
 }
 
 function validateMessages(messages: unknown): GroqMessage[] {
-  if (!Array.isArray(messages) || messages.length === 0 || messages.length > 12) {
+  if (!Array.isArray(messages) || messages.length === 0 || messages.length > 20) {
     throw new Error("Invalid messages payload");
   }
 
@@ -58,7 +58,7 @@ function validateMessages(messages: unknown): GroqMessage[] {
       throw new Error("Invalid message role");
     }
 
-    if (typeof candidate.content !== "string" || candidate.content.trim().length === 0 || candidate.content.length > 4000) {
+    if (typeof candidate.content !== "string" || candidate.content.trim().length === 0 || candidate.content.length > 12000) {
       throw new Error("Invalid message content");
     }
 
@@ -307,7 +307,7 @@ Deno.serve(async (req) => {
       model: MODEL,
       messages,
       temperature: clampNumber(payload.temperature, 0.3, 0, 1), // Lower temp for factual notes
-      max_tokens: clampNumber(payload.max_tokens, 500, 50, 1000),
+      max_tokens: clampNumber(payload.max_tokens, 500, 50, 2000),
     }),
   });
 
