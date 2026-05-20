@@ -88,7 +88,7 @@ export default function Navbar({ itemCount, wishlistCount, user, onLogout }: Nav
           {/* Logo */}
           <Link to="/" className="flex flex-col items-start group logo-link">
             <span className="text-xl md:text-2xl font-['Cormorant_Garamond'] font-bold text-[#e8d5a3] tracking-[0.15em] group-hover:text-[#c9a96e] transition-all duration-400">
-              DEKANTI<span className="text-[#c9a96e]">.HR</span>
+              DEKANTIHR<span className="text-[#c9a96e]">.COM</span>
             </span>
             <span className="text-[10px] tracking-[0.25em] text-[#c9a96e]/60 uppercase font-medium -mt-0.5 hidden sm:block font-['Inter'] group-hover:text-[#c9a96e]/80 transition-colors duration-400">
               Luksuzni Decant Parfemi

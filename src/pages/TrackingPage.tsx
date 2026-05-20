@@ -188,7 +188,7 @@ export default function TrackingPage({ orders }: TrackingPageProps) {
                 <p className="text-[#e8d5a3]/25 text-[10px] uppercase tracking-wider font-['Inter'] mb-1">Iznos</p>
                 <p className="text-[#c9a96e] font-['DM_Sans'] font-bold text-xl">{result.ukupno.toFixed(2)}€</p>
                 <p className="text-[#e8d5a3]/40 text-xs font-['Inter']">
-                  {result.nacin_placanja === 'revolut' ? '� Revolut' : result.nacin_placanja === 'bankovna' ? '🏦 Bankovno' : '💳 Kartica'}
+                  {result.nacin_placanja === 'revolut' ? '💳 Revolut' : result.nacin_placanja === 'bankovna' ? '🏦 Bankovno' : '💳 Kartica'}
                   {result.placeno && <span className="text-green-400 ml-1">✓ plaćeno</span>}
                 </p>
               </div>

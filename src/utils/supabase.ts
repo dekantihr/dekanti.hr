@@ -77,7 +77,7 @@ export interface Database {
           id: number;
           user_id: number | null;
           order_number: string;
-          status: 'nova' | 'u_obradi' | 'poslano' | 'isporuceno' | 'otkazano' | 'povrat';
+          status: 'cekanje_uplate' | 'nova' | 'u_obradi' | 'poslano' | 'isporuceno' | 'otkazano' | 'povrat';
           ime: string;
           prezime: string;
           email: string;
@@ -87,13 +87,16 @@ export interface Database {
           postanski_broj: string;
           napomena: string | null;
           nacin_dostave: 'hp_posta24' | 'osobno_preuzimanje';
-          nacin_placanja: 'pouzecem' | 'bankovna' | 'kartica';
+          nacin_placanja: 'pouzecem' | 'bankovna' | 'kartica' | 'revolut';
           cijena_dostave: number;
           subtotal: number;
           popust_iznos: number;
           kupon_id: number | null;
           ukupno: number;
           tracking_broj: string | null;
+          placeno: boolean;
+          datum_placanja: string | null;
+          payment_reference: string | null;
           created_at: string;
           updated_at: string;
         };

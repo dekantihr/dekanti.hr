@@ -138,7 +138,7 @@ export default function ProductCard({ product, isWishlisted, onWishlistToggle, o
         <div className="flex items-end justify-between">
           <div>
             <span className="text-[9px] text-[#e8d5a3]/35 font-['Inter'] tracking-wider uppercase">od</span>
-            <div className="text-[#c9a96e] font-['Cormorant_Garamond'] text-lg font-semibold">
+            <div className="text-[#c9a96e] font-['DM_Sans'] text-lg font-semibold">
               {minPrice.toFixed(2)}€
             </div>
           </div>

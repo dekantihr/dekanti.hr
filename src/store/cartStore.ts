@@ -155,7 +155,7 @@ export function useAuth() {
 
 export interface Order {
   order_number: string;
-  status: 'nova' | 'u_obradi' | 'poslano' | 'isporuceno' | 'otkazano';
+  status: 'cekanje_uplate' | 'nova' | 'u_obradi' | 'poslano' | 'isporuceno' | 'otkazano' | 'povrat';
   ime: string;
   prezime: string;
   email: string;
@@ -164,7 +164,7 @@ export interface Order {
   grad: string;
   postanski_broj: string;
   napomena?: string;
-  nacin_placanja: 'pouzecem' | 'bankovna' | 'revolut';
+  nacin_placanja: 'pouzecem' | 'bankovna' | 'kartica' | 'revolut';
   cijena_dostave: number;
   subtotal: number;
   popust_iznos: number;
@@ -175,6 +175,7 @@ export interface Order {
   tracking_broj?: string;
   placeno?: boolean;
   datum_placanja?: string;
+  payment_reference?: string;
 }
 
 export function useOrders() {

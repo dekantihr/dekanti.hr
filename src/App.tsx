@@ -161,7 +161,7 @@ function AppContent() {
             color: '#e8d5a3',
             border: '1px solid rgba(201,169,110,0.25)',
             borderRadius: '12px',
-            fontFamily: 'Inter, sans-serif',
+            fontFamily: "'DM Sans', 'Inter', sans-serif",
             fontSize: '13px',
             backdropFilter: 'blur(16px)',
             boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)',
