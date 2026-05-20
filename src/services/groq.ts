@@ -272,10 +272,166 @@ Opis treba biti bogat, senzoran i privlačan, opisujući miris, osjećaj i prili
 }
 
 /**
- * Generate a complete product from just the name and brand.
- * Fetches real data from Fragrantica, then fills in ALL fields:
- * spol, sezona, koncentracija, slug, notes, descriptions, and sizes with prices.
+ * Parse Fragrantica page text directly — no LLM needed for notes.
+ * The format is consistent: "Top notes are X, Y; middle notes are A, B; base notes are C, D"
+ * and the pyramid section "Top Notes\nNote1\nNote2\n..."
  */
+function parseFragranticaText(text: string): {
+  note_vrha: string;
+  note_srca: string;
+  note_baze: string;
+  spol: string;
+  sezona: string;
+  koncentracija: string;
+  opis_kratki: string;
+} {
+  const result = {
+    note_vrha: '',
+    note_srca: '',
+    note_baze: '',
+    spol: 'unisex',
+    sezona: 'sve',
+    koncentracija: 'EDP',
+    opis_kratki: '',
+  };
+
+  // ── Notes from the sentence pattern ──────────────────────────────────────
+  // "Top notes are Sea Notes, Aldehydes, Coriander and Red Pepper; middle notes are..."
+  const sentenceMatch = text.match(
+    /Top notes? (?:are|is) ([^;]+?);\s*middle notes? (?:are|is) ([^;]+?);\s*base notes? (?:are|is) ([^."]+)/i
+  );
+  if (sentenceMatch) {
+    const clean = (s: string) =>
+      s.replace(/ and /gi, ', ').replace(/\s+/g, ' ').trim();
+    result.note_vrha = clean(sentenceMatch[1]);
+    result.note_srca = clean(sentenceMatch[2]);
+    result.note_baze = clean(sentenceMatch[3]);
+  }
+
+  // ── Notes from the pyramid section (visual layout) ────────────────────────
+  // "Top Notes\nSea Notes\nAldehydes\n...\nMiddle Notes\n..."
+  if (!result.note_vrha) {
+    const pyramidMatch = text.match(
+      /Top Notes?\s+([\s\S]+?)\s+Middle Notes?\s+([\s\S]+?)\s+Base Notes?\s+([\s\S]+?)(?:\n\n|Vote for|$)/i
+    );
+    if (pyramidMatch) {
+      const parseSection = (s: string) =>
+        s.split('\n')
+          .map(l => l.trim())
+          .filter(l => l.length > 1 && l.length < 60 && !/^\d/.test(l) && !/^(show|hide|vote)/i.test(l))
+          .join(', ');
+      result.note_vrha = parseSection(pyramidMatch[1]);
+      result.note_srca = parseSection(pyramidMatch[2]);
+      result.note_baze = parseSection(pyramidMatch[3]);
+    }
+  }
+
+  // ── Gender ────────────────────────────────────────────────────────────────
+  if (/for women and men|unisex/i.test(text)) result.spol = 'unisex';
+  else if (/for women\b/i.test(text)) result.spol = 'ženski';
+  else if (/for men\b/i.test(text)) result.spol = 'muški';
+
+  // ── Season from "When To Wear" votes ─────────────────────────────────────
+  const summerMatch = text.match(/summer(\d+)/i);
+  const winterMatch = text.match(/winter(\d+)/i);
+  const springMatch = text.match(/spring(\d+)/i);
+  const fallMatch   = text.match(/fall(\d+)/i);
+  const seasons: [string, number][] = [
+    ['ljeto',    summerMatch ? parseInt(summerMatch[1]) : 0],
+    ['zima',     winterMatch ? parseInt(winterMatch[1]) : 0],
+    ['proljeće', springMatch ? parseInt(springMatch[1]) : 0],
+    ['jesen',    fallMatch   ? parseInt(fallMatch[1])   : 0],
+  ];
+  const topSeason = seasons.sort((a, b) => b[1] - a[1])[0];
+  if (topSeason[1] > 0) result.sezona = topSeason[0];
+
+  // ── Concentration ─────────────────────────────────────────────────────────
+  if (/\bparfum\b/i.test(text) && !/eau de parfum/i.test(text)) result.koncentracija = 'Parfum';
+  else if (/eau de toilette|EDT/i.test(text)) result.koncentracija = 'EDT';
+  else if (/eau de cologne|EDC/i.test(text)) result.koncentracija = 'EDC';
+  else result.koncentracija = 'EDP';
+
+  // ── Short description from brand note ─────────────────────────────────────
+  const brandNoteMatch = text.match(/"([^"]{40,300})"\s*-\s*a note from the brand/i);
+  if (brandNoteMatch) result.opis_kratki = brandNoteMatch[1].trim();
+
+  return result;
+}
+
+/**
+ * Translate English note names to Croatian.
+ */
+function translateNotes(notes: string): string {
+  const map: Record<string, string> = {
+    'sea notes': 'morski akord',
+    'sea note': 'morski akord',
+    'aldehydes': 'aldehidi',
+    'aldehyde': 'aldehid',
+    'coriander': 'korijander',
+    'red pepper': 'crvena paprika',
+    'pimento': 'pimento',
+    'juniper': 'smreka',
+    'iris': 'iris',
+    'amyl salicylate': 'amil salicilat',
+    'rose': 'ruža',
+    'seaweed': 'morske alge',
+    'ambergris': 'sivi jantar',
+    'cedar': 'cedar',
+    'amberwood': 'amberwood',
+    'bergamot': 'bergamot',
+    'lemon': 'limun',
+    'orange': 'naranča',
+    'jasmine': 'jasmin',
+    'musk': 'mošus',
+    'sandalwood': 'sandalovina',
+    'vanilla': 'vanilija',
+    'patchouli': 'pačuli',
+    'vetiver': 'vetiver',
+    'amber': 'jantar',
+    'oud': 'oud',
+    'neroli': 'neroli',
+    'lavender': 'lavanda',
+    'ylang-ylang': 'ylang-ylang',
+    'tonka bean': 'tonka',
+    'benzoin': 'benzoin',
+    'frankincense': 'tamjan',
+    'incense': 'tamjan',
+    'oakmoss': 'hrastova mahovina',
+    'grapefruit': 'grejp',
+    'peach': 'breskva',
+    'apple': 'jabuka',
+    'pear': 'kruška',
+    'violet': 'ljubičica',
+    'lily': 'ljiljan',
+    'tuberose': 'tuberoza',
+    'cardamom': 'kardamom',
+    'black pepper': 'crni papar',
+    'pink pepper': 'ružičasti papar',
+    'ginger': 'đumbir',
+    'cinnamon': 'cimet',
+    'clove': 'klinčić',
+    'nutmeg': 'muškatni oraščić',
+    'tobacco': 'duhan',
+    'leather': 'koža',
+    'woody notes': 'drvene note',
+    'white musk': 'bijeli mošus',
+    'clean musk': 'čisti mošus',
+    'aquatic notes': 'akvatične note',
+    'marine': 'morski akord',
+    'salt': 'sol',
+    'salty': 'slano',
+  };
+
+  return notes
+    .split(',')
+    .map(n => {
+      const trimmed = n.trim();
+      const lower = trimmed.toLowerCase();
+      return map[lower] || trimmed; // keep original if no translation
+    })
+    .join(', ');
+}
+
 export async function generateFullProduct(
   naziv: string,
   brand: string,
@@ -294,68 +450,60 @@ export async function generateFullProduct(
 }> {
   const hasRealData = fragranticaText && fragranticaText.trim().length > 50;
 
+  // ── STEP 1: Parse Fragrantica text deterministically (no LLM for notes) ──
+  let parsedNotes = { note_vrha: '', note_srca: '', note_baze: '', spol: 'unisex', sezona: 'sve', koncentracija: 'EDP', opis_kratki: '' };
+  if (hasRealData) {
+    parsedNotes = parseFragranticaText(fragranticaText!);
+    // Translate English note names to Croatian
+    parsedNotes.note_vrha = translateNotes(parsedNotes.note_vrha);
+    parsedNotes.note_srca = translateNotes(parsedNotes.note_srca);
+    parsedNotes.note_baze = translateNotes(parsedNotes.note_baze);
+  }
+
+  // ── STEP 2: Use LLM only for slug, descriptions, and prices ──────────────
   const messages: GroqMessage[] = [
     {
       role: 'system',
-      content: hasRealData
-        ? `You are a fragrance data parser. Extract EXACT information from the provided Fragrantica page text.
-
-RULES:
-1. Extract notes ONLY from the provided text — do NOT add notes that aren't in the text
-2. If a note is mentioned in the text, include it; if not, don't invent it
-3. Translate note names to Croatian (bergamot→bergamot, rose→ruža, musk→mošus, sandalwood→sandalovina, vanilla→vanilija, cedar→cedar/cedrovino, jasmine→jasmin, iris→iris, patchouli→pačuli, amber→jantar, oud→oud, vetiver→vetiver, lavender→lavanda, neroli→neroli, sea notes→morski akord, juniper→smreka, ambergris→sivi jantar, aldehydes→aldehidi, coriander→korijander)
-4. For spol: look for "for women", "for men", "unisex" in the text
-5. For sezona: infer from the notes character (aquatic/fresh→ljeto, heavy/oriental→zima, floral/green→proljeće, woody/spicy→jesen)
-6. Respond ONLY in valid JSON`
-        : `You are a fragrance expert. Generate product data for the given perfume.
-
-IMPORTANT: For notes, use ONLY notes you are highly confident about from your training data.
-If you are not certain about the exact notes, leave note fields as empty strings — do NOT guess.
-The user will fill in notes manually from Fragrantica if needed.
-Respond ONLY in valid JSON.`,
+      content: `You are a fragrance copywriter. Generate product metadata for a perfume shop.
+Write descriptions in Croatian. Respond ONLY in valid JSON.`,
     },
     {
       role: 'user',
       content: hasRealData
-        ? `Extract product data for "${naziv}" by ${brand} from this Fragrantica page text:
+        ? `Generate metadata for "${naziv}" by ${brand}.
 
---- FRAGRANTICA PAGE TEXT ---
-${fragranticaText!.substring(0, 6000)}
---- END ---
+Known facts from Fragrantica:
+- Gender: ${parsedNotes.spol}
+- Season: ${parsedNotes.sezona}
+- Concentration: ${parsedNotes.koncentracija}
+- Top notes: ${parsedNotes.note_vrha}
+- Heart notes: ${parsedNotes.note_srca}
+- Base notes: ${parsedNotes.note_baze}
+${parsedNotes.opis_kratki ? `- Brand description: "${parsedNotes.opis_kratki}"` : ''}
 
-Respond ONLY in this JSON format:
+Respond ONLY in this JSON format (do NOT change the notes — they are already correct):
 {
   "slug": "product-name-slug",
-  "koncentracija": "EDP",
-  "spol": "unisex",
-  "sezona": "jesen",
-  "opis_kratki": "Short 1-2 sentence description in Croatian",
-  "opis_dugi": "Detailed 3-4 sentence description in Croatian",
-  "note_vrha": "exact notes from text",
-  "note_srca": "exact notes from text",
-  "note_baze": "exact notes from text",
+  "opis_kratki": "1-2 sentence Croatian description based on the notes above",
+  "opis_dugi": "3-4 sentence Croatian description of the scent experience",
   "product_sizes": [
     { "velicina_ml": 2, "cijena": 6.50, "zaliha": 10, "sku": "BRAND-PRODUCT-2" },
     { "velicina_ml": 5, "cijena": 14.00, "zaliha": 10, "sku": "BRAND-PRODUCT-5" },
     { "velicina_ml": 10, "cijena": 25.00, "zaliha": 10, "sku": "BRAND-PRODUCT-10" }
   ]
-}`
-        : `Generate product data for "${naziv}" by ${brand}.
+}
 
-For notes: ONLY include notes you are 100% certain about. If unsure, leave as empty string.
-For prices: use realistic Croatian decant market prices.
+slug: lowercase, hyphens, no special chars. Prices: realistic Croatian decant market prices.`
+        : `Generate metadata for "${naziv}" by ${brand}.
 
 Respond ONLY in this JSON format:
 {
   "slug": "product-name-slug",
   "koncentracija": "EDP",
   "spol": "unisex",
-  "sezona": "jesen",
-  "opis_kratki": "Short 1-2 sentence description in Croatian",
-  "opis_dugi": "Detailed 3-4 sentence description in Croatian",
-  "note_vrha": "",
-  "note_srca": "",
-  "note_baze": "",
+  "sezona": "sve",
+  "opis_kratki": "1-2 sentence Croatian description",
+  "opis_dugi": "3-4 sentence Croatian description",
   "product_sizes": [
     { "velicina_ml": 2, "cijena": 6.50, "zaliha": 10, "sku": "BRAND-PRODUCT-2" },
     { "velicina_ml": 5, "cijena": 14.00, "zaliha": 10, "sku": "BRAND-PRODUCT-5" },
@@ -428,14 +576,22 @@ Valid: koncentracija: EDP/EDT/Parfum/EDC | spol: muški/ženski/unisex | sezona:
 
     return {
       slug: parsed.slug || generateSlug(naziv),
-      koncentracija: validKoncentracija.includes(parsed.koncentracija) ? parsed.koncentracija : 'EDP',
-      spol: validSpol.includes(parsed.spol) ? parsed.spol : 'unisex',
-      sezona: validSezona.includes(parsed.sezona) ? parsed.sezona : 'sve',
-      opis_kratki: parsed.opis_kratki || '',
+      koncentracija: hasRealData
+        ? parsedNotes.koncentracija
+        : (validKoncentracija.includes(parsed.koncentracija) ? parsed.koncentracija : 'EDP'),
+      spol: hasRealData
+        ? parsedNotes.spol
+        : (validSpol.includes(parsed.spol) ? parsed.spol : 'unisex'),
+      sezona: hasRealData
+        ? parsedNotes.sezona
+        : (validSezona.includes(parsed.sezona) ? parsed.sezona : 'sve'),
+      // Notes come from deterministic parser when real data is available
+      note_vrha: hasRealData ? parsedNotes.note_vrha : (parsed.note_vrha || ''),
+      note_srca: hasRealData ? parsedNotes.note_srca : (parsed.note_srca || ''),
+      note_baze: hasRealData ? parsedNotes.note_baze : (parsed.note_baze || ''),
+      // Descriptions from LLM (it's good at writing, just not at knowing facts)
+      opis_kratki: parsed.opis_kratki || parsedNotes.opis_kratki || '',
       opis_dugi: parsed.opis_dugi || '',
-      note_vrha: parsed.note_vrha || '',
-      note_srca: parsed.note_srca || '',
-      note_baze: parsed.note_baze || '',
       product_sizes: sizes,
     };
   } catch (error: any) {
