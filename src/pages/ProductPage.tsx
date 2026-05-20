@@ -133,10 +133,9 @@ export default function ProductPage({ wishlist, onWishlistToggle, onAddToCart, u
                 key={activeImage}
                 src={product.images && product.images.length > 0 ? product.images[activeImage] || product.images[0] : ''}
                 alt={`${product.brand?.naziv || product.brand} ${product.naziv}`}
-                className="w-full h-full object-cover group-hover:scale-105"
+                className="w-full h-full object-cover"
                 style={{
                   animation: 'productImageFadeIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-                  transition: 'transform 0.7s cubic-bezier(0.16, 1, 0.3, 1)',
                 }}
               />
               {/* Badges */}
