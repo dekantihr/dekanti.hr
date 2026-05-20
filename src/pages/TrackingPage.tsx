@@ -121,7 +121,7 @@ export default function TrackingPage({ orders }: TrackingPageProps) {
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-[#e8d5a3]/40 text-xs font-['Inter'] uppercase tracking-wider mb-1">Broj narudžbe</p>
-                  <p className="text-[#c9a96e] font-['Playfair_Display'] text-2xl font-bold">{result.order_number}</p>
+                  <p className="text-[#c9a96e] font-['DM_Sans'] text-2xl font-bold">{result.order_number}</p>
                   <p className="text-[#e8d5a3]/40 text-sm font-['Inter'] mt-1">Naručeno: {result.created_at}</p>
                 </div>
                 <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-semibold font-['Inter'] ${config.color} ${config.bg}`}>
@@ -186,7 +186,7 @@ export default function TrackingPage({ orders }: TrackingPageProps) {
               </div>
               <div>
                 <p className="text-[#e8d5a3]/25 text-[10px] uppercase tracking-wider font-['Inter'] mb-1">Iznos</p>
-                <p className="text-[#c9a96e] font-['Playfair_Display'] font-bold text-xl">{result.ukupno.toFixed(2)}€</p>
+                <p className="text-[#c9a96e] font-['DM_Sans'] font-bold text-xl">{result.ukupno.toFixed(2)}€</p>
                 <p className="text-[#e8d5a3]/40 text-xs font-['Inter']">
                   {result.nacin_placanja === 'revolut' ? '� Revolut' : result.nacin_placanja === 'bankovna' ? '🏦 Bankovno' : '💳 Kartica'}
                   {result.placeno && <span className="text-green-400 ml-1">✓ plaćeno</span>}

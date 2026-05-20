@@ -411,7 +411,7 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
                             </div>
                           ) : (
                             <div>
-                              <p className="text-[#c9a96e] font-bold text-lg font-['Playfair_Display']">{dostava.toFixed(2)}€</p>
+                              <p className="text-[#c9a96e] font-bold text-lg font-['DM_Sans']">{dostava.toFixed(2)}€</p>
                               <p className="text-[#e8d5a3]/30 text-[10px] font-['Inter']">po narudžbi</p>
                             </div>
                           )}
@@ -633,7 +633,7 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
                         </div>
                         <span className="text-purple-300/60 text-xs font-['Inter']">plaćanje</span>
                       </div>
-                      <h2 className="font-['Playfair_Display'] text-2xl md:text-3xl font-bold text-white">
+                      <h2 className="font-['DM_Sans'] text-2xl md:text-3xl font-bold text-white">
                         Uplata {pendingOrder.ukupno.toFixed(2)}€
                       </h2>
                       <p className="text-purple-200/50 text-xs font-['Inter'] mt-1">
@@ -644,7 +644,7 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
                     <div className="text-right">
                       <div className="bg-purple-500/15 border border-purple-500/30 rounded-2xl px-4 py-3">
                         <p className="text-purple-200/50 text-[9px] uppercase tracking-[0.2em] font-['Inter'] mb-0.5">Iznos</p>
-                        <p className="text-white font-['Playfair_Display'] text-2xl font-bold leading-none">{pendingOrder.ukupno.toFixed(2)}€</p>
+                        <p className="text-white font-['DM_Sans'] text-2xl font-bold leading-none">{pendingOrder.ukupno.toFixed(2)}€</p>
                       </div>
                     </div>
                   </div>
@@ -683,7 +683,7 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
                         <div className="bg-black/30 border border-white/8 rounded-xl p-3">
                           <p className="text-white/35 text-[9px] uppercase tracking-[0.15em] font-['Inter'] mb-1">Iznos (EUR)</p>
                           <div className="flex items-center justify-between gap-2">
-                            <p className="text-[#c9a96e] font-bold text-lg font-['Playfair_Display'] leading-none">{pendingOrder.ukupno.toFixed(2)}</p>
+                            <p className="text-[#c9a96e] font-bold text-lg font-['DM_Sans'] leading-none">{pendingOrder.ukupno.toFixed(2)}</p>
                             <button
                               onClick={() => copyToClipboard(pendingOrder.ukupno.toFixed(2))}
                               className="text-white/40 hover:text-white/80 transition-colors p-1 rounded-lg hover:bg-white/5"
@@ -839,7 +839,7 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
                       {/* Order number */}
                       <div className="mt-6 inline-block bg-black/30 border border-white/10 rounded-2xl px-6 py-4">
                         <p className="text-white/30 text-[9px] uppercase tracking-[0.25em] font-['Inter'] mb-1">Broj narudžbe</p>
-                        <p className={`font-['Playfair_Display'] text-2xl font-bold ${isAwaiting ? 'text-purple-200' : 'text-[#c9a96e]'}`}>
+                        <p className={`font-['DM_Sans'] text-2xl font-bold ${isAwaiting ? 'text-purple-200' : 'text-[#c9a96e]'}`}>
                           {orderNumber}
                         </p>
                       </div>
@@ -1012,7 +1012,7 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
                 <div className="h-[1px] bg-[#c9a96e]/10 my-3" />
                 <div className="flex justify-between">
                   <span className="text-[#e8d5a3] font-semibold font-['Inter'] text-sm">Ukupno</span>
-                  <span className="text-[#c9a96e] font-['Playfair_Display'] font-bold text-xl">{ukupno.toFixed(2)}€</span>
+                  <span className="text-[#c9a96e] font-['DM_Sans'] font-bold text-xl">{ukupno.toFixed(2)}€</span>
                 </div>
               </div>
             </div>

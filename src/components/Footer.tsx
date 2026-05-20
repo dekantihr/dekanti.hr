@@ -44,20 +44,20 @@ export default function Footer() {
               <span className="text-2xl font-['Cormorant_Garamond'] font-bold text-[#e8d5a3] tracking-[0.15em] group-hover:text-[#c9a96e] transition-all duration-300 group-hover:drop-shadow-[0_0_8px_rgba(201,169,110,0.5)]">
                 DEKANTI<span className="text-[#c9a96e]">.HR</span>
               </span>
-              <div className="text-[9px] tracking-[0.4em] text-[#c9a96e]/60 uppercase mt-0.5 font-['Inter_Tight']">
+              <div className="text-[9px] tracking-[0.4em] text-[#c9a96e]/60 uppercase mt-0.5 font-['DM_Sans']">
                 Luksuzni Decant Parfemi
               </div>
             </Link>
-            <p className="text-[#e8d5a3]/50 text-sm font-['Inter_Tight'] font-light leading-relaxed mb-6">
+            <p className="text-[#e8d5a3]/50 text-sm font-['DM_Sans'] font-light leading-relaxed mb-6">
               Vaš pouzdani partner u svijetu luksuznih parfema. Nudimo premium decant uzorke najekskluzivnijih svjetskih brandova po pristupačnim cijenama.
             </p>
             <div className="flex gap-3">
               <a href="https://instagram.com" target="_blank" rel="noopener noreferrer"
-                className="w-9 h-9 rounded-full border border-[#c9a96e]/30 flex items-center justify-center text-[#c9a96e]/60 hover:border-[#c9a96e] hover:text-[#c9a96e] transition-all duration-300 text-xs font-bold hover:scale-110 hover-glow font-['Inter_Tight']">
+                className="w-9 h-9 rounded-full border border-[#c9a96e]/30 flex items-center justify-center text-[#c9a96e]/60 hover:border-[#c9a96e] hover:text-[#c9a96e] transition-all duration-300 text-xs font-bold hover:scale-110 hover-glow font-['DM_Sans']">
                 IG
               </a>
               <a href="https://facebook.com" target="_blank" rel="noopener noreferrer"
-                className="w-9 h-9 rounded-full border border-[#c9a96e]/30 flex items-center justify-center text-[#c9a96e]/60 hover:border-[#c9a96e] hover:text-[#c9a96e] transition-all duration-300 text-xs font-bold hover:scale-110 hover-glow font-['Inter_Tight']">
+                className="w-9 h-9 rounded-full border border-[#c9a96e]/30 flex items-center justify-center text-[#c9a96e]/60 hover:border-[#c9a96e] hover:text-[#c9a96e] transition-all duration-300 text-xs font-bold hover:scale-110 hover-glow font-['DM_Sans']">
                 FB
               </a>
             </div>
@@ -160,7 +160,7 @@ export default function Footer() {
             ].map(badge => (
               <div key={badge.text} className="flex items-center gap-2 text-[#e8d5a3]/40 hover:text-[#e8d5a3]/60 transition-colors duration-300 cursor-default">
                 <span className="text-[#c9a96e]/50">{badge.icon}</span>
-                <span className="text-xs tracking-wider font-['Inter_Tight'] font-light">{badge.text}</span>
+                <span className="text-xs tracking-wider font-['DM_Sans'] font-light">{badge.text}</span>
               </div>
             ))}
           </div>
@@ -170,17 +170,17 @@ export default function Footer() {
       {/* Bottom Bar */}
       <div className="border-t border-[#c9a96e]/10">
         <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-2">
-          <p className="text-[#e8d5a3]/30 text-xs font-['Inter_Tight'] font-light">
+          <p className="text-[#e8d5a3]/30 text-xs font-['DM_Sans'] font-light">
             © 2025 dekantihr.com — Sva prava pridržana.
           </p>
           <div className="flex gap-4">
-            <Link to="/uvjeti" className="text-[#e8d5a3]/30 hover:text-[#c9a96e]/60 text-xs font-['Inter_Tight'] transition-colors">
+            <Link to="/uvjeti" className="text-[#e8d5a3]/30 hover:text-[#c9a96e]/60 text-xs font-['DM_Sans'] transition-colors">
               Uvjeti korištenja
             </Link>
-            <Link to="/privatnost" className="text-[#e8d5a3]/30 hover:text-[#c9a96e]/60 text-xs font-['Inter_Tight'] transition-colors">
+            <Link to="/privatnost" className="text-[#e8d5a3]/30 hover:text-[#c9a96e]/60 text-xs font-['DM_Sans'] transition-colors">
               Privatnost
             </Link>
-            <Link to="/kolacici" className="text-[#e8d5a3]/30 hover:text-[#c9a96e]/60 text-xs font-['Inter_Tight'] transition-colors">
+            <Link to="/kolacici" className="text-[#e8d5a3]/30 hover:text-[#c9a96e]/60 text-xs font-['DM_Sans'] transition-colors">
               Kolačići
             </Link>
           </div>

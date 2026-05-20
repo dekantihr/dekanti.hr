@@ -65,7 +65,7 @@ export default function Navbar({ itemCount, wishlistCount, user, onLogout }: Nav
     <nav className={navClasses}>
       {/* Top Bar */}
       <div className="border-b border-[#c9a96e]/10 py-1.5 text-center hidden md:block bg-[#0a0a0a]/50 backdrop-blur-sm">
-        <div className="flex items-center justify-center gap-4 text-[10px] tracking-[0.3em] text-[#c9a96e]/70 uppercase font-light font-['Inter_Tight']">
+        <div className="flex items-center justify-center gap-4 text-[10px] tracking-[0.3em] text-[#c9a96e]/70 uppercase font-light font-['DM_Sans']">
           <span className="flex items-center gap-1.5 hover:text-[#c9a96e] transition-colors">
             <Sparkles size={10} className="animate-pulse" />
             Besplatna dostava iznad 50€
@@ -109,7 +109,7 @@ export default function Navbar({ itemCount, wishlistCount, user, onLogout }: Nav
             <Link to="/o-nama" className="nav-link text-xs tracking-[0.1em] text-[#e8d5a3]/80 hover:text-[#c9a96e] uppercase transition-all duration-300 font-medium font-['Inter']">
               O nama
             </Link>
-            <Link to="/pracenje" className="nav-link text-sm tracking-[0.15em] text-[#e8d5a3]/80 hover:text-[#c9a96e] uppercase transition-all duration-300 font-light font-['Inter_Tight']">
+            <Link to="/pracenje" className="nav-link text-sm tracking-[0.15em] text-[#e8d5a3]/80 hover:text-[#c9a96e] uppercase transition-all duration-300 font-light font-['DM_Sans']">
               Praćenje
             </Link>
           </div>
@@ -205,7 +205,7 @@ export default function Navbar({ itemCount, wishlistCount, user, onLogout }: Nav
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="Pretraži parfeme, brandove, note..."
-              className="flex-1 glass border border-[#c9a96e]/30 text-[#e8d5a3] placeholder-[#e8d5a3]/30 px-4 py-2.5 rounded-lg text-sm focus:outline-none focus:border-[#c9a96e]/60 font-['Inter_Tight'] transition-all duration-300"
+              className="flex-1 glass border border-[#c9a96e]/30 text-[#e8d5a3] placeholder-[#e8d5a3]/30 px-4 py-2.5 rounded-lg text-sm focus:outline-none focus:border-[#c9a96e]/60 font-['DM_Sans'] transition-all duration-300"
               autoFocus
             />
             <button type="submit" className="bg-[#c9a96e] text-[#0a0a0a] px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-[#e8d5a3] hover-lift btn-ripple font-['Inter']"

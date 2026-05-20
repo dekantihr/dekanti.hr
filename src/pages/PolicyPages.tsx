@@ -42,7 +42,7 @@ function Section({ number, title, children }: { number: number; title: string; c
           <span className="text-[#c9a96e] text-sm font-['Inter'] font-bold">{String(number).padStart(2, '0')}</span>
           {title}
         </h2>
-        <div className="text-[#e8d5a3]/60 font-['Inter_Tight'] font-light leading-relaxed space-y-3">
+        <div className="text-[#e8d5a3]/60 font-['DM_Sans'] font-light leading-relaxed space-y-3">
           {children}
         </div>
       </div>

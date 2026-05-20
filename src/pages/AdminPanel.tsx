@@ -1695,7 +1695,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                       <p className="text-[#e8d5a3]/40 text-xs font-['Inter'] uppercase tracking-wider leading-tight">{kpi.label}</p>
                       <div className="text-[#c9a96e]/40">{kpi.icon}</div>
                     </div>
-                    <p className="text-[#c9a96e] font-['Playfair_Display'] text-2xl font-bold mb-1">{kpi.value}</p>
+                    <p className="text-[#c9a96e] font-['DM_Sans'] text-2xl font-bold mb-1">{kpi.value}</p>
                     <div className={`flex items-center gap-1 text-[10px] font-['Inter'] ${kpi.up ? 'text-green-400' : 'text-orange-400'}`}>
                       {kpi.up ? <ArrowUpRight size={11} /> : <ArrowDownRight size={11} />}
                       {kpi.change}
@@ -1711,7 +1711,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                     <h3 className="text-[#e8d5a3]/80 font-['Playfair_Display'] font-bold text-lg">Prihodi — zadnjih 30 dana</h3>
                     <p className="text-[#e8d5a3]/30 text-xs font-['Inter']">Dnevni prihodi u EUR</p>
                   </div>
-                  <span className="text-[#c9a96e] font-['Playfair_Display'] font-bold text-xl">{totalRevenue.toFixed(0)}€</span>
+                  <span className="text-[#c9a96e] font-['DM_Sans'] font-bold text-xl">{totalRevenue.toFixed(0)}€</span>
                 </div>
                 <div className="flex items-end gap-1 h-28">
                   {chartData.map((val, i) => (
@@ -1747,7 +1747,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                           <span className={`text-[9px] px-2 py-0.5 rounded-full border font-semibold ${STATUS_COLORS[order.status] ?? ''}`}>
                             {STATUS_LABELS[order.status]}
                           </span>
-                          <span className="text-[#c9a96e] text-xs font-bold font-['Playfair_Display']">{order.ukupno.toFixed(2)}€</span>
+                          <span className="text-[#c9a96e] text-xs font-bold font-['DM_Sans']">{order.ukupno.toFixed(2)}€</span>
                         </div>
                       </div>
                     ))}
@@ -1791,7 +1791,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                         <p className="text-[#e8d5a3]/30 text-[10px] font-['Inter']">{p.brand?.naziv || p.brand} · {p.broj_recenzija || 0} recenzija</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-[#c9a96e] text-sm font-bold font-['Playfair_Display']">
+                        <p className="text-[#c9a96e] text-sm font-bold font-['DM_Sans']">
                           od {p.product_sizes && p.product_sizes.length > 0 ? Math.min(...p.product_sizes.map((s: any) => s.cijena)).toFixed(2) : '0.00'}€
                         </p>
                         <div className="w-16 bg-[#1a1a1a] rounded-full h-1 mt-1">
@@ -1830,7 +1830,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                   <div className="relative bg-[#111111] border border-[#c9a96e]/20 rounded-3xl p-6 w-full max-w-lg max-h-[80vh] overflow-y-auto">
                     <div className="flex justify-between items-start mb-5">
                       <div>
-                        <p className="text-[#c9a96e] font-['Playfair_Display'] font-bold text-xl">{selectedOrder.order_number}</p>
+                        <p className="text-[#c9a96e] font-['DM_Sans'] font-bold text-xl">{selectedOrder.order_number}</p>
                         <p className="text-[#e8d5a3]/40 text-xs font-['Inter']">{selectedOrder.created_at}</p>
                       </div>
                       <button onClick={() => setSelectedOrder(null)} className="text-[#e8d5a3]/40 hover:text-[#c9a96e]"><X size={18} /></button>
@@ -1968,7 +1968,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                             </div>
                             <div className="text-right">
                               <p className="text-[#e8d5a3]/60 text-[10px] font-['Inter']">{item.kolicina}x {item.cijena.toFixed(2)}€</p>
-                              <p className="text-[#c9a96e] text-[11px] font-bold font-['Playfair_Display']">{(item.kolicina * item.cijena).toFixed(2)}€</p>
+                              <p className="text-[#c9a96e] text-[11px] font-bold font-['DM_Sans']">{(item.kolicina * item.cijena).toFixed(2)}€</p>
                             </div>
                           </div>
                         ))}
@@ -1999,7 +1999,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                     {/* Total */}
                     <div className="flex justify-between items-center pt-4 border-t border-[#c9a96e]/10">
                       <span className="text-[#e8d5a3]/40 text-sm font-['Inter']">Ukupno</span>
-                      <span className="text-[#c9a96e] font-['Playfair_Display'] font-bold text-xl">{selectedOrder.ukupno.toFixed(2)}€</span>
+                      <span className="text-[#c9a96e] font-['DM_Sans'] font-bold text-xl">{selectedOrder.ukupno.toFixed(2)}€</span>
                     </div>
 
                     {/* Action buttons */}
@@ -2075,7 +2075,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                               {STATUS_LABELS[order.status]}
                             </span>
                           </td>
-                          <td className="px-4 py-3 text-[#c9a96e] font-['Playfair_Display'] font-bold text-sm">{order.ukupno.toFixed(2)}€</td>
+                          <td className="px-4 py-3 text-[#c9a96e] font-['DM_Sans'] font-bold text-sm">{order.ukupno.toFixed(2)}€</td>
                           <td className="px-4 py-3">
                             <button onClick={() => setSelectedOrder(order)} className="text-[#c9a96e]/50 hover:text-[#c9a96e] transition-colors">
                               <Eye size={14} />
@@ -2137,7 +2137,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                               <td className="px-4 py-3 text-[#c9a96e] text-xs font-['Inter']">{brandName}</td>
                               <td className="px-4 py-3 text-[#e8d5a3]/50 text-xs font-['Inter']">{p.koncentracija}</td>
                               <td className="px-4 py-3 text-[#e8d5a3]/50 text-xs font-['Inter'] capitalize">{p.spol}</td>
-                              <td className="px-4 py-3 text-[#c9a96e] text-xs font-bold font-['Playfair_Display']">{minPrice.toFixed(2)}€</td>
+                              <td className="px-4 py-3 text-[#c9a96e] text-xs font-bold font-['DM_Sans']">{minPrice.toFixed(2)}€</td>
                               <td className="px-4 py-3"><span className={`text-xs font-bold font-['Inter'] ${totalStock < 10 ? 'text-orange-400' : 'text-green-400'}`}>{totalStock} kom</span></td>
                               <td className="px-4 py-3"><span className={`text-[9px] px-2 py-0.5 rounded-full font-bold ${p.active ? 'bg-green-400/15 text-green-400' : 'bg-red-400/15 text-red-400'}`}>{p.active ? 'Da' : 'Ne'}</span></td>
                               <td className="px-4 py-3">
@@ -2833,7 +2833,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
-                          <p className="text-[#c9a96e] text-sm font-semibold font-['Playfair_Display']">
+                          <p className="text-[#c9a96e] text-sm font-semibold font-['DM_Sans']">
                             {r.products?.naziv || 'Proizvod'}
                           </p>
                           <div className="flex gap-0.5">
@@ -2894,7 +2894,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                   {supabaseCoupons.map(c => (
                     <div key={c.id || c.kod} className="bg-[#111111] border border-[#c9a96e]/15 rounded-2xl p-5">
                       <div className="flex items-center justify-between mb-3">
-                        <span className="text-[#c9a96e] font-['Playfair_Display'] font-bold text-lg tracking-widest">{c.kod}</span>
+                        <span className="text-[#c9a96e] font-['DM_Sans'] font-bold text-lg tracking-widest">{c.kod}</span>
                         <div className="flex gap-2 items-center">
                           <span className={`text-[9px] px-2 py-0.5 rounded-full border font-bold ${c.aktivan ? 'bg-green-400/15 text-green-400 border-green-400/30' : 'bg-red-400/15 text-red-400 border-red-400/30'}`}>
                             {c.aktivan ? 'Aktivan' : 'Neaktivan'}
@@ -3002,7 +3002,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                 ].map(stat => (
                   <div key={stat.label} className="bg-[#111111] border border-[#c9a96e]/10 rounded-2xl p-5 text-center">
                     <p className="text-[#e8d5a3]/30 text-xs uppercase tracking-wider font-['Inter'] mb-2">{stat.period}</p>
-                    <p className="text-[#c9a96e] font-['Playfair_Display'] text-3xl font-bold">{stat.value}</p>
+                    <p className="text-[#c9a96e] font-['DM_Sans'] text-3xl font-bold">{stat.value}</p>
                     <p className="text-[#e8d5a3]/40 text-sm font-['Inter'] mt-1">{stat.label}</p>
                   </div>
                 ))}
@@ -3028,7 +3028,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                         <div className="flex-1">
                           <div className="flex justify-between mb-1">
                             <span className="text-[#e8d5a3]/60 text-xs font-['Inter'] font-semibold">{brand.naziv}</span>
-                            <span className="text-[#c9a96e] text-xs font-bold font-['Playfair_Display']">{rev.toFixed(0)}€</span>
+                            <span className="text-[#c9a96e] text-xs font-bold font-['DM_Sans']">{rev.toFixed(0)}€</span>
                           </div>
                           <div className="bg-[#1a1a1a] rounded-full h-1.5">
                             <div className="bg-[#c9a96e] h-full rounded-full transition-all" style={{ width: `${pct}%` }} />

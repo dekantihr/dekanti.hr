@@ -119,7 +119,7 @@ export default function CartPage({ items, coupon, onCouponSet, onUpdateQuantity,
                       </button>
                     </div>
                     {/* Total */}
-                    <span className="text-[#c9a96e] font-['Playfair_Display'] font-bold text-lg">
+                    <span className="text-[#c9a96e] font-['DM_Sans'] font-bold text-lg">
                       {(item.cijena * item.kolicina).toFixed(2)}€
                     </span>
                   </div>
@@ -205,7 +205,7 @@ export default function CartPage({ items, coupon, onCouponSet, onUpdateQuantity,
 
               <div className="flex justify-between mb-6">
                 <span className="text-[#e8d5a3] font-semibold font-['Inter']">Ukupno</span>
-                <span className="text-[#c9a96e] font-['Playfair_Display'] text-2xl font-bold">{ukupno.toFixed(2)}€</span>
+                <span className="text-[#c9a96e] font-['DM_Sans'] text-2xl font-bold">{ukupno.toFixed(2)}€</span>
               </div>
 
               <button

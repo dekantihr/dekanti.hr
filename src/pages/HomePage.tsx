@@ -273,7 +273,7 @@ export default function HomePage({ wishlist, onWishlistToggle, onAddToCart }: Ho
                 </h1>
 
                 {/* Subtitle */}
-                <p className="text-[#e8d5a3]/60 text-lg font-['Inter_Tight'] font-light mb-10 max-w-xl leading-relaxed">
+                <p className="text-[#e8d5a3]/60 text-lg font-['DM_Sans'] font-light mb-10 max-w-xl leading-relaxed">
                   {heroSlides[prevSlide].subtitle}. Iskusite luksuz bez kompromisa uz naše premium decant uzorke.
                 </p>
 
@@ -288,7 +288,7 @@ export default function HomePage({ wishlist, onWishlistToggle, onAddToCart }: Ho
                   </Link>
                   <Link
                     to="/pracenje"
-                    className="inline-flex items-center gap-3 border border-[#c9a96e]/40 text-[#c9a96e] px-8 py-4 rounded-full font-['Inter_Tight'] font-light text-sm tracking-[0.1em] uppercase hover:border-[#c9a96e] hover:bg-[#c9a96e]/5 transition-all duration-300 hover-glow"
+                    className="inline-flex items-center gap-3 border border-[#c9a96e]/40 text-[#c9a96e] px-8 py-4 rounded-full font-['DM_Sans'] font-light text-sm tracking-[0.1em] uppercase hover:border-[#c9a96e] hover:bg-[#c9a96e]/5 transition-all duration-300 hover-glow"
                   >
                     <Package size={16} />
                     Prati narudžbu
@@ -320,7 +320,7 @@ export default function HomePage({ wishlist, onWishlistToggle, onAddToCart }: Ho
               </h1>
 
               {/* Subtitle */}
-              <p className="text-[#e8d5a3]/60 text-lg font-['Inter_Tight'] font-light mb-10 max-w-xl leading-relaxed">
+              <p className="text-[#e8d5a3]/60 text-lg font-['DM_Sans'] font-light mb-10 max-w-xl leading-relaxed">
                 {heroSlides[currentSlide].subtitle}. Iskusite luksuz bez kompromisa uz naše premium decant uzorke.
               </p>
 
@@ -345,7 +345,7 @@ export default function HomePage({ wishlist, onWishlistToggle, onAddToCart }: Ho
                 </Link>
                 <Link
                   to="/pracenje"
-                  className="inline-flex items-center gap-3 border border-[#c9a96e]/40 text-[#c9a96e] px-8 py-4 rounded-full font-['Inter_Tight'] font-light text-sm tracking-[0.1em] uppercase hover:border-[#c9a96e] hover:bg-[#c9a96e]/5 transition-all duration-300 hover-glow"
+                  className="inline-flex items-center gap-3 border border-[#c9a96e]/40 text-[#c9a96e] px-8 py-4 rounded-full font-['DM_Sans'] font-light text-sm tracking-[0.1em] uppercase hover:border-[#c9a96e] hover:bg-[#c9a96e]/5 transition-all duration-300 hover-glow"
                 >
                   <Package size={16} />
                   Prati narudžbu
@@ -467,7 +467,7 @@ export default function HomePage({ wishlist, onWishlistToggle, onAddToCart }: Ho
           </div>
         ) : featured.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-[#e8d5a3]/40 font-['Inter_Tight']">Nema featured proizvoda</p>
+            <p className="text-[#e8d5a3]/40 font-['DM_Sans']">Nema featured proizvoda</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -602,7 +602,7 @@ export default function HomePage({ wishlist, onWishlistToggle, onAddToCart }: Ho
           </div>
           <Link 
             to="/parfemi?sort=bestseller" 
-            className="view-all-link hidden md:flex items-center gap-2 text-[#c9a96e] text-sm font-['Inter_Tight'] tracking-wider hover:text-[#e8d5a3] transition-colors px-4 py-2 rounded-full border border-[#c9a96e]/20 hover:border-[#c9a96e]/40"
+            className="view-all-link hidden md:flex items-center gap-2 text-[#c9a96e] text-sm font-['DM_Sans'] tracking-wider hover:text-[#e8d5a3] transition-colors px-4 py-2 rounded-full border border-[#c9a96e]/20 hover:border-[#c9a96e]/40"
           >
             Top 8 bestsellera
             <ArrowRight size={14} className="arrow-icon" />
@@ -645,7 +645,7 @@ export default function HomePage({ wishlist, onWishlistToggle, onAddToCart }: Ho
               >
                 {bestsellers.slice(prevBestsellersIndex * 4, (prevBestsellersIndex + 1) * 4).map((product, idx) => (
                   <div key={product.id} className="relative group">
-                    <div className="absolute -top-3 -left-3 z-10 w-8 h-8 bg-gradient-to-br from-[#c9a96e] to-[#e8d5a3] text-[#0a0a0a] rounded-full flex items-center justify-center text-xs font-bold font-['Inter_Tight'] shadow-[0_0_20px_rgba(201,169,110,0.4)] group-hover:scale-110 transition-transform duration-300">
+                    <div className="absolute -top-3 -left-3 z-10 w-8 h-8 bg-gradient-to-br from-[#c9a96e] to-[#e8d5a3] text-[#0a0a0a] rounded-full flex items-center justify-center text-xs font-bold font-['DM_Sans'] shadow-[0_0_20px_rgba(201,169,110,0.4)] group-hover:scale-110 transition-transform duration-300">
                       #{prevBestsellersIndex * 4 + idx + 1}
                     </div>
                     <ProductCard
@@ -669,7 +669,7 @@ export default function HomePage({ wishlist, onWishlistToggle, onAddToCart }: Ho
             >
               {bestsellers.slice(bestsellersIndex * 4, (bestsellersIndex + 1) * 4).map((product, idx) => (
                 <div key={product.id} className="relative group">
-                  <div className="absolute -top-3 -left-3 z-10 w-8 h-8 bg-gradient-to-br from-[#c9a96e] to-[#e8d5a3] text-[#0a0a0a] rounded-full flex items-center justify-center text-xs font-bold font-['Inter_Tight'] shadow-[0_0_20px_rgba(201,169,110,0.4)] group-hover:scale-110 transition-transform duration-300">
+                  <div className="absolute -top-3 -left-3 z-10 w-8 h-8 bg-gradient-to-br from-[#c9a96e] to-[#e8d5a3] text-[#0a0a0a] rounded-full flex items-center justify-center text-xs font-bold font-['DM_Sans'] shadow-[0_0_20px_rgba(201,169,110,0.4)] group-hover:scale-110 transition-transform duration-300">
                     #{bestsellersIndex * 4 + idx + 1}
                   </div>
                   <ProductCard
@@ -728,7 +728,7 @@ export default function HomePage({ wishlist, onWishlistToggle, onAddToCart }: Ho
                 <div className="text-[#c9a96e] text-xs font-bold tracking-[0.15em] uppercase font-['Inter']">
                   DOBRODOSLI10
                 </div>
-                <div className="text-[#c9a96e]/60 text-[9px] tracking-wider uppercase font-['Inter_Tight'] mt-0.5">
+                <div className="text-[#c9a96e]/60 text-[9px] tracking-wider uppercase font-['DM_Sans'] mt-0.5">
                   Kupon kod
                 </div>
               </div>
@@ -738,7 +738,7 @@ export default function HomePage({ wishlist, onWishlistToggle, onAddToCart }: Ho
                 <h3 className="font-['Cormorant_Garamond'] text-xl md:text-2xl font-semibold text-[#e8d5a3] mb-1">
                   10% popusta na prvu narudžbu
                 </h3>
-                <p className="text-[#e8d5a3]/40 text-xs font-['Inter_Tight']">
+                <p className="text-[#e8d5a3]/40 text-xs font-['DM_Sans']">
                   Min. narudžba 15€ · Max. popust 15€ · Za nove kupce
                 </p>
               </div>

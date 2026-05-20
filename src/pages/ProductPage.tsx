@@ -219,7 +219,7 @@ export default function ProductPage({ wishlist, onWishlistToggle, onAddToCart, u
             <div>
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-[#e8d5a3]/80 text-sm font-semibold font-['Inter'] tracking-wider uppercase">Odaberite veličinu decanta</h3>
-                <span className="text-[#c9a96e] font-['Playfair_Display'] text-2xl font-bold">{size?.cijena?.toFixed(2) || '0.00'}€</span>
+                <span className="text-[#c9a96e] font-['DM_Sans'] text-2xl font-bold">{size?.cijena?.toFixed(2) || '0.00'}€</span>
               </div>
               <div className="grid grid-cols-3 gap-3">
                 {product.product_sizes?.map((s: any, i: number) => {
@@ -496,7 +496,7 @@ export default function ProductPage({ wishlist, onWishlistToggle, onAddToCart, u
               </h2>
             </div>
             <div className="text-right">
-              <div className="text-[#c9a96e] font-['Playfair_Display'] text-4xl font-bold">{product.avg_ocjena}</div>
+              <div className="text-[#c9a96e] font-['DM_Sans'] text-4xl font-bold">{product.avg_ocjena}</div>
               <div className="flex gap-0.5 justify-end">
                 {[1,2,3,4,5].map(i => (
                   <Star key={i} size={12} className={i <= Math.round(product.avg_ocjena) ? 'text-[#c9a96e]' : 'text-[#333]'} fill={i <= Math.round(product.avg_ocjena) ? 'currentColor' : 'none'} />
@@ -599,8 +599,8 @@ export default function ProductPage({ wishlist, onWishlistToggle, onAddToCart, u
                     </div>
                     <div className="p-4">
                       <p className="text-[#c9a96e] text-[9px] tracking-[0.25em] uppercase font-['Inter'] mb-1">{p.brand?.naziv || p.brand}</p>
-                      <h3 className="text-[#e8d5a3] font-['Playfair_Display'] font-bold mb-2">{p.naziv}</h3>
-                      <p className="text-[#c9a96e] font-['Playfair_Display'] font-semibold">
+                      <h3 className="text-[#e8d5a3] font-['DM_Sans'] font-bold mb-2">{p.naziv}</h3>
+                      <p className="text-[#c9a96e] font-['DM_Sans'] font-semibold">
                         od {p.product_sizes && p.product_sizes.length > 0 ? Math.min(...p.product_sizes.map((s: any) => s.cijena)).toFixed(2) : '0.00'}€
                       </p>
                     </div>

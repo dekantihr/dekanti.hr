@@ -71,7 +71,7 @@ export default function ProfilePage({ user, orders, wishlist, onWishlistToggle }
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="flex items-center gap-5 mb-8">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#c9a96e] to-[#e8d5a3] flex items-center justify-center text-[#0a0a0a] font-['Playfair_Display'] font-bold text-2xl">
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#c9a96e] to-[#e8d5a3] flex items-center justify-center text-[#0a0a0a] font-['DM_Sans'] font-bold text-2xl">
             {user.ime[0]}
           </div>
           <div>
@@ -160,7 +160,7 @@ export default function ProfilePage({ user, orders, wishlist, onWishlistToggle }
                   <div key={order.order_number} className="bg-[#111111] border border-[#c9a96e]/10 hover:border-[#c9a96e]/25 rounded-2xl p-5 transition-all">
                     <div className="flex items-start justify-between mb-4">
                       <div>
-                        <p className="text-[#c9a96e] font-['Playfair_Display'] font-bold text-lg">{order.order_number}</p>
+                        <p className="text-[#c9a96e] font-['DM_Sans'] font-bold text-lg">{order.order_number}</p>
                         <p className="text-[#e8d5a3]/35 text-xs font-['Inter'] mt-0.5">{order.created_at}</p>
                       </div>
                       <div className={`flex items-center gap-1.5 text-xs font-['Inter'] font-semibold ${cfg.color}`}>
@@ -175,7 +175,7 @@ export default function ProfilePage({ user, orders, wishlist, onWishlistToggle }
                         {' · 🚚 HP Pošta24'}
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="text-[#c9a96e] font-['Playfair_Display'] font-bold text-lg">{order.ukupno.toFixed(2)}€</span>
+                        <span className="text-[#c9a96e] font-['DM_Sans'] font-bold text-lg">{order.ukupno.toFixed(2)}€</span>
                         <Link to={`/pracenje?broj=${order.order_number}`} className="text-[#c9a96e]/60 text-xs border border-[#c9a96e]/20 px-3 py-1.5 rounded-lg hover:bg-[#c9a96e]/5 transition-all font-['Inter']">
                           Prati →
                         </Link>
@@ -221,8 +221,8 @@ export default function ProfilePage({ user, orders, wishlist, onWishlistToggle }
                     </div>
                     <div className="p-4">
                       <p className="text-[#c9a96e] text-[9px] tracking-[0.25em] uppercase font-['Inter'] mb-1">{product.brand?.naziv || product.brand}</p>
-                      <Link to={`/parfemi/${product.slug}`} className="text-[#e8d5a3] font-['Playfair_Display'] font-semibold hover:text-[#c9a96e] transition-colors block mb-2">{product.naziv}</Link>
-                      <p className="text-[#c9a96e] font-['Playfair_Display'] font-bold">od {product.product_sizes && product.product_sizes.length > 0 ? Math.min(...product.product_sizes.map((s: any) => s.cijena)).toFixed(2) : '0.00'}€</p>
+                      <Link to={`/parfemi/${product.slug}`} className="text-[#e8d5a3] font-['DM_Sans'] font-semibold hover:text-[#c9a96e] transition-colors block mb-2">{product.naziv}</Link>
+                      <p className="text-[#c9a96e] font-['DM_Sans'] font-bold">od {product.product_sizes && product.product_sizes.length > 0 ? Math.min(...product.product_sizes.map((s: any) => s.cijena)).toFixed(2) : '0.00'}€</p>
                     </div>
                   </div>
                 ))}

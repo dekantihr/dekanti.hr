@@ -22,7 +22,7 @@ export function AboutPage() {
           </h1>
         </ScrollReveal>
 
-        <div className="space-y-8 text-[#e8d5a3]/70 font-['Inter_Tight'] font-light leading-relaxed">
+        <div className="space-y-8 text-[#e8d5a3]/70 font-['DM_Sans'] font-light leading-relaxed">
           <ScrollReveal animation="fade-up" delay={200}>
             <p className="text-lg">
               dekantihr.com je specijalizirana online platforma za prodaju premium decant parfema najpoznatijih svjetskih luksuznih brandova. Naša misija je približiti luksuz svakom ljubitelju mirisa — bez kompromisa po pitanju kvalitete, a uz znatno pristupačnije cijene.
@@ -79,7 +79,7 @@ export function NotFoundPage() {
           </h2>
         </ScrollReveal>
         <ScrollReveal animation="fade-up" delay={250}>
-          <p className="text-[#e8d5a3]/50 font-['Inter_Tight'] font-light mb-8 max-w-md mx-auto">
+          <p className="text-[#e8d5a3]/50 font-['DM_Sans'] font-light mb-8 max-w-md mx-auto">
             Čini se da ste zalutali u nepoznati miris. Vratite se na početnu stranicu i nastavite istraživati našu kolekciju.
           </p>
         </ScrollReveal>
