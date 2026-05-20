@@ -129,10 +129,16 @@ export default function ProductPage({ wishlist, onWishlistToggle, onAddToCart, u
           {/* Gallery */}
           <div className="space-y-4">
             <div className="relative aspect-square rounded-3xl overflow-hidden bg-gradient-to-br from-[#1a1a1a] to-[#111111] border border-[#c9a96e]/10 group">
+              {/* Main image — key forces remount on change, triggering the fade-in animation */}
               <img
+                key={activeImage}
                 src={product.images && product.images.length > 0 ? product.images[activeImage] || product.images[0] : ''}
                 alt={`${product.brand?.naziv || product.brand} ${product.naziv}`}
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                className="w-full h-full object-cover group-hover:scale-105"
+                style={{
+                  animation: 'productImageFadeIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                  transition: 'transform 0.7s cubic-bezier(0.16, 1, 0.3, 1)',
+                }}
               />
               {/* Badges */}
               <div className="absolute top-4 left-4 flex flex-col gap-2">
@@ -153,6 +159,41 @@ export default function ProductPage({ wishlist, onWishlistToggle, onAddToCart, u
               >
                 <Heart size={16} fill={wishlist.includes(product.id) ? 'currentColor' : 'none'} />
               </button>
+
+              {/* Arrow navigation (only when multiple images) */}
+              {product.images && product.images.length > 1 && (
+                <>
+                  <button
+                    onClick={() => setActiveImage(i => (i - 1 + product.images.length) % product.images.length)}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-[#0a0a0a]/70 border border-[#c9a96e]/20 flex items-center justify-center text-[#e8d5a3]/70 hover:bg-[#c9a96e]/20 hover:text-[#c9a96e] hover:border-[#c9a96e]/50 transition-all opacity-0 group-hover:opacity-100 backdrop-blur-sm"
+                    aria-label="Prethodna slika"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  </button>
+                  <button
+                    onClick={() => setActiveImage(i => (i + 1) % product.images.length)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-[#0a0a0a]/70 border border-[#c9a96e]/20 flex items-center justify-center text-[#e8d5a3]/70 hover:bg-[#c9a96e]/20 hover:text-[#c9a96e] hover:border-[#c9a96e]/50 transition-all opacity-0 group-hover:opacity-100 backdrop-blur-sm"
+                    aria-label="Sljedeća slika"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 2l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  </button>
+                  {/* Dot indicators */}
+                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+                    {product.images.map((_: string, i: number) => (
+                      <button
+                        key={i}
+                        onClick={() => setActiveImage(i)}
+                        className={`rounded-full transition-all duration-300 ${
+                          i === activeImage
+                            ? 'w-5 h-1.5 bg-[#c9a96e]'
+                            : 'w-1.5 h-1.5 bg-[#e8d5a3]/30 hover:bg-[#e8d5a3]/60'
+                        }`}
+                        aria-label={`Slika ${i + 1}`}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Thumbnails */}
@@ -162,9 +203,20 @@ export default function ProductPage({ wishlist, onWishlistToggle, onAddToCart, u
                   <button
                     key={i}
                     onClick={() => setActiveImage(i)}
-                    className={`w-20 h-20 rounded-xl overflow-hidden border-2 transition-all ${i === activeImage ? 'border-[#c9a96e]' : 'border-[#c9a96e]/10 hover:border-[#c9a96e]/40'}`}
+                    className={`relative w-20 h-20 rounded-xl overflow-hidden border-2 transition-all duration-300 ${
+                      i === activeImage
+                        ? 'border-[#c9a96e] scale-105 shadow-lg shadow-[#c9a96e]/20'
+                        : 'border-[#c9a96e]/10 hover:border-[#c9a96e]/40 hover:scale-102'
+                    }`}
                   >
-                    <img src={img} alt="" className="w-full h-full object-cover" />
+                    <img
+                      src={img}
+                      alt=""
+                      className={`w-full h-full object-cover transition-all duration-300 ${i === activeImage ? 'brightness-100' : 'brightness-75 hover:brightness-90'}`}
+                    />
+                    {i === activeImage && (
+                      <div className="absolute inset-0 ring-2 ring-inset ring-[#c9a96e]/30 rounded-xl" />
+                    )}
                   </button>
                 ))}
               </div>
