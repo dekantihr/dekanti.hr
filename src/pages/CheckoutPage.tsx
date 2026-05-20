@@ -320,10 +320,10 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main content */}
-          <div className="lg:col-span-2">
+          {/* Main content — full width when payment modal is open or on confirmation */}
+          <div className={showPaymentModal || step === 'potvrda' ? 'lg:col-span-3' : 'lg:col-span-2'}>
             {/* Step 1: Podaci */}
-            {step === 'podaci' && (
+            {step === 'podaci' && !showPaymentModal && (
               <div className="bg-[#111111] border border-[#c9a96e]/10 rounded-2xl p-6 space-y-5">
                 <h2 className="font-['Playfair_Display'] text-2xl font-bold text-[#e8d5a3] mb-2">Podaci za dostavu</h2>
                 <div className="grid grid-cols-2 gap-4">
@@ -369,7 +369,7 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
             )}
 
             {/* Step 2: Dostava/Plaćanje — redesigned with logos */}
-            {step === 'dostava' && (
+            {step === 'dostava' && !showPaymentModal && (
               <div className="space-y-5">
                 {/* Delivery section */}
                 <div className="bg-[#111111] border border-[#c9a96e]/10 rounded-2xl overflow-hidden">
@@ -387,10 +387,13 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
                         <Check size={11} className="text-[#0a0a0a]" strokeWidth={3} />
                       </div>
                       <div className="flex items-center gap-4">
-                        {/* BoxNow logo — inline for pixel-perfect rendering */}
-                        <div className="w-14 h-14 rounded-xl flex-shrink-0 shadow-md overflow-hidden bg-[#44D62C] flex flex-col items-center justify-center gap-0">
-                          <span className="text-white font-black text-[22px] leading-none tracking-tight" style={{ fontFamily: "'Arial Black', Arial, sans-serif" }}>BOX</span>
-                          <span className="text-white font-black text-[22px] leading-none tracking-tight" style={{ fontFamily: "'Arial Black', Arial, sans-serif" }}>NOW</span>
+                        {/* BoxNow logo — inline SVG for pixel-perfect rendering */}
+                        <div className="w-14 h-14 rounded-xl flex-shrink-0 shadow-md overflow-hidden">
+                          <svg width="56" height="56" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="56" height="56" rx="12" fill="#44D62C"/>
+                            <text x="28" y="24" fontFamily="Arial Black, Arial, sans-serif" fontWeight="900" fontSize="18" fill="white" textAnchor="middle" dominantBaseline="middle">BOX</text>
+                            <text x="28" y="42" fontFamily="Arial Black, Arial, sans-serif" fontWeight="900" fontSize="18" fill="white" textAnchor="middle" dominantBaseline="middle">NOW</text>
+                          </svg>
                         </div>
                         <div className="flex-1">
                           <p className="text-[#e8d5a3] text-sm font-bold font-['Inter'] mb-0.5">BoxNow paketomat</p>
@@ -549,7 +552,7 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
             )}
 
             {/* Step 3: Pregled */}
-            {step === 'pregled' && (
+            {step === 'pregled' && !showPaymentModal && (
               <div className="space-y-4">
                 <div className="bg-[#111111] border border-[#c9a96e]/10 rounded-2xl p-6">
                   <h2 className="font-['Playfair_Display'] text-2xl font-bold text-[#e8d5a3] mb-4">Pregled narudžbe</h2>
@@ -585,7 +588,7 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
                       <p className="text-[#e8d5a3]/70 font-['Inter']">
                         {form.nacin_placanja === 'revolut' ? '💳 Revolut' : '🏦 Bankovna transakcija'}
                       </p>
-                      <p className="text-[#e8d5a3]/50 font-['Inter'] text-xs mt-1">� BoxNow paketomat</p>
+                      <p className="text-[#e8d5a3]/50 font-['Inter'] text-xs mt-1">📦 BoxNow paketomat</p>
                     </div>
                   </div>
                 </div>
@@ -612,6 +615,7 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
 
             {/* Revolut Payment Modal — full redesign */}
             {showPaymentModal && pendingOrder && (
+              <div className="max-w-2xl mx-auto">
               <div className="relative overflow-hidden rounded-3xl shadow-2xl">
                 {/* Background gradient */}
                 <div className="absolute inset-0 bg-gradient-to-br from-[#0f0a1e] via-[#120d20] to-[#0a0a0a]" />
@@ -783,6 +787,7 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
                   </button>
                 </div>
               </div>
+              </div>
             )}
 
             {/* Step 4: Potvrda — full redesign */}
@@ -791,7 +796,7 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
               const isRevolut = form.nacin_placanja === 'revolut';
               const isAwaiting = isRevolut && !paymentConfirmed;
               return (
-                <div className="space-y-4">
+                <div className="max-w-2xl mx-auto space-y-4">
                   {/* Hero confirmation card */}
                   <div className={`relative overflow-hidden rounded-3xl ${
                     isAwaiting
@@ -977,7 +982,7 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
             })()}
           </div>
 
-          {/* Order summary sidebar */}
+          {/* Order summary sidebar — hidden when modal is open or on confirmation */}
           {step !== 'potvrda' && !showPaymentModal && (
             <div>
               <div className="bg-[#111111] border border-[#c9a96e]/10 rounded-2xl p-5 sticky top-28">
