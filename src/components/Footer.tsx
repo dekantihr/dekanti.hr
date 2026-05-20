@@ -132,7 +132,7 @@ export default function Footer() {
             <ul className="space-y-2.5">
               <li className="flex items-center gap-2.5 text-[#e8d5a3]/50 text-xs font-['Inter']">
                 <Mail size={12} className="text-[#c9a96e]/60 flex-shrink-0" />
-                info@dekanti.hr
+                info@dekantihr.com
               </li>
               <li className="flex items-center gap-2.5 text-[#e8d5a3]/50 text-xs font-['Inter']">
                 <Phone size={12} className="text-[#c9a96e]/60 flex-shrink-0" />
@@ -171,7 +171,7 @@ export default function Footer() {
       <div className="border-t border-[#c9a96e]/10">
         <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-2">
           <p className="text-[#e8d5a3]/30 text-xs font-['Inter_Tight'] font-light">
-            © 2024 dekanti.hr — Sva prava pridržana.
+            © 2025 dekantihr.com — Sva prava pridržana.
           </p>
           <div className="flex gap-4">
             <Link to="/uvjeti" className="text-[#e8d5a3]/30 hover:text-[#c9a96e]/60 text-xs font-['Inter_Tight'] transition-colors">

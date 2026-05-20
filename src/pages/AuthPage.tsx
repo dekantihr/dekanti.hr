@@ -44,7 +44,7 @@ export default function AuthPage({ mode, onLogin }: AuthPageProps) {
     try {
       const user = await api.register(form.email, form.password, form.ime, form.prezime);
       onLogin(user);
-      toast.success('Registracija uspješna! Dobrodošli u dekanti.hr!');
+      toast.success('Registracija uspješna! Dobrodošli u dekantihr.com!');
       navigate('/');
     } catch (err: any) {
       toast.error(err.message || 'Došlo je do greške prilikom registracije');
@@ -83,7 +83,7 @@ export default function AuthPage({ mode, onLogin }: AuthPageProps) {
             {mode === 'login' ? 'Prijava' : mode === 'register' ? 'Registracija' : 'Zaboravljena lozinka'}
           </h1>
           <p className="text-[#e8d5a3]/40 text-sm font-['Inter'] font-light mt-1">
-            {mode === 'login' ? 'Prijavite se u vaš dekanti.hr račun' :
+            {mode === 'login' ? 'Prijavite se u vaš dekantihr.com račun' :
              mode === 'register' ? 'Kreirajte besplatan račun' :
              'Pošaljemo vam link za reset lozinke'}
           </p>

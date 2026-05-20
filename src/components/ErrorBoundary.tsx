@@ -122,8 +122,8 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBo
             {/* Support */}
             <p className="mt-6 text-xs text-[#e8d5a3]/40 font-['Inter']">
               Ako problem i dalje postoji, kontaktirajte nas na{' '}
-              <a href="mailto:info@dekanti.hr" className="text-[#c9a96e] hover:underline">
-                info@dekanti.hr
+              <a href="mailto:info@dekantihr.com" className="text-[#c9a96e] hover:underline">
+                info@dekantihr.com
               </a>
             </p>
           </div>

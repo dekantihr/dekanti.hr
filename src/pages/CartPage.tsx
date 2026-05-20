@@ -72,7 +72,7 @@ export default function CartPage({ items, coupon, onCouponSet, onUpdateQuantity,
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <ScrollReveal animation="fade-up">
           <div className="mb-8">
-            <p className="text-[#c9a96e] text-[10px] tracking-[0.5em] uppercase font-semibold font-['Inter'] mb-2">dekanti.hr</p>
+            <p className="text-[#c9a96e] text-[10px] tracking-[0.5em] uppercase font-semibold font-['Inter'] mb-2">dekantihr.com</p>
             <h1 className="font-['Playfair_Display'] text-4xl md:text-5xl font-bold text-[#e8d5a3]">
               Vaša <span className="text-[#c9a96e] italic">košarica</span>
             </h1>

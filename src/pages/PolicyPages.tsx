@@ -55,7 +55,7 @@ export function FAQPage() {
     <PolicyLayout title="Često postavljana pitanja" subtitle="FAQ" icon={<HelpCircle size={18} />}>
       <Section number={1} title="Otkuda nabavljate parfeme i zašto ne prodajete cijele bočice?">
         <p>
-          dekanti.hr se bavi isključivo prodajom dekanta (putnih i testnih pakiranja) koje točimo iz originalnih flakona. Naš fokus je na tzv. sivom tržištu (Gray Market) unutar Europske unije. Surađujemo s ovlaštenim distributerima koji nam ustupaju testerska pakiranja, višak zaliha (overstock) te ambalažu s manjim estetskim oštećenjima koja ne može ići u klasičnu maloprodaju.
+          dekantihr.com se bavi isključivo prodajom dekanta (putnih i testnih pakiranja) koje točimo iz originalnih flakona. Naš fokus je na tzv. sivom tržištu (Gray Market) unutar Europske unije. Surađujemo s ovlaštenim distributerima koji nam ustupaju testerska pakiranja, višak zaliha (overstock) te ambalažu s manjim estetskim oštećenjima koja ne može ići u klasičnu maloprodaju.
         </p>
         <p>
           Budući da su cijele bočice rezervirane za službene prezentacije i testiranja, mi ih otkupljujemo u velikim količinama i pretkačemo u manje mililitraže, omogućujući vam pristup luksuzu po znatno nižim cijenama.
@@ -121,7 +121,7 @@ export function PrivacyPage() {
 
       <Section number={2} title="Sigurnost plaćanja">
         <p>
-          Sve financijske transakcije obavljaju se izvan našeg poslužitelja, putem zaštićenih i kriptiranih vanjskih platformi za plaćanje (Revolut / digitalni platni nalozi). Dekanti.hr niti u jednom trenutku nema pristup podacima s vaše kartice niti ih pohranjuje.
+          Sve financijske transakcije obavljaju se izvan našeg poslužitelja, putem zaštićenih i kriptiranih vanjskih platformi za plaćanje (Revolut / digitalni platni nalozi). dekantihr.com niti u jednom trenutku nema pristup podacima s vaše kartice niti ih pohranjuje.
         </p>
         <p>
           Sva komunikacija između vašeg uređaja i našeg poslužitelja zaštićena je SSL enkripcijom (HTTPS), što jamči da vaši osobni podaci ne mogu biti presretnuti trećim stranama.
@@ -142,7 +142,7 @@ export function PrivacyPage() {
           Sukladno Općoj uredbi o zaštiti podataka (GDPR), imate pravo na pristup, ispravak, brisanje i prenosivost vaših osobnih podataka. Također imate pravo prigovora na obradu i pravo ograničenja obrade.
         </p>
         <p>
-          Za ostvarivanje bilo kojeg od navedenih prava, kontaktirajte nas putem emaila <span className="text-[#c9a96e]">info@dekanti.hr</span>. Odgovaramo u roku od 30 dana.
+          Za ostvarivanje bilo kojeg od navedenih prava, kontaktirajte nas putem emaila <span className="text-[#c9a96e]">info@dekantihr.com</span>. Odgovaramo u roku od 30 dana.
         </p>
       </Section>
 
@@ -160,7 +160,7 @@ export function RefundPage() {
     <PolicyLayout title="Povrat novca i reklamacije" subtitle="Povrat" icon={<RotateCcw size={18} />}>
       <Section number={1} title="Oštećenje prilikom transporta">
         <p>
-          Ako je staklena bočica dekanata stigla razbijena ili napuknuta, potrebno nam je poslati fotografiju paketa na naš e-mail <span className="text-[#c9a96e]">info@dekanti.hr</span> ili Instagram podršku u roku od 24 sata od preuzimanja s paketomata.
+          Ako je staklena bočica dekanata stigla razbijena ili napuknuta, potrebno nam je poslati fotografiju paketa na naš e-mail <span className="text-[#c9a96e]">info@dekantihr.com</span> ili Instagram podršku u roku od 24 sata od preuzimanja s paketomata.
         </p>
         <p>
           U tom slučaju šaljemo novi paket o našem trošku ili vršimo puni povrat novca na isti način plaćanja koji ste koristili prilikom kupnje.
@@ -200,8 +200,8 @@ export function RefundPage() {
         </p>
         <ul className="space-y-2 mt-2">
           {[
-            'Uplata niža od navedenog iznosa: narudžba se ne obrađuje i ne šalje dok se razlika ne doplati. Kupac je dužan kontaktirati nas na info@dekanti.hr s dokazom uplate i brojem narudžbe.',
-            'Uplata viša od navedenog iznosa: razlika se ne vraća automatski. Kupac može zatražiti povrat razlike pisanim zahtjevom na info@dekanti.hr u roku od 14 dana od uplate. Povrat se vrši na isti Revolut račun ili IBAN s kojeg je uplata stigla.',
+            'Uplata niža od navedenog iznosa: narudžba se ne obrađuje i ne šalje dok se razlika ne doplati. Kupac je dužan kontaktirati nas na info@dekantihr.com s dokazom uplate i brojem narudžbe.',
+            'Uplata viša od navedenog iznosa: razlika se ne vraća automatski. Kupac može zatražiti povrat razlike pisanim zahtjevom na info@dekantihr.com u roku od 14 dana od uplate. Povrat se vrši na isti Revolut račun ili IBAN s kojeg je uplata stigla.',
             'Namjerna uplata nižeg iznosa uz tvrdnju da je uplata bila ispravna: smatra se pokušajem prijevare. U tom slučaju narudžba se trajno otkazuje, uplata se ne vraća, a slučaj se može prijaviti nadležnim tijelima.',
           ].map((item, i) => (
             <li key={i} className="flex items-start gap-3">
@@ -223,7 +223,7 @@ export function TermsPage() {
     <PolicyLayout title="Uvjeti korištenja" subtitle="Uvjeti" icon={<FileText size={18} />}>
       <Section number={1} title="Opće odredbe">
         <p>
-          Ovi uvjeti korištenja reguliraju odnos između dekanti.hr (u daljnjem tekstu: "Platforma", "mi") i korisnika web stranice. Korištenjem naše web stranice potvrđujete da ste pročitali, razumjeli i prihvatili ove uvjete.
+          Ovi uvjeti korištenja reguliraju odnos između dekantihr.com (u daljnjem tekstu: "Platforma", "mi") i korisnika web stranice. Korištenjem naše web stranice potvrđujete da ste pročitali, razumjeli i prihvatili ove uvjete.
         </p>
         <p>
           Platforma zadržava pravo izmjene ovih uvjeta u bilo kojem trenutku. Značajne izmjene bit će objavljene na web stranici i/ili poslane putem emaila.
@@ -253,8 +253,8 @@ export function TermsPage() {
           {[
             'Narudžba neće biti obrađena niti poslana dok se uplata ne uskladi s navedenim iznosom.',
             'Uplata niža od navedenog iznosa neće biti prihvaćena kao valjana — narudžba ostaje u statusu "čeka uplatu" dok se razlika ne doplati.',
-            'Uplata viša od navedenog iznosa tretira se kao greška kupca — razlika se ne vraća automatski, već isključivo na pisani zahtjev kupca upućen na info@dekanti.hr.',
-            'dekanti.hr ne snosi odgovornost za kašnjenje ili neisporuku narudžbe uzrokovanu neispravnom uplatom.',
+            'Uplata viša od navedenog iznosa tretira se kao greška kupca — razlika se ne vraća automatski, već isključivo na pisani zahtjev kupca upućen na info@dekantihr.com.',
+            'dekantihr.com ne snosi odgovornost za kašnjenje ili neisporuku narudžbe uzrokovanu neispravnom uplatom.',
           ].map((item, i) => (
             <li key={i} className="flex items-start gap-3">
               <span className="w-1.5 h-1.5 rounded-full bg-[#c9a96e] mt-2 flex-shrink-0" />
@@ -287,7 +287,7 @@ export function TermsPage() {
 
       <Section number={6} title="Odgovornost">
         <p>
-          dekanti.hr ne odgovara za eventualne alergijske reakcije na parfemske sastojke. Preporučujemo da prije kupnje provjerite listu sastojaka ako imate poznate alergije.
+          dekantihr.com ne odgovara za eventualne alergijske reakcije na parfemske sastojke. Preporučujemo da prije kupnje provjerite listu sastojaka ako imate poznate alergije.
         </p>
         <p>
           Parfemske note i trajnost mirisa mogu varirati ovisno o PH vrijednosti kože, načinu primjene i klimatskim uvjetima.
@@ -403,7 +403,7 @@ export function ContactPage() {
         <p>
           Za sva pitanja vezana uz narudžbe, proizvode, dostavu i reklamacije slobodno nam se obratite putem emaila:
         </p>
-        <p className="text-[#c9a96e] font-semibold text-lg mt-2">info@dekanti.hr</p>
+        <p className="text-[#c9a96e] font-semibold text-lg mt-2">info@dekantihr.com</p>
         <p className="text-sm">Odgovaramo u roku od 24 sata na radne dane.</p>
       </Section>
 
@@ -411,7 +411,7 @@ export function ContactPage() {
         <p>
           Najbrži način za neformalni kontakt, DM i pregled noviteta:
         </p>
-        <p className="text-[#c9a96e] font-semibold text-lg mt-2">@dekanti.hr</p>
+        <p className="text-[#c9a96e] font-semibold text-lg mt-2">@dekantihr.com</p>
       </Section>
 
       <Section number={3} title="Radno vrijeme podrške">
@@ -434,7 +434,7 @@ export function ContactPage() {
 
       <Section number={4} title="Adresa">
         <p>
-          dekanti.hr je isključivo online platforma i nemamo fizičku maloprodaju. Sve narudžbe šaljemo putem HP Pošta24 paketomata.
+          dekantihr.com je isključivo online platforma i nemamo fizičku maloprodaju. Sve narudžbe šaljemo putem HP Pošta24 paketomata.
         </p>
         <p className="text-sm mt-2">
           Sjedište tvrtke: Zagreb, Hrvatska

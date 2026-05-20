@@ -226,7 +226,7 @@ export default function CatalogPage({ wishlist, onWishlistToggle, onAddToCart }:
       <ScrollReveal animation="fade-up">
         <div className="border-b border-[#c9a96e]/10 bg-[#111111]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-            <p className="text-[#c9a96e] text-[10px] tracking-[0.5em] uppercase font-semibold font-['Inter'] mb-2">dekanti.hr</p>
+            <p className="text-[#c9a96e] text-[10px] tracking-[0.5em] uppercase font-semibold font-['Inter'] mb-2">dekantihr.com</p>
             <h1 className="font-['Playfair_Display'] text-4xl md:text-5xl font-bold text-[#e8d5a3]">
               {searchParams.get('featured') === 'true' ? 'Featured kolekcija' :
                sort === 'bestseller' ? 'Bestselleri' :

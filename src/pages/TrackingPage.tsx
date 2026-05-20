@@ -74,7 +74,7 @@ export default function TrackingPage({ orders }: TrackingPageProps) {
         {/* Header */}
         <ScrollReveal animation="fade-up">
           <div className="text-center mb-12">
-            <p className="text-[#c9a96e] text-[10px] tracking-[0.5em] uppercase font-semibold font-['Inter'] mb-3">dekanti.hr</p>
+            <p className="text-[#c9a96e] text-[10px] tracking-[0.5em] uppercase font-semibold font-['Inter'] mb-3">dekantihr.com</p>
             <h1 className="font-['Playfair_Display'] text-4xl md:text-5xl font-bold text-[#e8d5a3] mb-3">
               Praćenje <span className="text-[#c9a96e] italic">narudžbe</span>
             </h1>
@@ -204,7 +204,7 @@ export default function TrackingPage({ orders }: TrackingPageProps) {
               <li>• Narudžbe primljene do 14:00 pakiramo i šaljemo isti dan</li>
               <li>• BoxNow paketomat dostava: 1-2 radna dana unutar Hrvatske</li>
               <li>• Kod za preuzimanje stiže SMS-om i emailom nakon predaje u paketomat</li>
-              <li>• Za pitanja: info@dekanti.hr ili Instagram @dekanti.hr</li>
+              <li>• Za pitanja: info@dekantihr.com ili Instagram @dekantihr.com</li>
             </ul>
           </div>
         </ScrollReveal>

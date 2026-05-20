@@ -25,7 +25,7 @@ export function AboutPage() {
         <div className="space-y-8 text-[#e8d5a3]/70 font-['Inter_Tight'] font-light leading-relaxed">
           <ScrollReveal animation="fade-up" delay={200}>
             <p className="text-lg">
-              Dekanti.hr je specijalizirana online platforma za prodaju premium decant parfema najpoznatijih svjetskih luksuznih brandova. Naša misija je približiti luksuz svakom ljubitelju mirisa — bez kompromisa po pitanju kvalitete, a uz znatno pristupačnije cijene.
+              dekantihr.com je specijalizirana online platforma za prodaju premium decant parfema najpoznatijih svjetskih luksuznih brandova. Naša misija je približiti luksuz svakom ljubitelju mirisa — bez kompromisa po pitanju kvalitete, a uz znatno pristupačnije cijene.
             </p>
           </ScrollReveal>
 
@@ -57,7 +57,7 @@ export function AboutPage() {
           <ScrollReveal animation="fade-up" delay={500}>
             <h2 className="font-['Cormorant_Garamond'] text-2xl font-semibold text-[#e8d5a3] mb-4">Kontakt</h2>
             <p>
-              Za sva pitanja, sugestije ili suradnju slobodno nas kontaktirajte putem emaila <span className="text-[#c9a96e]">info@dekanti.hr</span> ili putem Instagrama <span className="text-[#c9a96e]">@dekanti.hr</span>.
+              Za sva pitanja, sugestije ili suradnju slobodno nas kontaktirajte putem emaila <span className="text-[#c9a96e]">info@dekantihr.com</span> ili putem Instagrama <span className="text-[#c9a96e]">@dekantihr.com</span>.
             </p>
           </ScrollReveal>
         </div>
