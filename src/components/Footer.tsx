@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, Phone, MapPin, Package, Truck, CreditCard, Shield, RotateCcw, Send } from 'lucide-react';
+import { Mail, Package, Truck, CreditCard, Shield, RotateCcw, Send } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function Footer() {
@@ -135,14 +135,6 @@ export default function Footer() {
               <li className="flex items-center gap-2.5 text-[#e8d5a3]/50 text-xs font-['Inter']">
                 <Mail size={12} className="text-[#c9a96e]/60 flex-shrink-0" />
                 info@dekantihr.com
-              </li>
-              <li className="flex items-center gap-2.5 text-[#e8d5a3]/50 text-xs font-['Inter']">
-                <Phone size={12} className="text-[#c9a96e]/60 flex-shrink-0" />
-                +385 91 234 5678
-              </li>
-              <li className="flex items-start gap-2.5 text-[#e8d5a3]/50 text-xs font-['Inter']">
-                <MapPin size={12} className="text-[#c9a96e]/60 flex-shrink-0 mt-0.5" />
-                Ilica 1, 10000 Zagreb, Hrvatska
               </li>
             </ul>
           </div>
