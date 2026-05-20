@@ -41,10 +41,12 @@ export default function Footer() {
           {/* Brand */}
           <div className="lg:col-span-1">
             <Link to="/" className="inline-block mb-6 group">
-              <span className="text-2xl font-['Cormorant_Garamond'] font-bold text-[#e8d5a3] tracking-[0.15em] group-hover:text-[#c9a96e] transition-all duration-300 group-hover:drop-shadow-[0_0_8px_rgba(201,169,110,0.5)]">
-                DEKANTI<span className="text-[#c9a96e]">.HR</span>
-              </span>
-              <div className="text-[9px] tracking-[0.4em] text-[#c9a96e]/60 uppercase mt-0.5 font-['DM_Sans']">
+              <img
+                src="/logos/mylogo.png"
+                alt="dekantihr.com"
+                className="h-10 w-auto object-contain group-hover:opacity-80 transition-opacity duration-300"
+              />
+              <div className="text-[9px] tracking-[0.4em] text-[#c9a96e]/60 uppercase mt-1 font-['DM_Sans']">
                 Luksuzni Decant Parfemi
               </div>
             </Link>

@@ -86,13 +86,12 @@ export default function Navbar({ itemCount, wishlistCount, user, onLogout }: Nav
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
-          <Link to="/" className="flex flex-col items-start group logo-link">
-            <span className="text-xl md:text-2xl font-['Cormorant_Garamond'] font-bold text-[#e8d5a3] tracking-[0.15em] group-hover:text-[#c9a96e] transition-all duration-400">
-              DEKANTIHR<span className="text-[#c9a96e]">.COM</span>
-            </span>
-            <span className="text-[10px] tracking-[0.25em] text-[#c9a96e]/60 uppercase font-medium -mt-0.5 hidden sm:block font-['Inter'] group-hover:text-[#c9a96e]/80 transition-colors duration-400">
-              Luksuzni Decant Parfemi
-            </span>
+          <Link to="/" className="flex items-center group logo-link">
+            <img
+              src="/logos/mylogo.png"
+              alt="dekantihr.com"
+              className="h-10 md:h-12 w-auto object-contain group-hover:opacity-90 transition-opacity duration-300"
+            />
           </Link>
 
           {/* Desktop Nav */}

@@ -70,9 +70,11 @@ export default function AuthPage({ mode, onLogin }: AuthPageProps) {
         {/* Logo */}
         <div className="text-center mb-10">
           <Link to="/" className="inline-block">
-            <span className="text-3xl font-['Playfair_Display'] font-bold text-[#e8d5a3] tracking-[0.15em]">
-              DEKANTIHR<span className="text-[#c9a96e]">.COM</span>
-            </span>
+            <img
+              src="/logos/mylogo.png"
+              alt="dekantihr.com"
+              className="h-14 w-auto object-contain mx-auto"
+            />
           </Link>
           <div className="flex items-center gap-3 justify-center mt-4 mb-2">
             <div className="flex-1 h-[1px] bg-[#c9a96e]/20" />
