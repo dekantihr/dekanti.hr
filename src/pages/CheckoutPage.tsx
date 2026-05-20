@@ -387,9 +387,10 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
                         <Check size={11} className="text-[#0a0a0a]" strokeWidth={3} />
                       </div>
                       <div className="flex items-center gap-4">
-                        {/* BoxNow logo */}
-                        <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 shadow-md">
-                          <img src="/logos/boxnow.svg" alt="BoxNow" className="w-full h-full object-cover" />
+                        {/* BoxNow logo — inline for pixel-perfect rendering */}
+                        <div className="w-14 h-14 rounded-xl flex-shrink-0 shadow-md overflow-hidden bg-[#44D62C] flex flex-col items-center justify-center gap-0">
+                          <span className="text-white font-black text-[22px] leading-none tracking-tight" style={{ fontFamily: "'Arial Black', Arial, sans-serif" }}>BOX</span>
+                          <span className="text-white font-black text-[22px] leading-none tracking-tight" style={{ fontFamily: "'Arial Black', Arial, sans-serif" }}>NOW</span>
                         </div>
                         <div className="flex-1">
                           <p className="text-[#e8d5a3] text-sm font-bold font-['Inter'] mb-0.5">BoxNow paketomat</p>
