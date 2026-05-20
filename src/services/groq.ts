@@ -278,7 +278,8 @@ Opis treba biti bogat, senzoran i privlačan, opisujući miris, osjećaj i prili
  */
 export async function generateFullProduct(
   naziv: string,
-  brand: string
+  brand: string,
+  fragranticaText?: string
 ): Promise<{
   slug: string;
   koncentracija: string;
@@ -291,43 +292,70 @@ export async function generateFullProduct(
   note_baze: string;
   product_sizes: Array<{ velicina_ml: number; cijena: number; zaliha: number; sku: string }>;
 }> {
+  const hasRealData = fragranticaText && fragranticaText.trim().length > 50;
+
   const messages: GroqMessage[] = [
     {
       role: 'system',
-      content: `You are a fragrance database expert. You have encyclopedic knowledge of perfumes and their exact documented properties.
+      content: hasRealData
+        ? `You are a fragrance data parser. Extract EXACT information from the provided Fragrantica page text.
 
-CRITICAL RULES:
-1. Use ONLY real, documented information for this specific perfume
-2. If Fragrantica data is provided below, use it as the primary source
-3. Do NOT invent or hallucinate any information
-4. For notes: use the actual documented pyramid notes from Fragrantica/official sources
-5. For spol: use the actual target gender (muški/ženski/unisex)
-6. For sezona: use the most commonly recommended season
-7. For koncentracija: use the actual concentration (EDP/EDT/Parfum/EDC)
-8. For prices: use realistic Croatian market prices for decants (2ml, 5ml, 10ml)
-   - 2ml: typically 4-12€ depending on brand prestige
-   - 5ml: typically 10-25€
-   - 10ml: typically 18-45€
-   - Niche/luxury brands (Xerjoff, Creed, Amouage, etc.) are at the higher end
-   - Designer brands (Chanel, Dior, YSL, etc.) are in the middle
-9. Respond ONLY in valid JSON, no other text
-10. slug: lowercase, hyphens only, no special chars (e.g. "black-orchid" for "Black Orchid")`
+RULES:
+1. Extract notes ONLY from the provided text — do NOT add notes that aren't in the text
+2. If a note is mentioned in the text, include it; if not, don't invent it
+3. Translate note names to Croatian (bergamot→bergamot, rose→ruža, musk→mošus, sandalwood→sandalovina, vanilla→vanilija, cedar→cedar/cedrovino, jasmine→jasmin, iris→iris, patchouli→pačuli, amber→jantar, oud→oud, vetiver→vetiver, lavender→lavanda, neroli→neroli, sea notes→morski akord, juniper→smreka, ambergris→sivi jantar, aldehydes→aldehidi, coriander→korijander)
+4. For spol: look for "for women", "for men", "unisex" in the text
+5. For sezona: infer from the notes character (aquatic/fresh→ljeto, heavy/oriental→zima, floral/green→proljeće, woody/spicy→jesen)
+6. Respond ONLY in valid JSON`
+        : `You are a fragrance expert. Generate product data for the given perfume.
+
+IMPORTANT: For notes, use ONLY notes you are highly confident about from your training data.
+If you are not certain about the exact notes, leave note fields as empty strings — do NOT guess.
+The user will fill in notes manually from Fragrantica if needed.
+Respond ONLY in valid JSON.`,
     },
     {
       role: 'user',
-      content: `Generate complete product data for: "${naziv}" by ${brand}
+      content: hasRealData
+        ? `Extract product data for "${naziv}" by ${brand} from this Fragrantica page text:
 
-Respond ONLY in this exact JSON format:
+--- FRAGRANTICA PAGE TEXT ---
+${fragranticaText!.substring(0, 6000)}
+--- END ---
+
+Respond ONLY in this JSON format:
 {
   "slug": "product-name-slug",
   "koncentracija": "EDP",
   "spol": "unisex",
   "sezona": "jesen",
   "opis_kratki": "Short 1-2 sentence description in Croatian",
-  "opis_dugi": "Detailed 3-4 sentence description in Croatian describing the scent experience",
-  "note_vrha": "bergamot, limun, naranča",
-  "note_srca": "ruža, jasmin, iris",
-  "note_baze": "mošus, sandalovina, vanilija",
+  "opis_dugi": "Detailed 3-4 sentence description in Croatian",
+  "note_vrha": "exact notes from text",
+  "note_srca": "exact notes from text",
+  "note_baze": "exact notes from text",
+  "product_sizes": [
+    { "velicina_ml": 2, "cijena": 6.50, "zaliha": 10, "sku": "BRAND-PRODUCT-2" },
+    { "velicina_ml": 5, "cijena": 14.00, "zaliha": 10, "sku": "BRAND-PRODUCT-5" },
+    { "velicina_ml": 10, "cijena": 25.00, "zaliha": 10, "sku": "BRAND-PRODUCT-10" }
+  ]
+}`
+        : `Generate product data for "${naziv}" by ${brand}.
+
+For notes: ONLY include notes you are 100% certain about. If unsure, leave as empty string.
+For prices: use realistic Croatian decant market prices.
+
+Respond ONLY in this JSON format:
+{
+  "slug": "product-name-slug",
+  "koncentracija": "EDP",
+  "spol": "unisex",
+  "sezona": "jesen",
+  "opis_kratki": "Short 1-2 sentence description in Croatian",
+  "opis_dugi": "Detailed 3-4 sentence description in Croatian",
+  "note_vrha": "",
+  "note_srca": "",
+  "note_baze": "",
   "product_sizes": [
     { "velicina_ml": 2, "cijena": 6.50, "zaliha": 10, "sku": "BRAND-PRODUCT-2" },
     { "velicina_ml": 5, "cijena": 14.00, "zaliha": 10, "sku": "BRAND-PRODUCT-5" },
@@ -335,21 +363,17 @@ Respond ONLY in this exact JSON format:
   ]
 }
 
-Valid values:
-- koncentracija: "EDP" | "EDT" | "Parfum" | "EDC" | "EDP Extrait" | "EDP Intense"
-- spol: "muški" | "ženski" | "unisex"
-- sezona: "proljeće" | "ljeto" | "jesen" | "zima" | "sve"
-
-Use the REAL documented notes and properties for this perfume.`
+Valid: koncentracija: EDP/EDT/Parfum/EDC | spol: muški/ženski/unisex | sezona: proljeće/ljeto/jesen/zima/sve`,
     }
   ];
 
   const request = {
     model: 'llama-3.3-70b-versatile',
     messages,
-    temperature: 0.15, // Very low for factual accuracy
+    temperature: hasRealData ? 0.1 : 0.2,
     max_tokens: 800,
-    full_product: { naziv, brand }, // Triggers Fragrantica scraping
+    // Only trigger server-side Fragrantica scraping if user didn't paste data
+    ...(hasRealData ? {} : { full_product: { naziv, brand } }),
   };
 
   try {
