@@ -85,7 +85,6 @@ export default function ProductPage({ wishlist, onWishlistToggle, onAddToCart, u
     onAddToCart(product, size.id);
     setAddedToCart(true);
     setTimeout(() => setAddedToCart(false), 2000);
-    toast.success(`${product.naziv} ${size.velicina_ml}ml dodano u košaricu!`);
   };
 
   const handleReviewSubmit = (e: React.FormEvent) => {
