@@ -873,11 +873,11 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
   // ============================================================
 
   /**
-   * Generate product description using AI
+   * Generate FULL product using AI — fills all fields from just naziv + brand
    */
-  const handleGenerateDescription = async () => {
+  const handleGenerateFullProduct = async () => {
     if (!selectedProduct?.naziv || !selectedProduct?.brand_id) {
-      toast.error('Unesite naziv i odaberite brand prije generiranja opisa');
+      toast.error('Unesite naziv proizvoda i odaberite brand prije AI generiranja');
       return;
     }
 
@@ -885,102 +885,37 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
     if (!brand) return;
 
     setAiGenerating(true);
+    const toastId = toast.loading(`Tražim podatke za "${selectedProduct.naziv}"...`, {
+      style: { background: '#111111', color: '#e8d5a3', border: '1px solid rgba(201,169,110,0.3)', borderRadius: '12px', fontFamily: "'DM Sans', sans-serif", fontSize: '13px' },
+    });
+
     try {
-      const description = await groqService.generateProductDescription(
-        selectedProduct.naziv,
-        brand.naziv,
-        selectedProduct.koncentracija || 'EDP',
-        selectedProduct.spol || 'unisex'
-      );
+      const result = await groqService.generateFullProduct(selectedProduct.naziv, brand.naziv);
 
       setSelectedProduct({
         ...selectedProduct,
-        opis: description,
-        opis_kratki: description
+        slug: result.slug,
+        koncentracija: result.koncentracija,
+        spol: result.spol,
+        sezona: result.sezona,
+        opis_kratki: result.opis_kratki,
+        opis_dugi: result.opis_dugi,
+        note_vrha: result.note_vrha,
+        note_srca: result.note_srca,
+        note_baze: result.note_baze,
+        product_sizes: result.product_sizes,
       });
 
-      toast.success('Opis generiran pomoću AI!', {
-        style: {
-          background: '#111111',
-          color: '#e8d5a3',
-          border: '1px solid rgba(201,169,110,0.25)',
-          borderRadius: '12px',
-          fontFamily: 'Inter, sans-serif',
-          fontSize: '13px',
-        },
-        iconTheme: {
-          primary: '#c9a96e',
-          secondary: '#0a0a0a',
-        },
-      });
-    } catch (error: any) {
-      console.error('AI generation error:', error);
-      toast.error(error.message || 'Greška pri generiranju opisa', {
-        style: {
-          background: '#111111',
-          color: '#e8d5a3',
-          border: '1px solid rgba(239,68,68,0.25)',
-          borderRadius: '12px',
-          fontFamily: 'Inter, sans-serif',
-          fontSize: '13px',
-        },
-      });
-    } finally {
-      setAiGenerating(false);
-    }
-  };
-
-  /**
-   * Generate scent notes using AI
-   */
-  const handleGenerateScentNotes = async () => {
-    if (!selectedProduct?.naziv || !selectedProduct?.brand_id) {
-      toast.error('Unesite naziv i odaberite brand prije generiranja nota');
-      return;
-    }
-
-    const brand = supabaseBrands.find(b => b.id === selectedProduct.brand_id);
-    if (!brand) return;
-
-    setAiGenerating(true);
-    try {
-      const notes = await groqService.generateScentNotes(
-        selectedProduct.naziv,
-        brand.naziv
-      );
-
-      setSelectedProduct({
-        ...selectedProduct,
-        note_vrha: notes.note_vrha,
-        note_srca: notes.note_srca,
-        note_baze: notes.note_baze
-      });
-
-      toast.success('Note parfema generirane pomoću AI!', {
-        style: {
-          background: '#111111',
-          color: '#e8d5a3',
-          border: '1px solid rgba(201,169,110,0.25)',
-          borderRadius: '12px',
-          fontFamily: 'Inter, sans-serif',
-          fontSize: '13px',
-        },
-        iconTheme: {
-          primary: '#c9a96e',
-          secondary: '#0a0a0a',
-        },
+      toast.dismiss(toastId);
+      toast.success('Proizvod generiran! Provjerite cijene i prilagodite po potrebi.', {
+        duration: 5000,
+        style: { background: '#111111', color: '#e8d5a3', border: '1px solid rgba(201,169,110,0.3)', borderRadius: '12px', fontFamily: "'DM Sans', sans-serif", fontSize: '13px' },
+        iconTheme: { primary: '#c9a96e', secondary: '#0a0a0a' },
       });
     } catch (error: any) {
-      console.error('AI generation error:', error);
-      toast.error(error.message || 'Greška pri generiranju nota', {
-        style: {
-          background: '#111111',
-          color: '#e8d5a3',
-          border: '1px solid rgba(239,68,68,0.25)',
-          borderRadius: '12px',
-          fontFamily: 'Inter, sans-serif',
-          fontSize: '13px',
-        },
+      toast.dismiss(toastId);
+      toast.error(error.message || 'Greška pri AI generiranju', {
+        style: { background: '#111111', color: '#e8d5a3', border: '1px solid rgba(239,68,68,0.25)', borderRadius: '12px', fontFamily: "'DM Sans', sans-serif", fontSize: '13px' },
       });
     } finally {
       setAiGenerating(false);
@@ -2189,7 +2124,20 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                           <p className="text-[#e8d5a3]/40 text-xs font-['Inter']">ID: {selectedProduct.id}</p>
                         )}
                       </div>
-                      <button onClick={() => setShowProductModal(false)} className="text-[#e8d5a3]/40 hover:text-[#c9a96e]"><X size={18} /></button>
+                      <div className="flex items-center gap-2">
+                        {/* ONE AI generate button — fills everything */}
+                        <button
+                          type="button"
+                          onClick={handleGenerateFullProduct}
+                          disabled={saving || aiGenerating || !selectedProduct.naziv || !selectedProduct.brand_id}
+                          className="flex items-center gap-2 bg-gradient-to-r from-purple-600/80 to-purple-500/80 hover:from-purple-500 hover:to-purple-400 text-white px-4 py-2 rounded-xl text-xs font-bold tracking-wide uppercase transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-lg shadow-purple-900/30"
+                          title="Generiraj cijeli proizvod pomoću AI (treba naziv + brand)"
+                        >
+                          <Sparkles size={14} className={aiGenerating ? 'animate-spin' : ''} />
+                          {aiGenerating ? 'Generiram...' : 'AI Generiraj sve'}
+                        </button>
+                        <button onClick={() => setShowProductModal(false)} className="text-[#e8d5a3]/40 hover:text-[#c9a96e]"><X size={18} /></button>
+                      </div>
                     </div>
 
                     {/* Basic Info */}
@@ -2219,6 +2167,16 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                           />
                         </div>
                       </div>
+
+                      {/* AI hint */}
+                      {!selectedProduct.id && selectedProduct.naziv && selectedProduct.brand_id && (
+                        <div className="bg-purple-900/15 border border-purple-500/20 rounded-xl px-4 py-2.5 flex items-center gap-2">
+                          <Sparkles size={13} className="text-purple-300 flex-shrink-0" />
+                          <p className="text-purple-200/70 text-xs font-['Inter']">
+                            Naziv i brand su uneseni — kliknite <span className="text-purple-200 font-semibold">AI Generiraj sve</span> za automatsko popunjavanje svih polja.
+                          </p>
+                        </div>
+                      )}
 
                       <div className="grid grid-cols-3 gap-3">
                         <div>
@@ -2288,16 +2246,6 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                       <div>
                         <div className="flex items-center justify-between mb-1.5">
                           <label className="text-[#e8d5a3]/40 text-xs uppercase tracking-wider font-['Inter']">Kratki opis</label>
-                          <button
-                            type="button"
-                            onClick={handleGenerateDescription}
-                            disabled={saving || aiGenerating || !selectedProduct.naziv || !selectedProduct.brand_id}
-                            className="flex items-center gap-1.5 text-[#c9a96e] hover:text-[#e8d5a3] text-xs font-['Inter'] font-semibold transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                            title="Generiraj opis pomoću AI"
-                          >
-                            <Sparkles size={14} />
-                            {aiGenerating ? 'Generiram...' : 'AI Generiraj'}
-                          </button>
                         </div>
                         <textarea
                           value={selectedProduct.opis_kratki}
@@ -2323,16 +2271,6 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                       <div className="border-t border-[#c9a96e]/10 pt-4 mt-4">
                         <div className="flex items-center justify-between mb-3">
                           <label className="text-[#e8d5a3]/40 text-xs uppercase tracking-wider font-['Inter']">Note parfema</label>
-                          <button
-                            type="button"
-                            onClick={handleGenerateScentNotes}
-                            disabled={saving || aiGenerating || !selectedProduct.naziv || !selectedProduct.brand_id}
-                            className="flex items-center gap-1.5 text-[#c9a96e] hover:text-[#e8d5a3] text-xs font-['Inter'] font-semibold transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                            title="Generiraj note pomoću AI"
-                          >
-                            <Sparkles size={14} />
-                            {aiGenerating ? 'Generiram...' : 'AI Generiraj'}
-                          </button>
                         </div>
                         <div className="grid grid-cols-3 gap-3">
                           <div>

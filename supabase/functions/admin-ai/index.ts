@@ -10,8 +10,13 @@ type GroqRequest = {
   messages?: GroqMessage[];
   temperature?: number;
   max_tokens?: number;
-  // New: if set, fetch real notes from Fragrantica before calling LLM
+  // Fetch real notes from Fragrantica before calling LLM
   fetch_notes?: {
+    naziv: string;
+    brand: string;
+  };
+  // Full product generation — fetches Fragrantica + generates everything
+  full_product?: {
     naziv: string;
     brand: string;
   };
@@ -272,8 +277,9 @@ Deno.serve(async (req) => {
   }
 
   // If fetch_notes is requested, scrape Fragrantica first and inject the data
-  if (payload.fetch_notes) {
-    const { naziv, brand } = payload.fetch_notes;
+  if (payload.fetch_notes || payload.full_product) {
+    const target = payload.fetch_notes || payload.full_product!;
+    const { naziv, brand } = target;
     console.log(`[admin-ai] Fetching real notes for: ${brand} - ${naziv}`);
     
     const realNotesData = await fetchFragranticaNotes(naziv, brand);

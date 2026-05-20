@@ -271,10 +271,160 @@ Opis treba biti bogat, senzoran i privlačan, opisujući miris, osjećaj i prili
   return await callGroq(messages, 0.8, 500);
 }
 
+/**
+ * Generate a complete product from just the name and brand.
+ * Fetches real data from Fragrantica, then fills in ALL fields:
+ * spol, sezona, koncentracija, slug, notes, descriptions, and sizes with prices.
+ */
+export async function generateFullProduct(
+  naziv: string,
+  brand: string
+): Promise<{
+  slug: string;
+  koncentracija: string;
+  spol: string;
+  sezona: string;
+  opis_kratki: string;
+  opis_dugi: string;
+  note_vrha: string;
+  note_srca: string;
+  note_baze: string;
+  product_sizes: Array<{ velicina_ml: number; cijena: number; zaliha: number; sku: string }>;
+}> {
+  const messages: GroqMessage[] = [
+    {
+      role: 'system',
+      content: `You are a fragrance database expert. You have encyclopedic knowledge of perfumes and their exact documented properties.
+
+CRITICAL RULES:
+1. Use ONLY real, documented information for this specific perfume
+2. If Fragrantica data is provided below, use it as the primary source
+3. Do NOT invent or hallucinate any information
+4. For notes: use the actual documented pyramid notes from Fragrantica/official sources
+5. For spol: use the actual target gender (muški/ženski/unisex)
+6. For sezona: use the most commonly recommended season
+7. For koncentracija: use the actual concentration (EDP/EDT/Parfum/EDC)
+8. For prices: use realistic Croatian market prices for decants (2ml, 5ml, 10ml)
+   - 2ml: typically 4-12€ depending on brand prestige
+   - 5ml: typically 10-25€
+   - 10ml: typically 18-45€
+   - Niche/luxury brands (Xerjoff, Creed, Amouage, etc.) are at the higher end
+   - Designer brands (Chanel, Dior, YSL, etc.) are in the middle
+9. Respond ONLY in valid JSON, no other text
+10. slug: lowercase, hyphens only, no special chars (e.g. "black-orchid" for "Black Orchid")`
+    },
+    {
+      role: 'user',
+      content: `Generate complete product data for: "${naziv}" by ${brand}
+
+Respond ONLY in this exact JSON format:
+{
+  "slug": "product-name-slug",
+  "koncentracija": "EDP",
+  "spol": "unisex",
+  "sezona": "jesen",
+  "opis_kratki": "Short 1-2 sentence description in Croatian",
+  "opis_dugi": "Detailed 3-4 sentence description in Croatian describing the scent experience",
+  "note_vrha": "bergamot, limun, naranča",
+  "note_srca": "ruža, jasmin, iris",
+  "note_baze": "mošus, sandalovina, vanilija",
+  "product_sizes": [
+    { "velicina_ml": 2, "cijena": 6.50, "zaliha": 10, "sku": "BRAND-PRODUCT-2" },
+    { "velicina_ml": 5, "cijena": 14.00, "zaliha": 10, "sku": "BRAND-PRODUCT-5" },
+    { "velicina_ml": 10, "cijena": 25.00, "zaliha": 10, "sku": "BRAND-PRODUCT-10" }
+  ]
+}
+
+Valid values:
+- koncentracija: "EDP" | "EDT" | "Parfum" | "EDC" | "EDP Extrait" | "EDP Intense"
+- spol: "muški" | "ženski" | "unisex"
+- sezona: "proljeće" | "ljeto" | "jesen" | "zima" | "sve"
+
+Use the REAL documented notes and properties for this perfume.`
+    }
+  ];
+
+  const request = {
+    model: 'llama-3.3-70b-versatile',
+    messages,
+    temperature: 0.15, // Very low for factual accuracy
+    max_tokens: 800,
+    full_product: { naziv, brand }, // Triggers Fragrantica scraping
+  };
+
+  try {
+    const userEmail = getCurrentUserEmail();
+    const headers: Record<string, string> = {};
+    if (userEmail) {
+      headers['x-user-email'] = userEmail;
+    }
+
+    const { data, error } = await supabase.functions.invoke<GroqResponse>('admin-ai', {
+      body: request,
+      headers,
+    });
+
+    if (error) throw error;
+
+    const response = data?.choices[0]?.message?.content?.trim() || '';
+
+    // Extract JSON
+    const jsonMatch = response.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('AI nije vratio valjani JSON odgovor');
+
+    const parsed = JSON.parse(jsonMatch[0]);
+
+    // Validate and sanitize
+    const validKoncentracija = ['EDP', 'EDT', 'Parfum', 'EDC', 'EDP Extrait', 'EDP Intense'];
+    const validSpol = ['muški', 'ženski', 'unisex'];
+    const validSezona = ['proljeće', 'ljeto', 'jesen', 'zima', 'sve'];
+
+    // Generate slug from naziv if AI didn't provide a good one
+    const generateSlug = (name: string) =>
+      name.toLowerCase()
+        .replace(/[čć]/g, 'c').replace(/[šđ]/g, 's').replace(/ž/g, 'z')
+        .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+    // Generate SKU
+    const brandCode = brand.toUpperCase().replace(/[^A-Z0-9]/g, '').substring(0, 6);
+    const productCode = naziv.toUpperCase().replace(/[^A-Z0-9]/g, '').substring(0, 8);
+
+    const sizes = Array.isArray(parsed.product_sizes) && parsed.product_sizes.length > 0
+      ? parsed.product_sizes.map((s: any) => ({
+          velicina_ml: Number(s.velicina_ml) || 10,
+          cijena: Number(s.cijena) || 0,
+          zaliha: Number(s.zaliha) || 10,
+          sku: s.sku || `${brandCode}-${productCode}-${s.velicina_ml}`,
+        }))
+      : [
+          { velicina_ml: 2, cijena: 0, zaliha: 10, sku: `${brandCode}-${productCode}-2` },
+          { velicina_ml: 5, cijena: 0, zaliha: 10, sku: `${brandCode}-${productCode}-5` },
+          { velicina_ml: 10, cijena: 0, zaliha: 10, sku: `${brandCode}-${productCode}-10` },
+        ];
+
+    return {
+      slug: parsed.slug || generateSlug(naziv),
+      koncentracija: validKoncentracija.includes(parsed.koncentracija) ? parsed.koncentracija : 'EDP',
+      spol: validSpol.includes(parsed.spol) ? parsed.spol : 'unisex',
+      sezona: validSezona.includes(parsed.sezona) ? parsed.sezona : 'sve',
+      opis_kratki: parsed.opis_kratki || '',
+      opis_dugi: parsed.opis_dugi || '',
+      note_vrha: parsed.note_vrha || '',
+      note_srca: parsed.note_srca || '',
+      note_baze: parsed.note_baze || '',
+      product_sizes: sizes,
+    };
+  } catch (error: any) {
+    console.error('Failed to generate full product:', error);
+    throw new Error(error.message || 'Greška pri generiranju proizvoda');
+  }
+}
+
 export const groqService = {
   generateProductDescription,
   generateScentNotes,
   generateBrandDescription,
   generateSKU,
   generateLongDescription,
+  generateFullProduct,
 };
