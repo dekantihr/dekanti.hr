@@ -1513,6 +1513,19 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
 
     setSaving(true);
     try {
+      // First find the order ID so we can delete order_items
+      const order = supabaseOrders.find(o => o.order_number === orderNumber);
+      
+      if (order?.id) {
+        // Delete order items first (foreign key constraint)
+        const { error: itemsError } = await supabase
+          .from('order_items')
+          .delete()
+          .eq('order_id', order.id);
+        if (itemsError) throw itemsError;
+      }
+
+      // Then delete the order
       const { error } = await supabase
         .from('orders')
         .delete()
