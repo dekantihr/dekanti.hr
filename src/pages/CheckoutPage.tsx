@@ -52,7 +52,8 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
   } | null>(null);
 
   const revolutHandle = api.getRevolutHandle();
-  const revolutLink = api.buildRevolutLink();
+  // buildRevolutPayLink always carries the correct amount in cents (?amount=1940 for 19.40€)
+  const buildRevolutPayLink = (amountEur: number) => api.buildRevolutLink(amountEur);
 
   const [form, setForm] = useState<FormData>({
     ime: user?.ime ?? '',
@@ -576,7 +577,7 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
                       <p className="text-[#e8d5a3]/85 font-['Inter'] text-sm font-semibold truncate">revolut.me/{revolutHandle}</p>
                     </div>
                     <button
-                      onClick={() => copyToClipboard(revolutLink)}
+                      onClick={() => copyToClipboard(buildRevolutPayLink(pendingOrder.ukupno))}
                       className="flex items-center gap-1.5 text-[#e8d5a3]/70 border border-[#c9a96e]/25 px-3 py-2 rounded-lg text-[11px] font-['Inter'] font-semibold hover:bg-[#c9a96e]/5 transition-all flex-shrink-0"
                       type="button"
                     >
@@ -588,13 +589,13 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
 
                 {/* Open Revolut button */}
                 <a
-                  href={revolutLink}
+                  href={buildRevolutPayLink(pendingOrder.ukupno)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white py-4 rounded-2xl font-bold text-sm tracking-[0.1em] uppercase transition-all flex items-center justify-center gap-2 mb-4 shadow-lg shadow-purple-600/20"
                 >
                   <ExternalLink size={15} />
-                  Otvori Revolut
+                  Otvori Revolut i plati {pendingOrder.ukupno.toFixed(2)}€
                 </a>
 
                 {/* Instructions */}

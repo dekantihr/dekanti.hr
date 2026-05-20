@@ -848,9 +848,12 @@ export const api = {
    * confirms the incoming payment from their Revolut app and clicks
    * "Mark paid" in the admin panel.
    */
-  buildRevolutLink(): string {
+  buildRevolutLink(amountEur?: number): string {
     const username = (import.meta.env.VITE_REVOLUT_USERNAME as string) || 'dekantihr';
-    return `https://revolut.me/${username}`;
+    const base = `https://revolut.me/${username}`;
+    if (!amountEur || amountEur <= 0) return base;
+    const cents = Math.round(amountEur * 100);
+    return `${base}?amount=${cents}`;
   },
 
   getRevolutHandle(): string {
