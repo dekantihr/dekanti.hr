@@ -13,13 +13,17 @@ interface ProfilePageProps {
   onWishlistToggle: (id: number) => void;
 }
 
-const STATUS_CONFIG = {
+const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
+  cekanje_uplate: { label: 'Čeka uplatu', color: 'text-purple-400', icon: <Clock size={12} /> },
   nova: { label: 'Nova', color: 'text-yellow-400', icon: <Clock size={12} /> },
   u_obradi: { label: 'U obradi', color: 'text-blue-400', icon: <Package size={12} /> },
   poslano: { label: 'Poslano', color: 'text-purple-400', icon: <Truck size={12} /> },
   isporuceno: { label: 'Isporučeno', color: 'text-green-400', icon: <CheckCircle size={12} /> },
   otkazano: { label: 'Otkazano', color: 'text-red-400', icon: <XCircle size={12} /> },
+  povrat: { label: 'Povrat', color: 'text-orange-400', icon: <XCircle size={12} /> },
 };
+
+const DEFAULT_STATUS = { label: 'Nepoznato', color: 'text-[#e8d5a3]/40', icon: <Clock size={12} /> };
 
 export default function ProfilePage({ user, orders, wishlist, onWishlistToggle }: ProfilePageProps) {
   const [searchParams] = useSearchParams();
@@ -36,14 +40,14 @@ export default function ProfilePage({ user, orders, wishlist, onWishlistToggle }
   });
 
   const [products, setProducts] = useState<any[]>([]);
+  const [dbOrders, setDbOrders] = useState<any[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(false);
 
   useEffect(() => {
     async function loadProducts() {
       try {
         const fetchedProducts = await api.getProducts();
-        if (fetchedProducts) {
-          setProducts(fetchedProducts);
-        }
+        if (fetchedProducts) setProducts(fetchedProducts);
       } catch (error) {
         console.error('Error loading products for wishlist:', error);
       }
@@ -51,13 +55,35 @@ export default function ProfilePage({ user, orders, wishlist, onWishlistToggle }
     loadProducts();
   }, []);
 
+  // Fetch real orders from Supabase when orders tab is opened
+  useEffect(() => {
+    if (activeTab !== 'narudzbe' || !user?.email) return;
+    setOrdersLoading(true);
+    import('../utils/supabase').then(({ supabase }) => {
+      supabase
+        .from('orders')
+        .select('*')
+        .eq('email', user.email)
+        .order('created_at', { ascending: false })
+        .then(({ data }) => {
+          if (data) setDbOrders(data);
+          setOrdersLoading(false);
+        })
+        .catch(() => setOrdersLoading(false));
+    });
+  }, [activeTab, user?.email]);
+
   if (!user) return <Navigate to="/prijava" replace />;
 
   const wishlisted = products.filter(p => wishlist.includes(p.id));
+  // Merge DB orders with localStorage orders, deduplicate by order_number
+  const allOrders = [...dbOrders, ...orders].filter(
+    (o, i, arr) => arr.findIndex(x => x.order_number === o.order_number) === i
+  );
 
   const tabs = [
     { id: 'profil', label: 'Profil', icon: <User size={15} /> },
-    { id: 'narudzbe', label: `Narudžbe (${orders.length})`, icon: <Package size={15} /> },
+    { id: 'narudzbe', label: `Narudžbe (${allOrders.length})`, icon: <Package size={15} /> },
     { id: 'wishlist', label: `Wishlist (${wishlist.length})`, icon: <Heart size={15} /> },
     { id: 'sigurnost', label: 'Sigurnost', icon: <Lock size={15} /> },
   ];
@@ -148,15 +174,20 @@ export default function ProfilePage({ user, orders, wishlist, onWishlistToggle }
         {/* Narudžbe tab */}
         {activeTab === 'narudzbe' && (
           <div className="space-y-4">
-            {orders.length === 0 ? (
+            {ordersLoading ? (
+              <div className="text-center py-16">
+                <div className="inline-block w-8 h-8 border-2 border-[#c9a96e]/30 border-t-[#c9a96e] rounded-full animate-spin" />
+                <p className="text-[#e8d5a3]/40 mt-4 font-['Inter']">Učitavanje narudžbi...</p>
+              </div>
+            ) : allOrders.length === 0 ? (
               <div className="text-center py-16 bg-[#111111] border border-[#c9a96e]/10 rounded-2xl">
                 <Package size={40} className="text-[#c9a96e]/20 mx-auto mb-3" />
                 <p className="text-[#e8d5a3]/40 font-['Playfair_Display'] text-xl mb-2">Nema narudžbi</p>
                 <Link to="/parfemi" className="text-[#c9a96e] text-sm hover:text-[#e8d5a3] transition-colors font-['Inter']">Pregledaj parfeme →</Link>
               </div>
             ) : (
-              orders.map(order => {
-                const cfg = STATUS_CONFIG[order.status];
+              allOrders.map(order => {
+                const cfg = STATUS_CONFIG[order.status] ?? DEFAULT_STATUS;
                 return (
                   <div key={order.order_number} className="bg-[#111111] border border-[#c9a96e]/10 hover:border-[#c9a96e]/25 rounded-2xl p-5 transition-all">
                     <div className="flex items-start justify-between mb-4">
@@ -176,7 +207,7 @@ export default function ProfilePage({ user, orders, wishlist, onWishlistToggle }
                         {' · 🚚 BoxNow paketomat'}
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="text-[#c9a96e] font-['DM_Sans'] font-bold text-lg">{order.ukupno.toFixed(2)}€</span>
+                        <span className="text-[#c9a96e] font-['DM_Sans'] font-bold text-lg">{Number(order.ukupno).toFixed(2)}€</span>
                         <Link to={`/pracenje?broj=${order.order_number}`} className="text-[#c9a96e]/60 text-xs border border-[#c9a96e]/20 px-3 py-1.5 rounded-lg hover:bg-[#c9a96e]/5 transition-all font-['Inter']">
                           Prati →
                         </Link>
