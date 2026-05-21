@@ -19,6 +19,8 @@ export interface AppliedCoupon {
   tip: 'postotak' | 'fiksni';
   vrijednost: number;
   popust_iznos: number;
+  count_on_paid?: boolean;
+  min_velicina_ml?: number | null;
 }
 
 const CART_KEY = 'dekanti_cart';

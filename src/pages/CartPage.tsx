@@ -27,7 +27,7 @@ export default function CartPage({ items, coupon, onCouponSet, onUpdateQuantity,
     if (!code) return;
 
     try {
-      const response = await api.validateCoupon(code, subtotal);
+      const response = await api.validateCoupon(code, subtotal, items.map(i => ({ ml: i.ml })));
       
       if (!response.valid || !response.coupon) {
         toast.error(response.error || 'Kupon nije valjan ili je istekao');

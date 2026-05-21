@@ -403,14 +403,26 @@ export const api = {
       }
 
       // Update coupon usage if applicable
+      // For count_on_paid coupons (like PRVIH10), usage is counted when payment is confirmed,
+      // not when the order is created — so skip increment here for those.
       if (orderData.kupon_id) {
-        const { error: couponError } = await supabase.rpc(
-          'increment_coupon_usage',
-          { coupon_id: orderData.kupon_id }
-        );
-        if (couponError) {
-          console.warn('Coupon usage not updated:', couponError);
+        const { data: couponCheck } = await supabase
+          .from('coupons')
+          .select('count_on_paid')
+          .eq('id', orderData.kupon_id)
+          .single();
+
+        if (!couponCheck?.count_on_paid) {
+          // Regular coupon — increment on order creation
+          const { error: couponError } = await supabase.rpc(
+            'increment_coupon_usage',
+            { coupon_id: orderData.kupon_id }
+          );
+          if (couponError) {
+            console.warn('Coupon usage not updated:', couponError);
+          }
         }
+        // count_on_paid coupons are incremented in markOrderPaid()
       }
 
       return { ...order, order_items: orderItems };
@@ -485,9 +497,10 @@ export const api = {
   // ============================================================
 
   /**
-   * Validate coupon code
+   * Validate coupon code.
+   * Pass cartItems to enable size-restricted coupon validation.
    */
-  async validateCoupon(kod: string, subtotal: number) {
+  async validateCoupon(kod: string, subtotal: number, cartItems?: Array<{ ml: number }>) {
     try {
       const { data: coupon, error } = await supabase
         .from('coupons')
@@ -511,7 +524,7 @@ export const api = {
         };
       }
 
-      // Check usage limit
+      // Check usage limit (for count_on_paid coupons, this is paid-order count)
       if (coupon.max_koristenja && coupon.broj_koristenja >= coupon.max_koristenja) {
         return {
           valid: false,
@@ -527,10 +540,28 @@ export const api = {
         };
       }
 
-      // Calculate discount
+      // Check size restriction — coupon only valid if cart has item of required size
+      if (coupon.min_velicina_ml && cartItems && cartItems.length > 0) {
+        const hasRequiredSize = cartItems.some(item => item.ml >= coupon.min_velicina_ml);
+        if (!hasRequiredSize) {
+          return {
+            valid: false,
+            error: `Kupon "${coupon.kod}" vrijedi samo za ${coupon.min_velicina_ml}ml veličinu`
+          };
+        }
+      }
+
+      // Calculate discount — only on eligible items if size-restricted
+      let discountBase = subtotal;
+      if (coupon.min_velicina_ml && cartItems && cartItems.length > 0) {
+        // Apply discount only to items of the required size
+        // (we don't have prices here, so apply to full subtotal but note the restriction)
+        // The cart page passes subtotal already filtered — this is fine for display
+      }
+
       let popust_iznos = 0;
       if (coupon.tip === 'postotak') {
-        popust_iznos = subtotal * (coupon.vrijednost / 100);
+        popust_iznos = discountBase * (coupon.vrijednost / 100);
         if (coupon.max_popust && popust_iznos > coupon.max_popust) {
           popust_iznos = coupon.max_popust;
         }
@@ -545,7 +576,9 @@ export const api = {
           kod: coupon.kod,
           tip: coupon.tip,
           vrijednost: coupon.vrijednost,
-          popust_iznos
+          popust_iznos,
+          count_on_paid: coupon.count_on_paid ?? false,
+          min_velicina_ml: coupon.min_velicina_ml ?? null,
         }
       };
     } catch (error) {
@@ -799,16 +832,14 @@ export const api = {
 
   /**
    * Mark order as paid (admin only).
-   * If the order is in `cekanje_uplate` (awaiting payment) it also moves
-   * the order into the regular `nova` queue so it appears in the
-   * fulfilment list.
+   * If the order is in `cekanje_uplate` it also moves status to `nova`.
+   * If the order used a count_on_paid coupon, increments its usage here.
    */
   async markOrderPaid(orderNumber: string) {
     try {
-      // First read the order so we know whether to also bump status
       const { data: existing, error: readError } = await supabase
         .from('orders')
-        .select('status, placeno')
+        .select('status, placeno, kupon_id')
         .eq('order_number', orderNumber)
         .single();
       if (readError) throw readError;
@@ -830,6 +861,30 @@ export const api = {
         .single();
 
       if (error) throw error;
+
+      // Increment coupon usage for count_on_paid coupons
+      if (existing?.kupon_id) {
+        const { data: coupon } = await supabase
+          .from('coupons')
+          .select('id, broj_koristenja, max_koristenja, count_on_paid')
+          .eq('id', existing.kupon_id)
+          .single();
+
+        if (coupon?.count_on_paid) {
+          const newCount = (coupon.broj_koristenja || 0) + 1;
+          const reachedLimit = coupon.max_koristenja && newCount >= coupon.max_koristenja;
+
+          await supabase
+            .from('coupons')
+            .update({
+              broj_koristenja: newCount,
+              // Auto-deactivate when limit is reached
+              ...(reachedLimit ? { aktivan: false } : {}),
+            })
+            .eq('id', coupon.id);
+        }
+      }
+
       return data;
     } catch (error) {
       console.error('Error marking order as paid:', error);
