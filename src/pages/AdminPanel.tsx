@@ -1676,8 +1676,27 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
     { id: 'statistike', label: 'Statistike', icon: <BarChart2 size={16} /> },
   ];
 
-  // Mini bar chart data
-  const chartData = [42, 58, 35, 67, 89, 72, 95, 61, 48, 83, 92, 71, 55, 78, 96, 63, 45, 87, 74, 91, 68, 53, 80, 76, 94, 62, 47, 85, 71, 98];
+  // Real 30-day revenue chart from actual orders
+  const chartData = (() => {
+    const days: number[] = [];
+    const now = new Date();
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date(now);
+      d.setDate(d.getDate() - i);
+      const dayStr = d.toLocaleDateString('sv-SE', { timeZone: 'Europe/Zagreb' });
+      const dayRevenue = supabaseOrders
+        .filter(o => o.status !== 'otkazano' && new Date(o.created_at).toLocaleDateString('sv-SE', { timeZone: 'Europe/Zagreb' }) === dayStr)
+        .reduce((s, o) => s + Number(o.ukupno), 0);
+      days.push(dayRevenue);
+    }
+    return days;
+  })();
+  const chartMax = Math.max(...chartData, 1); // avoid division by zero
+
+  // Chart date labels
+  const chartStartDate = (() => { const d = new Date(); d.setDate(d.getDate() - 29); return d.toLocaleDateString('hr-HR', { day: 'numeric', month: 'short' }); })();
+  const chartMidDate = (() => { const d = new Date(); d.setDate(d.getDate() - 14); return d.toLocaleDateString('hr-HR', { day: 'numeric', month: 'short' }); })();
+  const chartEndDate = new Date().toLocaleDateString('hr-HR', { day: 'numeric', month: 'short' });
 
   const SidebarNav = () => (
     <nav className="p-4 space-y-1">
@@ -1777,8 +1796,8 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
               {/* KPI Cards */}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 {[
-                  { label: 'Ukupan prihod', value: `${totalRevenue.toFixed(0)}€`, change: '+12.5%', up: true, icon: <TrendingUp size={18} /> },
-                  { label: 'Narudžbe danas', value: `${todayOrders}`, change: '+3 danas', up: true, icon: <ShoppingBag size={18} /> },
+                  { label: 'Ukupan prihod', value: `${totalRevenue.toFixed(2)}€`, change: `${allOrders.filter(o => o.status !== 'otkazano').length} narudžbi`, up: true, icon: <TrendingUp size={18} /> },
+                  { label: 'Narudžbe danas', value: `${todayOrders}`, change: 'danas', up: todayOrders > 0, icon: <ShoppingBag size={18} /> },
                   { label: 'Čekaju uplatu', value: `${allOrders.filter(o => o.status === 'cekanje_uplate').length}`, change: 'Revolut', up: false, icon: <CreditCard size={18} /> },
                   { label: 'Čekaju odobrenje', value: `${pendingReviews.length}`, change: 'recenzija', up: false, icon: <Star size={18} /> },
                 ].map(kpi => (
@@ -1803,21 +1822,21 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                     <h3 className="text-[#e8d5a3]/80 font-['Playfair_Display'] font-bold text-lg">Prihodi — zadnjih 30 dana</h3>
                     <p className="text-[#e8d5a3]/30 text-xs font-['Inter']">Dnevni prihodi u EUR</p>
                   </div>
-                  <span className="text-[#c9a96e] font-['DM_Sans'] font-bold text-xl">{totalRevenue.toFixed(0)}€</span>
+                  <span className="text-[#c9a96e] font-['DM_Sans'] font-bold text-xl">{totalRevenue.toFixed(2)}€</span>
                 </div>
                 <div className="flex items-end gap-1 h-28">
                   {chartData.map((val, i) => (
                     <div key={i} className="flex-1 flex flex-col justify-end gap-0.5 group">
                       <div
-                        className="w-full bg-[#c9a96e]/20 hover:bg-[#c9a96e]/50 rounded-sm transition-all cursor-pointer"
-                        style={{ height: `${(val / 100) * 100}%` }}
-                        title={`${val}€`}
+                        className={`w-full rounded-sm transition-all cursor-pointer ${val > 0 ? 'bg-[#c9a96e]/60 hover:bg-[#c9a96e]' : 'bg-[#1a1a1a]'}`}
+                        style={{ height: `${Math.max((val / chartMax) * 100, val > 0 ? 8 : 2)}%` }}
+                        title={`${val.toFixed(2)}€`}
                       />
                     </div>
                   ))}
                 </div>
                 <div className="flex justify-between mt-2 text-[#e8d5a3]/20 text-[9px] font-['Inter']">
-                  <span>14. Feb</span><span>28. Feb</span><span>15. Mar</span>
+                  <span>{chartStartDate}</span><span>{chartMidDate}</span><span>{chartEndDate}</span>
                 </div>
               </div>
 
@@ -3218,13 +3237,46 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
           )}
 
           {/* STATISTIKE */}
-          {view === 'statistike' && (
+          {view === 'statistike' && (() => {
+            const now = new Date();
+            const todayStr = now.toLocaleDateString('sv-SE', { timeZone: 'Europe/Zagreb' });
+            const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+            const paidOrders = supabaseOrders.filter(o => o.status !== 'otkazano');
+
+            const revenueToday = paidOrders
+              .filter(o => new Date(o.created_at).toLocaleDateString('sv-SE', { timeZone: 'Europe/Zagreb' }) === todayStr)
+              .reduce((s, o) => s + Number(o.ukupno), 0);
+
+            const revenueWeek = paidOrders
+              .filter(o => new Date(o.created_at) >= weekAgo)
+              .reduce((s, o) => s + Number(o.ukupno), 0);
+
+            const revenueMonth = paidOrders
+              .filter(o => new Date(o.created_at) >= monthAgo)
+              .reduce((s, o) => s + Number(o.ukupno), 0);
+
+            // Real brand revenue from order_items
+            const brandRevMap: Record<string, number> = {};
+            paidOrders.forEach(order => {
+              (order.order_items || []).forEach((item: any) => {
+                const brand = item.brand_naziv || 'Nepoznato';
+                brandRevMap[brand] = (brandRevMap[brand] || 0) + Number(item.cijena) * Number(item.kolicina);
+              });
+            });
+            const topBrands = Object.entries(brandRevMap)
+              .sort((a, b) => b[1] - a[1])
+              .slice(0, 5);
+            const maxBrandRev = topBrands[0]?.[1] || 1;
+
+            return (
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {[
-                  { label: 'Prihod danas', value: '43.49€', period: 'Danas' },
-                  { label: 'Prihod ovaj tjedan', value: '187.97€', period: '7 dana' },
-                  { label: 'Prihod ovaj mjesec', value: `${totalRevenue.toFixed(2)}€`, period: '30 dana' },
+                  { label: 'Prihod danas', value: `${revenueToday.toFixed(2)}€`, period: 'Danas' },
+                  { label: 'Prihod ovaj tjedan', value: `${revenueWeek.toFixed(2)}€`, period: '7 dana' },
+                  { label: 'Prihod ovaj mjesec', value: `${revenueMonth.toFixed(2)}€`, period: '30 dana' },
                 ].map(stat => (
                   <div key={stat.label} className="bg-[#111111] border border-[#c9a96e]/10 rounded-2xl p-5 text-center">
                     <p className="text-[#e8d5a3]/30 text-xs uppercase tracking-wider font-['Inter'] mb-2">{stat.period}</p>
@@ -3237,36 +3289,33 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
               {/* Top brands */}
               <div className="bg-[#111111] border border-[#c9a96e]/10 rounded-2xl p-5">
                 <h3 className="text-[#e8d5a3]/80 font-['Playfair_Display'] font-bold mb-4">Top brandovi po prihodu</h3>
-                <div className="space-y-3">
-                  {supabaseBrands.slice(0, 5).map((brand, i) => {
-                    const pct = [68, 55, 82, 91, 47][i % 5];
-                    const rev = [totalRevenue * 0.25, totalRevenue * 0.20, totalRevenue * 0.22, totalRevenue * 0.20, totalRevenue * 0.13][i % 5];
-                    return (
-                      <div key={brand.id} className="flex items-center gap-3">
+                {topBrands.length === 0 ? (
+                  <p className="text-[#e8d5a3]/30 text-sm font-['Inter'] text-center py-4">Nema podataka</p>
+                ) : (
+                  <div className="space-y-3">
+                    {topBrands.map(([brandName, rev], i) => (
+                      <div key={brandName} className="flex items-center gap-3">
                         <span className="text-[#c9a96e]/60 text-xs font-bold font-['Inter'] w-4">#{i + 1}</span>
                         <div className="w-6 h-6 rounded bg-[#0a0a0a] border border-[#c9a96e]/20 flex items-center justify-center">
-                          {brand.logo_url ? (
-                            <img src={brand.logo_url} alt={brand.naziv} className="max-w-full max-h-full object-contain filter invert opacity-50" />
-                          ) : (
-                            <span className="text-xl text-[#c9a96e]/30 w-6 text-center">{brand.naziv[0]}</span>
-                          )}
+                          <span className="text-[#c9a96e]/50 text-xs font-bold">{brandName[0]}</span>
                         </div>
                         <div className="flex-1">
                           <div className="flex justify-between mb-1">
-                            <span className="text-[#e8d5a3]/60 text-xs font-['Inter'] font-semibold">{brand.naziv}</span>
-                            <span className="text-[#c9a96e] text-xs font-bold font-['DM_Sans']">{rev.toFixed(0)}€</span>
+                            <span className="text-[#e8d5a3]/60 text-xs font-['Inter'] font-semibold">{brandName}</span>
+                            <span className="text-[#c9a96e] text-xs font-bold font-['DM_Sans']">{rev.toFixed(2)}€</span>
                           </div>
                           <div className="bg-[#1a1a1a] rounded-full h-1.5">
-                            <div className="bg-[#c9a96e] h-full rounded-full transition-all" style={{ width: `${pct}%` }} />
+                            <div className="bg-[#c9a96e] h-full rounded-full transition-all" style={{ width: `${(rev / maxBrandRev) * 100}%` }} />
                           </div>
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
-          )}
+            );
+          })()}
         </div>
       </div>
 
