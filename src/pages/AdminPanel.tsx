@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Navigate, Link } from 'react-router-dom';
 import {
   LayoutDashboard, ShoppingBag, Package, Users, Star, Tag, Mail,
@@ -31,11 +31,11 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 const STATUS_LABELS: Record<string, string> = {
-  cekanje_uplate: 'Čeka uplatu',
+  cekanje_uplate: 'Ceka uplatu',
   nova: 'Nova',
   u_obradi: 'U obradi',
   poslano: 'Poslano',
-  isporuceno: 'Isporučeno',
+  isporuceno: 'Isporuceno',
   otkazano: 'Otkazano',
 };
 
@@ -147,7 +147,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
 
       } catch (error) {
         console.error('Error fetching data:', error);
-        toast.error('Greška pri učitavanju podataka', {
+        toast.error('Gre�ka pri ucitavanju podataka', {
           style: {
             background: '#111111',
             color: '#e8d5a3',
@@ -192,8 +192,8 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
       if (newStatus === 'poslano') {
         const order = supabaseOrders.find(o => o.order_number === orderNumber);
         if (order?.tracking_broj && order?.email) {
-          const html = `<div style="max-width:560px;margin:0 auto;background:#0a0a0a;color:#e8d5a3;font-family:Arial,sans-serif;border-radius:16px;overflow:hidden;border:1px solid rgba(201,169,110,0.2)"><div style="background:#111;padding:24px;text-align:center;border-bottom:1px solid rgba(201,169,110,0.15)"><h1 style="font-family:Georgia,serif;color:#c9a96e;margin:0;font-size:24px;letter-spacing:2px">DEKANTI<span style="color:#e8d5a3">.HR</span></h1></div><div style="padding:32px 24px"><h2 style="color:#e8d5a3;font-size:20px;margin:0 0 8px">📦 Narudžba poslana, ${order.ime}!</h2><p style="color:#e8d5a3;opacity:0.6;margin:0 0 24px;font-size:14px">Vaša narudžba <strong>${orderNumber}</strong> je na putu.</p><div style="background:#111;border:1px solid rgba(201,169,110,0.15);border-radius:12px;padding:16px;margin-bottom:24px"><p style="color:#e8d5a3;opacity:0.4;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin:0 0 4px">Tracking broj</p><p style="color:#c9a96e;font-size:18px;font-weight:bold;margin:0;font-family:Georgia,serif">${order.tracking_broj}</p></div><p style="color:#e8d5a3;opacity:0.5;font-size:12px;margin:0">Pratite pošiljku na: <a href="https://posiljka.hp.hr/?broj=${order.tracking_broj}" style="color:#c9a96e">HP praćenje pošiljaka</a></p></div><div style="background:#111;padding:16px 24px;text-align:center;border-top:1px solid rgba(201,169,110,0.1)"><p style="color:#e8d5a3;opacity:0.3;font-size:11px;margin:0">dekantihr.com · Hvala na povjerenju!</p></div></div>`;
-          await api.sendEmail(order.email, `Narudžba ${orderNumber} poslana — tracking: ${order.tracking_broj}`, html);
+          const html = `<div style="max-width:560px;margin:0 auto;background:#0a0a0a;color:#e8d5a3;font-family:Arial,sans-serif;border-radius:16px;overflow:hidden;border:1px solid rgba(201,169,110,0.2)"><div style="background:#111;padding:24px;text-align:center;border-bottom:1px solid rgba(201,169,110,0.15)"><h1 style="font-family:Georgia,serif;color:#c9a96e;margin:0;font-size:24px;letter-spacing:2px">DEKANTI<span style="color:#e8d5a3">.HR</span></h1></div><div style="padding:32px 24px"><h2 style="color:#e8d5a3;font-size:20px;margin:0 0 8px">?? Narud�ba poslana, ${order.ime}!</h2><p style="color:#e8d5a3;opacity:0.6;margin:0 0 24px;font-size:14px">Va�a narud�ba <strong>${orderNumber}</strong> je na putu.</p><div style="background:#111;border:1px solid rgba(201,169,110,0.15);border-radius:12px;padding:16px;margin-bottom:24px"><p style="color:#e8d5a3;opacity:0.4;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin:0 0 4px">Tracking broj</p><p style="color:#c9a96e;font-size:18px;font-weight:bold;margin:0;font-family:Georgia,serif">${order.tracking_broj}</p></div><p style="color:#e8d5a3;opacity:0.5;font-size:12px;margin:0">Pratite po�iljku na: <a href="https://boxnow.hr/track?parcelId=${order.tracking_broj}" style="color:#c9a96e">BoxNow pracenje</a></p></div><div style="background:#111;padding:16px 24px;text-align:center;border-top:1px solid rgba(201,169,110,0.1)"><p style="color:#e8d5a3;opacity:0.3;font-size:11px;margin:0">dekantihr.com � Hvala na povjerenju!</p></div></div>`;
+          await api.sendEmail(order.email, `Narud�ba ${orderNumber} poslana � tracking: ${order.tracking_broj}`, html);
           toast.success('Email s trackingom poslan kupcu!');
         }
       }
@@ -214,7 +214,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
       });
     } catch (error) {
       console.error('Error updating status:', error);
-      toast.error('Greška pri promjeni statusa');
+      toast.error('Gre�ka pri promjeni statusa');
     } finally {
       setSaving(false);
     }
@@ -249,8 +249,8 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
       setSelectedOrder({ ...selectedOrder, tracking_broj: trackingNumber });
 
       if (selectedOrder.status === 'poslano' && selectedOrder.email) {
-        const html = `<div style="max-width:560px;margin:0 auto;background:#0a0a0a;color:#e8d5a3;font-family:Arial,sans-serif;border-radius:16px;overflow:hidden;border:1px solid rgba(201,169,110,0.2)"><div style="background:#111;padding:24px;text-align:center;border-bottom:1px solid rgba(201,169,110,0.15)"><h1 style="font-family:Georgia,serif;color:#c9a96e;margin:0;font-size:24px;letter-spacing:2px">DEKANTI<span style="color:#e8d5a3">.HR</span></h1></div><div style="padding:32px 24px"><h2 style="color:#e8d5a3;font-size:20px;margin:0 0 8px">📦 Narudžba poslana!</h2><p style="color:#e8d5a3;opacity:0.6;margin:0 0 24px;font-size:14px">Vaša narudžba <strong>${selectedOrder.order_number}</strong> je na putu.</p><div style="background:#111;border:1px solid rgba(201,169,110,0.15);border-radius:12px;padding:16px;margin-bottom:24px"><p style="color:#e8d5a3;opacity:0.4;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin:0 0 4px">Tracking broj</p><p style="color:#c9a96e;font-size:18px;font-weight:bold;margin:0;font-family:Georgia,serif">${trackingNumber}</p></div><p style="color:#e8d5a3;opacity:0.5;font-size:12px;margin:0">Pratite na: <a href="https://posiljka.hp.hr/?broj=${trackingNumber}" style="color:#c9a96e">HP praćenje</a></p></div><div style="background:#111;padding:16px 24px;text-align:center;border-top:1px solid rgba(201,169,110,0.1)"><p style="color:#e8d5a3;opacity:0.3;font-size:11px;margin:0">dekantihr.com · Hvala na povjerenju!</p></div></div>`;
-        await api.sendEmail(selectedOrder.email, `Narudžba ${selectedOrder.order_number} poslana — tracking: ${trackingNumber}`, html);
+        const html = `<div style="max-width:560px;margin:0 auto;background:#0a0a0a;color:#e8d5a3;font-family:Arial,sans-serif;border-radius:16px;overflow:hidden;border:1px solid rgba(201,169,110,0.2)"><div style="background:#111;padding:24px;text-align:center;border-bottom:1px solid rgba(201,169,110,0.15)"><h1 style="font-family:Georgia,serif;color:#c9a96e;margin:0;font-size:24px;letter-spacing:2px">DEKANTI<span style="color:#e8d5a3">.HR</span></h1></div><div style="padding:32px 24px"><h2 style="color:#e8d5a3;font-size:20px;margin:0 0 8px">?? Narud�ba poslana!</h2><p style="color:#e8d5a3;opacity:0.6;margin:0 0 24px;font-size:14px">Va�a narud�ba <strong>${selectedOrder.order_number}</strong> je na putu.</p><div style="background:#111;border:1px solid rgba(201,169,110,0.15);border-radius:12px;padding:16px;margin-bottom:24px"><p style="color:#e8d5a3;opacity:0.4;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin:0 0 4px">Tracking broj</p><p style="color:#c9a96e;font-size:18px;font-weight:bold;margin:0;font-family:Georgia,serif">${trackingNumber}</p></div><p style="color:#e8d5a3;opacity:0.5;font-size:12px;margin:0">Pratite na: <a href="https://boxnow.hr/track?parcelId=${trackingNumber}" style="color:#c9a96e">BoxNow pracenje</a></p></div><div style="background:#111;padding:16px 24px;text-align:center;border-top:1px solid rgba(201,169,110,0.1)"><p style="color:#e8d5a3;opacity:0.3;font-size:11px;margin:0">dekantihr.com � Hvala na povjerenju!</p></div></div>`;
+        await api.sendEmail(selectedOrder.email, `Narud�ba ${selectedOrder.order_number} poslana � tracking: ${trackingNumber}`, html);
         toast.success('Email s trackingom poslan kupcu!');
       }
 
@@ -270,7 +270,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
       });
     } catch (error) {
       console.error('Error updating tracking:', error);
-      toast.error('Greška pri spremanju tracking broja');
+      toast.error('Gre�ka pri spremanju tracking broja');
     } finally {
       setSaving(false);
     }
@@ -310,7 +310,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
         )
       );
 
-      toast.success('Podaci narudžbe uspješno spremljeni!', {
+      toast.success('Podaci narud�be uspje�no spremljeni!', {
         style: {
           background: '#111111',
           color: '#e8d5a3',
@@ -326,7 +326,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
       });
     } catch (error) {
       console.error('Error saving order:', error);
-      toast.error('Greška pri spremanju narudžbe');
+      toast.error('Gre�ka pri spremanju narud�be');
     } finally {
       setSaving(false);
     }
@@ -368,17 +368,17 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
 
       const order = supabaseOrders.find(o => o.order_number === orderNumber);
       if (order?.email) {
-        const html = `<div style="max-width:560px;margin:0 auto;background:#0a0a0a;color:#e8d5a3;font-family:Arial,sans-serif;border-radius:16px;overflow:hidden;border:1px solid rgba(201,169,110,0.2)"><div style="background:#111;padding:24px;text-align:center;border-bottom:1px solid rgba(201,169,110,0.15)"><h1 style="font-family:Georgia,serif;color:#c9a96e;margin:0;font-size:24px;letter-spacing:2px">DEKANTI<span style="color:#e8d5a3">.HR</span></h1></div><div style="padding:32px 24px"><h2 style="color:#e8d5a3;font-size:20px;margin:0 0 8px">✅ Uplata potvrđena, ${order.ime}!</h2><p style="color:#e8d5a3;opacity:0.6;margin:0 0 24px;font-size:14px">Vaša uplata za narudžbu <strong>${orderNumber}</strong> je zaprimljena.</p><div style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:12px;padding:16px;margin-bottom:24px"><p style="color:#4ade80;font-size:13px;font-weight:bold;margin:0 0 4px">💰 Uplaćeno</p><p style="color:#4ade80;font-size:18px;font-weight:bold;margin:0;font-family:Georgia,serif">${order.ukupno.toFixed(2)}€</p></div><p style="color:#e8d5a3;opacity:0.5;font-size:12px;margin:0">Pakiramo i šaljemo isti dan (06:00–18:00). Dobit ćete tracking čim pošiljka bude predana.</p></div><div style="background:#111;padding:16px 24px;text-align:center;border-top:1px solid rgba(201,169,110,0.1)"><p style="color:#e8d5a3;opacity:0.3;font-size:11px;margin:0">dekantihr.com · Hvala na povjerenju!</p></div></div>`;
-        await api.sendEmail(order.email, `Uplata potvrđena — narudžba ${orderNumber}`, html);
+        const html = `<div style="max-width:560px;margin:0 auto;background:#0a0a0a;color:#e8d5a3;font-family:Arial,sans-serif;border-radius:16px;overflow:hidden;border:1px solid rgba(201,169,110,0.2)"><div style="background:#111;padding:24px;text-align:center;border-bottom:1px solid rgba(201,169,110,0.15)"><h1 style="font-family:Georgia,serif;color:#c9a96e;margin:0;font-size:24px;letter-spacing:2px">DEKANTI<span style="color:#e8d5a3">.HR</span></h1></div><div style="padding:32px 24px"><h2 style="color:#e8d5a3;font-size:20px;margin:0 0 8px">? Uplata potvrdena, ${order.ime}!</h2><p style="color:#e8d5a3;opacity:0.6;margin:0 0 24px;font-size:14px">Va�a uplata za narud�bu <strong>${orderNumber}</strong> je zaprimljena.</p><div style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:12px;padding:16px;margin-bottom:24px"><p style="color:#4ade80;font-size:13px;font-weight:bold;margin:0 0 4px">?? Uplaceno</p><p style="color:#4ade80;font-size:18px;font-weight:bold;margin:0;font-family:Georgia,serif">${order.ukupno.toFixed(2)}�</p></div><p style="color:#e8d5a3;opacity:0.5;font-size:12px;margin:0">Pakiramo i �aljemo isti dan (06:00�18:00). Dobit cete tracking cim po�iljka bude predana.</p></div><div style="background:#111;padding:16px 24px;text-align:center;border-top:1px solid rgba(201,169,110,0.1)"><p style="color:#e8d5a3;opacity:0.3;font-size:11px;margin:0">dekantihr.com � Hvala na povjerenju!</p></div></div>`;
+        await api.sendEmail(order.email, `Uplata potvrdena � narud�ba ${orderNumber}`, html);
       }
 
-      toast.success('Narudžba označena kao plaćena!', {
+      toast.success('Narud�ba oznacena kao placena!', {
         style: { background: '#111111', color: '#e8d5a3', border: '1px solid rgba(201,169,110,0.25)', borderRadius: '12px', fontFamily: 'Inter, sans-serif', fontSize: '13px' },
         iconTheme: { primary: '#c9a96e', secondary: '#0a0a0a' },
       });
     } catch (error) {
       console.error('Error marking order as paid:', error);
-      toast.error('Greška pri označavanju uplate');
+      toast.error('Gre�ka pri oznacavanju uplate');
     } finally {
       setSaving(false);
     }
@@ -411,7 +411,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
       });
     } catch (error) {
       console.error('Error approving review:', error);
-      toast.error('Greška pri odobravanju recenzije');
+      toast.error('Gre�ka pri odobravanju recenzije');
     } finally {
       setSaving(false);
     }
@@ -444,7 +444,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
       });
     } catch (error) {
       console.error('Error rejecting review:', error);
-      toast.error('Greška pri odbijanju recenzije');
+      toast.error('Gre�ka pri odbijanju recenzije');
     } finally {
       setSaving(false);
     }
@@ -456,7 +456,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
   const handleCreateProduct = () => {
     // Don't open modal if brands haven't loaded yet
     if (supabaseBrands.length === 0) {
-      toast.error('Molimo pričekajte da se učitaju brendovi', {
+      toast.error('Molimo pricekajte da se ucitaju brendovi', {
         style: {
           background: '#111111',
           color: '#e8d5a3',
@@ -520,7 +520,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
     // Max 5MB each
     const oversized = validFiles.filter(f => f.size > 5 * 1024 * 1024);
     if (oversized.length > 0) {
-      toast.error('Maksimalna veličina slike je 5MB');
+      toast.error('Maksimalna velicina slike je 5MB');
       return;
     }
 
@@ -542,7 +542,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
       ];
 
       setSelectedProduct({ ...selectedProduct, product_images: newImages });
-      toast.success(`${uploadedUrls.length} slika uspješno uploadano!`, {
+      toast.success(`${uploadedUrls.length} slika uspje�no uploadano!`, {
         style: {
           background: '#111111',
           color: '#e8d5a3',
@@ -555,7 +555,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
       });
     } catch (error: any) {
       console.error('Upload error:', error);
-      toast.error(error.message || 'Greška pri uploadu slike');
+      toast.error(error.message || 'Gre�ka pri uploadu slike');
     } finally {
       setUploadingImages(false);
       setDragOver(false);
@@ -584,13 +584,13 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
 
     // Validate product sizes
     if (!selectedProduct.product_sizes || selectedProduct.product_sizes.length === 0) {
-      toast.error('Dodajte barem jednu veličinu proizvoda');
+      toast.error('Dodajte barem jednu velicinu proizvoda');
       return;
     }
 
     for (const size of selectedProduct.product_sizes) {
       if (!size.velicina_ml || !size.cijena || !size.sku) {
-        toast.error('Sve veličine moraju imati ml, cijenu i SKU');
+        toast.error('Sve velicine moraju imati ml, cijenu i SKU');
         return;
       }
     }
@@ -677,7 +677,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
           prev.map(p => p.id === selectedProduct.id ? updatedProduct : p)
         );
 
-        toast.success(`Proizvod "${selectedProduct.naziv}" uspješno ažuriran!`, {
+        toast.success(`Proizvod "${selectedProduct.naziv}" uspje�no a�uriran!`, {
           style: {
             background: '#111111',
             color: '#e8d5a3',
@@ -767,7 +767,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
         // Add to local state
         setSupabaseProducts(prev => [completeProduct, ...prev]);
 
-        toast.success(`Proizvod "${selectedProduct.naziv}" uspješno kreiran!`, {
+        toast.success(`Proizvod "${selectedProduct.naziv}" uspje�no kreiran!`, {
           style: {
             background: '#111111',
             color: '#e8d5a3',
@@ -787,7 +787,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
       setSelectedProduct(null);
     } catch (error: any) {
       console.error('Error saving product:', error);
-      toast.error(error.message || 'Greška pri spremanju proizvoda', {
+      toast.error(error.message || 'Gre�ka pri spremanju proizvoda', {
         style: {
           background: '#111111',
           color: '#e8d5a3',
@@ -826,7 +826,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
       if (error) {
         // Handle foreign key constraint error (product used in orders, reviews, etc.)
         if (error.code === '23503') {
-          throw new Error('Proizvod je korišten u narudžbama ili recenzijama i ne može biti obrisan. Možete ga deaktivirati umjesto toga.');
+          throw new Error('Proizvod je kori�ten u narud�bama ili recenzijama i ne mo�e biti obrisan. Mo�ete ga deaktivirati umjesto toga.');
         }
         throw error;
       }
@@ -834,7 +834,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
       // Remove from local state
       setSupabaseProducts(prev => prev.filter(p => p.id !== productToDelete.id));
 
-      toast.success(`Proizvod "${productToDelete.naziv}" uspješno obrisan!`, {
+      toast.success(`Proizvod "${productToDelete.naziv}" uspje�no obrisan!`, {
         style: {
           background: '#111111',
           color: '#e8d5a3',
@@ -853,7 +853,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
       setSelectedProduct(null);
     } catch (error: any) {
       console.error('Error deleting product:', error);
-      const errorMessage = error.message || 'Greška pri brisanju proizvoda';
+      const errorMessage = error.message || 'Gre�ka pri brisanju proizvoda';
       toast.error(errorMessage, {
         style: {
           background: '#111111',
@@ -875,7 +875,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
   // ============================================================
 
   /**
-   * Generate FULL product using AI — fills all fields from just naziv + brand
+   * Generate FULL product using AI � fills all fields from just naziv + brand
    * If fragranticaText is provided, AI parses it for accurate notes instead of guessing.
    */
   const handleGenerateFullProduct = async (fragranticaText?: string) => {
@@ -913,7 +913,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
       toast.dismiss(toastId);
       const notesMsg = fragranticaText
         ? 'Proizvod generiran iz Fragrantica podataka!'
-        : 'Proizvod generiran. Preporučujemo provjeru nota na Fragrantica.';
+        : 'Proizvod generiran. Preporucujemo provjeru nota na Fragrantica.';
       toast.success(notesMsg, {
         duration: 5000,
         style: { background: '#111111', color: '#e8d5a3', border: '1px solid rgba(201,169,110,0.3)', borderRadius: '12px', fontFamily: "'DM Sans', sans-serif", fontSize: '13px' },
@@ -921,7 +921,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
       });
     } catch (error: any) {
       toast.dismiss(toastId);
-      toast.error(error.message || 'Greška pri AI generiranju', {
+      toast.error(error.message || 'Gre�ka pri AI generiranju', {
         style: { background: '#111111', color: '#e8d5a3', border: '1px solid rgba(239,68,68,0.25)', borderRadius: '12px', fontFamily: "'DM Sans', sans-serif", fontSize: '13px' },
       });
     } finally {
@@ -944,7 +944,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
 
     const size = selectedProduct.product_sizes[sizeIndex];
     if (!size?.velicina_ml) {
-      toast.error('Unesite veličinu (ML) prije generiranja SKU');
+      toast.error('Unesite velicinu (ML) prije generiranja SKU');
       return;
     }
 
@@ -975,7 +975,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
       });
     } catch (error: any) {
       console.error('SKU generation error:', error);
-      toast.error(error.message || 'Greška pri generiranju SKU');
+      toast.error(error.message || 'Gre�ka pri generiranju SKU');
     }
   };
 
@@ -997,7 +997,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
         opis: description
       });
 
-      toast.success('Opis branda generiran pomoću AI!', {
+      toast.success('Opis branda generiran pomocu AI!', {
         style: {
           background: '#111111',
           color: '#e8d5a3',
@@ -1013,7 +1013,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
       });
     } catch (error: any) {
       console.error('AI generation error:', error);
-      toast.error(error.message || 'Greška pri generiranju opisa', {
+      toast.error(error.message || 'Gre�ka pri generiranju opisa', {
         style: {
           background: '#111111',
           color: '#e8d5a3',
@@ -1084,7 +1084,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
           prev.map(c => c.id === selectedCoupon.id ? { ...c, ...selectedCoupon } : c)
         );
 
-        toast.success('Kupon uspješno ažuriran!', {
+        toast.success('Kupon uspje�no a�uriran!', {
           style: {
             background: '#111111',
             color: '#e8d5a3',
@@ -1120,7 +1120,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
         // Add to local state
         setSupabaseCoupons(prev => [data, ...prev]);
 
-        toast.success('Kupon uspješno kreiran!', {
+        toast.success('Kupon uspje�no kreiran!', {
           style: {
             background: '#111111',
             color: '#e8d5a3',
@@ -1141,9 +1141,9 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
     } catch (error: any) {
       console.error('Error saving coupon:', error);
       if (error.code === '23505' || (error.message && error.message.includes('unique constraint'))) {
-        toast.error('Kupon s ovim kodom već postoji');
+        toast.error('Kupon s ovim kodom vec postoji');
       } else {
-        toast.error(error.message || 'Greška pri spremanju kupona');
+        toast.error(error.message || 'Gre�ka pri spremanju kupona');
       }
     } finally {
       setSaving(false);
@@ -1151,7 +1151,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
   };
 
   const handleDeleteCoupon = async (couponId: number) => {
-    if (!confirm('Jeste li sigurni da želite obrisati ovaj kupon?')) return;
+    if (!confirm('Jeste li sigurni da �elite obrisati ovaj kupon?')) return;
 
     setSaving(true);
     try {
@@ -1163,7 +1163,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
       if (error) {
         // Handle foreign key constraint error (coupon used in orders)
         if (error.code === '23503') {
-          throw new Error('Kupon je korišten u narudžbama i ne može biti obrisan. Možete ga deaktivirati umjesto toga.');
+          throw new Error('Kupon je kori�ten u narud�bama i ne mo�e biti obrisan. Mo�ete ga deaktivirati umjesto toga.');
         }
         throw error;
       }
@@ -1187,7 +1187,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
       });
     } catch (error: any) {
       console.error('Error deleting coupon:', error);
-      const errorMessage = error.message || 'Greška pri brisanju kupona';
+      const errorMessage = error.message || 'Gre�ka pri brisanju kupona';
       toast.error(errorMessage, {
         style: {
           background: '#111111',
@@ -1252,7 +1252,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
           prev.map(b => b.id === selectedBrand.id ? { ...b, ...selectedBrand } : b)
         );
 
-        toast.success('Brand uspješno ažuriran!', {
+        toast.success('Brand uspje�no a�uriran!', {
           style: {
             background: '#111111',
             color: '#e8d5a3',
@@ -1284,7 +1284,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
         // Add to local state
         setSupabaseBrands(prev => [...prev, data].sort((a, b) => a.naziv.localeCompare(b.naziv)));
 
-        toast.success('Brand uspješno kreiran!', {
+        toast.success('Brand uspje�no kreiran!', {
           style: {
             background: '#111111',
             color: '#e8d5a3',
@@ -1305,9 +1305,9 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
     } catch (error: any) {
       console.error('Error saving brand:', error);
       if (error.code === '23505' || (error.message && error.message.includes('unique constraint'))) {
-        toast.error('Brand s ovim nazivom već postoji');
+        toast.error('Brand s ovim nazivom vec postoji');
       } else {
-        toast.error(error.message || 'Greška pri spremanju branda');
+        toast.error(error.message || 'Gre�ka pri spremanju branda');
       }
     } finally {
       setSaving(false);
@@ -1319,7 +1319,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
     const productCount = supabaseProducts.filter(p => p.brand_id === brandId).length;
     
     if (productCount > 0) {
-      toast.error(`Ne možete obrisati brand koji ima ${productCount} proizvoda. Prvo obrišite ili premjestite proizvode.`, {
+      toast.error(`Ne mo�ete obrisati brand koji ima ${productCount} proizvoda. Prvo obri�ite ili premjestite proizvode.`, {
         style: {
           background: '#111111',
           color: '#e8d5a3',
@@ -1333,7 +1333,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
       return;
     }
 
-    if (!confirm('Jeste li sigurni da želite obrisati ovaj brand?')) return;
+    if (!confirm('Jeste li sigurni da �elite obrisati ovaj brand?')) return;
 
     setSaving(true);
     try {
@@ -1345,7 +1345,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
       if (error) {
         // Handle foreign key constraint error
         if (error.code === '23503') {
-          throw new Error('Brand ima povezane proizvode i ne može biti obrisan');
+          throw new Error('Brand ima povezane proizvode i ne mo�e biti obrisan');
         }
         throw error;
       }
@@ -1369,7 +1369,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
       });
     } catch (error: any) {
       console.error('Error deleting brand:', error);
-      const errorMessage = error.message || 'Greška pri brisanju branda';
+      const errorMessage = error.message || 'Gre�ka pri brisanju branda';
       toast.error(errorMessage, {
         style: {
           background: '#111111',
@@ -1425,7 +1425,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
         prev.map(c => c.id === selectedCustomer.id ? { ...c, ...selectedCustomer } : c)
       );
 
-      toast.success('Kupac uspješno ažuriran!', {
+      toast.success('Kupac uspje�no a�uriran!', {
         style: {
           background: '#111111',
           color: '#e8d5a3',
@@ -1444,7 +1444,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
       setSelectedCustomer(null);
     } catch (error: any) {
       console.error('Error saving customer:', error);
-      toast.error(error.message || 'Greška pri spremanju kupca');
+      toast.error(error.message || 'Gre�ka pri spremanju kupca');
     } finally {
       setSaving(false);
     }
@@ -1455,7 +1455,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
   // ============================================================
 
   const handleDeleteOrder = async (orderNumber: string) => {
-    if (!confirm('Jeste li sigurni da želite obrisati ovu narudžbu? Ova akcija se ne može poništiti.')) return;
+    if (!confirm('Jeste li sigurni da �elite obrisati ovu narud�bu? Ova akcija se ne mo�e poni�titi.')) return;
 
     setSaving(true);
     try {
@@ -1487,7 +1487,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
         setSelectedOrder(null);
       }
 
-      toast.success('Narudžba uspješno obrisana!', {
+      toast.success('Narud�ba uspje�no obrisana!', {
         style: {
           background: '#111111',
           color: '#e8d5a3',
@@ -1503,7 +1503,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
       });
     } catch (error: any) {
       console.error('Error deleting order:', error);
-      toast.error(error.message || 'Greška pri brisanju narudžbe', {
+      toast.error(error.message || 'Gre�ka pri brisanju narud�be', {
         style: {
           background: '#111111',
           color: '#e8d5a3',
@@ -1533,7 +1533,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
 
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={16} /> },
-    { id: 'narudzbe', label: 'Narudžbe', icon: <ShoppingBag size={16} />, badge: allOrders.filter(o => o.status === 'nova' || o.status === 'cekanje_uplate').length },
+    { id: 'narudzbe', label: 'Narud�be', icon: <ShoppingBag size={16} />, badge: allOrders.filter(o => o.status === 'nova' || o.status === 'cekanje_uplate').length },
     { id: 'proizvodi', label: 'Proizvodi', icon: <Package size={16} /> },
     { id: 'brendovi', label: 'Brendovi', icon: <Star size={16} /> },
     { id: 'kupci', label: 'Kupci', icon: <Users size={16} /> },
@@ -1633,7 +1633,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                 </span>
               )}
             </button>
-            <Link to="/" className="text-[#e8d5a3]/40 hover:text-[#c9a96e] text-xs font-['Inter'] transition-colors">← Vidi stranicu</Link>
+            <Link to="/" className="text-[#e8d5a3]/40 hover:text-[#c9a96e] text-xs font-['Inter'] transition-colors">? Vidi stranicu</Link>
           </div>
         </header>
 
@@ -1644,10 +1644,10 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
               {/* KPI Cards */}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 {[
-                  { label: 'Ukupan prihod', value: `${totalRevenue.toFixed(0)}€`, change: '+12.5%', up: true, icon: <TrendingUp size={18} /> },
-                  { label: 'Narudžbe danas', value: `${todayOrders}`, change: '+3 danas', up: true, icon: <ShoppingBag size={18} /> },
-                  { label: 'Čekaju uplatu', value: `${allOrders.filter(o => o.status === 'cekanje_uplate').length}`, change: 'Revolut', up: false, icon: <CreditCard size={18} /> },
-                  { label: 'Čekaju odobrenje', value: `${pendingReviews.length}`, change: 'recenzija', up: false, icon: <Star size={18} /> },
+                  { label: 'Ukupan prihod', value: `${totalRevenue.toFixed(0)}�`, change: '+12.5%', up: true, icon: <TrendingUp size={18} /> },
+                  { label: 'Narud�be danas', value: `${todayOrders}`, change: '+3 danas', up: true, icon: <ShoppingBag size={18} /> },
+                  { label: 'Cekaju uplatu', value: `${allOrders.filter(o => o.status === 'cekanje_uplate').length}`, change: 'Revolut', up: false, icon: <CreditCard size={18} /> },
+                  { label: 'Cekaju odobrenje', value: `${pendingReviews.length}`, change: 'recenzija', up: false, icon: <Star size={18} /> },
                 ].map(kpi => (
                   <div key={kpi.label} className="bg-[#111111] border border-[#c9a96e]/10 rounded-2xl p-4">
                     <div className="flex items-start justify-between mb-3">
@@ -1667,10 +1667,10 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
               <div className="bg-[#111111] border border-[#c9a96e]/10 rounded-2xl p-5">
                 <div className="flex items-center justify-between mb-5">
                   <div>
-                    <h3 className="text-[#e8d5a3]/80 font-['Playfair_Display'] font-bold text-lg">Prihodi — zadnjih 30 dana</h3>
+                    <h3 className="text-[#e8d5a3]/80 font-['Playfair_Display'] font-bold text-lg">Prihodi � zadnjih 30 dana</h3>
                     <p className="text-[#e8d5a3]/30 text-xs font-['Inter']">Dnevni prihodi u EUR</p>
                   </div>
-                  <span className="text-[#c9a96e] font-['DM_Sans'] font-bold text-xl">{totalRevenue.toFixed(0)}€</span>
+                  <span className="text-[#c9a96e] font-['DM_Sans'] font-bold text-xl">{totalRevenue.toFixed(0)}�</span>
                 </div>
                 <div className="flex items-end gap-1 h-28">
                   {chartData.map((val, i) => (
@@ -1678,7 +1678,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                       <div
                         className="w-full bg-[#c9a96e]/20 hover:bg-[#c9a96e]/50 rounded-sm transition-all cursor-pointer"
                         style={{ height: `${(val / 100) * 100}%` }}
-                        title={`${val}€`}
+                        title={`${val}�`}
                       />
                     </div>
                   ))}
@@ -1692,8 +1692,8 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                 {/* Recent orders */}
                 <div className="bg-[#111111] border border-[#c9a96e]/10 rounded-2xl p-5">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-[#e8d5a3]/80 font-['Playfair_Display'] font-bold">Zadnje narudžbe</h3>
-                    <button onClick={() => setView('narudzbe')} className="text-[#c9a96e]/60 text-xs font-['Inter'] hover:text-[#c9a96e]">Sve →</button>
+                    <h3 className="text-[#e8d5a3]/80 font-['Playfair_Display'] font-bold">Zadnje narud�be</h3>
+                    <button onClick={() => setView('narudzbe')} className="text-[#c9a96e]/60 text-xs font-['Inter'] hover:text-[#c9a96e]">Sve ?</button>
                   </div>
                   <div className="space-y-3">
                     {allOrders.slice(0, 5).map(order => (
@@ -1706,7 +1706,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                           <span className={`text-[9px] px-2 py-0.5 rounded-full border font-semibold ${STATUS_COLORS[order.status] ?? ''}`}>
                             {STATUS_LABELS[order.status]}
                           </span>
-                          <span className="text-[#c9a96e] text-xs font-bold font-['DM_Sans']">{order.ukupno.toFixed(2)}€</span>
+                          <span className="text-[#c9a96e] text-xs font-bold font-['DM_Sans']">{order.ukupno.toFixed(2)}�</span>
                         </div>
                       </div>
                     ))}
@@ -1716,7 +1716,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                 {/* Low stock */}
                 <div className="bg-[#111111] border border-[#c9a96e]/10 rounded-2xl p-5">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-[#e8d5a3]/80 font-['Playfair_Display'] font-bold">⚠️ Niska zaliha</h3>
+                    <h3 className="text-[#e8d5a3]/80 font-['Playfair_Display'] font-bold">?? Niska zaliha</h3>
                     <span className="text-orange-400 text-xs font-['Inter'] border border-orange-400/30 px-2 py-0.5 rounded-full">
                       {lowStock.length} upozorenja
                     </span>
@@ -1729,7 +1729,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                           <p className="text-[#e8d5a3]/30 text-[10px] font-['Inter']">{item.size.sku}</p>
                         </div>
                         <span className={`text-xs font-bold font-['Inter'] ${item.size.zaliha === 0 ? 'text-red-400' : 'text-orange-400'}`}>
-                          {item.size.zaliha === 0 ? '⛔ Nema' : `${item.size.zaliha} kom`}
+                          {item.size.zaliha === 0 ? '? Nema' : `${item.size.zaliha} kom`}
                         </span>
                       </div>
                     ))}
@@ -1747,11 +1747,11 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                       <img src={p.images && p.images.length > 0 ? p.images[0] : ''} alt="" className="w-10 h-10 rounded-lg object-cover opacity-70" />
                       <div className="flex-1 min-w-0">
                         <p className="text-[#e8d5a3]/70 text-sm font-semibold font-['Inter'] truncate">{p.naziv}</p>
-                        <p className="text-[#e8d5a3]/30 text-[10px] font-['Inter']">{p.brand?.naziv || p.brand} · {p.broj_recenzija || 0} recenzija</p>
+                        <p className="text-[#e8d5a3]/30 text-[10px] font-['Inter']">{p.brand?.naziv || p.brand} � {p.broj_recenzija || 0} recenzija</p>
                       </div>
                       <div className="text-right">
                         <p className="text-[#c9a96e] text-sm font-bold font-['DM_Sans']">
-                          od {p.product_sizes && p.product_sizes.length > 0 ? Math.min(...p.product_sizes.map((s: any) => s.cijena)).toFixed(2) : '0.00'}€
+                          od {p.product_sizes && p.product_sizes.length > 0 ? Math.min(...p.product_sizes.map((s: any) => s.cijena)).toFixed(2) : '0.00'}�
                         </p>
                         <div className="w-16 bg-[#1a1a1a] rounded-full h-1 mt-1">
                           <div className="bg-[#c9a96e] h-full rounded-full" style={{ width: `${100 - (i * 18)}%` }} />
@@ -1764,7 +1764,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
             </div>
           )}
 
-          {/* NARUDŽBE */}
+          {/* NARUD�BE */}
           {view === 'narudzbe' && (
             <div className="space-y-5">
               {/* Actions bar */}
@@ -1798,7 +1798,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                     {/* Status + Payment */}
                     <div className="mb-4 space-y-3">
                       <div>
-                        <label className="text-[#e8d5a3]/40 text-xs uppercase tracking-wider font-['Inter'] mb-1.5 block">Status narudžbe</label>
+                        <label className="text-[#e8d5a3]/40 text-xs uppercase tracking-wider font-['Inter'] mb-1.5 block">Status narud�be</label>
                         <div className="relative">
                           <select
                             value={selectedOrder.status}
@@ -1815,18 +1815,18 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                       {/* Payment status */}
                       <div className="flex items-center justify-between bg-[#0a0a0a] border border-[#c9a96e]/10 rounded-xl p-3">
                         <div>
-                          <p className="text-[#e8d5a3]/30 text-[10px] uppercase tracking-wider font-['Inter'] mb-0.5">Način plaćanja</p>
+                          <p className="text-[#e8d5a3]/30 text-[10px] uppercase tracking-wider font-['Inter'] mb-0.5">Nacin placanja</p>
                           <p className="text-[#e8d5a3]/70 text-xs font-['Inter']">
-                            {selectedOrder.nacin_placanja === 'pouzecem' ? '💵 Pouzećem' : selectedOrder.nacin_placanja === 'revolut' ? '💳 Revolut' : '🏦 Bankovna transakcija'}
+                            {selectedOrder.nacin_placanja === 'pouzecem' ? '?? Pouzecem' : selectedOrder.nacin_placanja === 'revolut' ? '?? Revolut' : '?? Bankovna transakcija'}
                           </p>
                         </div>
                         <div className="flex items-center gap-2">
                           {selectedOrder.placeno ? (
                             <span className="text-green-400 text-xs font-semibold font-['Inter'] flex items-center gap-1">
-                              <Check size={12} /> Plaćeno
+                              <Check size={12} /> Placeno
                             </span>
                           ) : (
-                            <span className="text-orange-400 text-xs font-semibold font-['Inter']">⏳ Čeka uplatu</span>
+                            <span className="text-orange-400 text-xs font-semibold font-['Inter']">? Ceka uplatu</span>
                           )}
                           {selectedOrder.nacin_placanja !== 'pouzecem' && !selectedOrder.placeno && (
                             <button
@@ -1834,7 +1834,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                               disabled={saving}
                               className="bg-green-600/20 text-green-400 border border-green-500/30 px-2.5 py-1 rounded-lg text-[10px] font-semibold hover:bg-green-600/30 transition-all disabled:opacity-50 font-['Inter']"
                             >
-                              Označi plaćeno
+                              Oznaci placeno
                             </button>
                           )}
                         </div>
@@ -1923,11 +1923,11 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                           <div key={idx} className="bg-[#0a0a0a] border border-[#c9a96e]/5 rounded-xl p-2.5 flex items-center justify-between">
                             <div>
                               <p className="text-[#e8d5a3]/80 text-[11px] font-semibold font-['Inter']">{item.naziv_proizvoda}</p>
-                              <p className="text-[#c9a96e]/60 text-[9px] font-['Inter']">{item.brand_naziv} · {item.ml}ml</p>
+                              <p className="text-[#c9a96e]/60 text-[9px] font-['Inter']">{item.brand_naziv} � {item.ml}ml</p>
                             </div>
                             <div className="text-right">
-                              <p className="text-[#e8d5a3]/60 text-[10px] font-['Inter']">{item.kolicina}x {item.cijena.toFixed(2)}€</p>
-                              <p className="text-[#c9a96e] text-[11px] font-bold font-['DM_Sans']">{(item.kolicina * item.cijena).toFixed(2)}€</p>
+                              <p className="text-[#e8d5a3]/60 text-[10px] font-['Inter']">{item.kolicina}x {item.cijena.toFixed(2)}�</p>
+                              <p className="text-[#c9a96e] text-[11px] font-bold font-['DM_Sans']">{(item.kolicina * item.cijena).toFixed(2)}�</p>
                             </div>
                           </div>
                         ))}
@@ -1936,12 +1936,12 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
 
                     {/* Tracking */}
                     <div className="mb-4">
-                      <label className="text-[#e8d5a3]/40 text-xs uppercase tracking-wider font-['Inter'] mb-1.5 block">HP Pošta tracking broj</label>
+                      <label className="text-[#e8d5a3]/40 text-xs uppercase tracking-wider font-['Inter'] mb-1.5 block">BoxNow tracking broj</label>
                       <div className="flex gap-2">
                         <input
                           ref={trackingInputRef}
                           defaultValue={selectedOrder.tracking_broj ?? ''}
-                          placeholder="HR000000000HR"
+                          placeholder="BN000000000HR"
                           disabled={saving}
                           className="flex-1 bg-[#0a0a0a] border border-[#c9a96e]/20 text-[#e8d5a3] placeholder-[#e8d5a3]/25 px-3 py-2 rounded-xl text-sm font-['Inter'] focus:outline-none focus:border-[#c9a96e]/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                         />
@@ -1953,12 +1953,23 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                           {saving ? '...' : <Check size={13} />}
                         </button>
                       </div>
+                      {selectedOrder.tracking_broj && (
+                        <a
+                          href={`https://boxnow.hr/track?parcelId=${selectedOrder.tracking_broj}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 mt-2 text-[#c9a96e]/60 text-[11px] font-['Inter'] hover:text-[#c9a96e] transition-colors"
+                        >
+                          <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1 9L9 1M9 1H3M9 1V7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                          Prati na BoxNow
+                        </a>
+                      )}
                     </div>
 
                     {/* Total */}
                     <div className="flex justify-between items-center pt-4 border-t border-[#c9a96e]/10">
                       <span className="text-[#e8d5a3]/40 text-sm font-['Inter']">Ukupno</span>
-                      <span className="text-[#c9a96e] font-['DM_Sans'] font-bold text-xl">{selectedOrder.ukupno.toFixed(2)}€</span>
+                      <span className="text-[#c9a96e] font-['DM_Sans'] font-bold text-xl">{selectedOrder.ukupno.toFixed(2)}�</span>
                     </div>
 
                     {/* Action buttons */}
@@ -1980,11 +1991,11 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
 
                     {/* Email kupcu */}
                     <div className="mt-4">
-                      <label className="text-[#e8d5a3]/40 text-xs uppercase tracking-wider font-['Inter'] mb-1.5 block">Pošalji email kupcu</label>
+                      <label className="text-[#e8d5a3]/40 text-xs uppercase tracking-wider font-['Inter'] mb-1.5 block">Po�alji email kupcu</label>
                       <div className="grid grid-cols-2 gap-2">
-                        {['U obradi', 'Poslano + tracking', 'Isporučeno', 'Otkazano'].map(tpl => (
+                        {['U obradi', 'Poslano + tracking', 'Isporuceno', 'Otkazano'].map(tpl => (
                           <button key={tpl} className="text-xs text-[#c9a96e]/60 border border-[#c9a96e]/20 px-2 py-1.5 rounded-lg hover:bg-[#c9a96e]/5 hover:border-[#c9a96e]/40 transition-all font-['Inter'] text-left" onClick={() => toast.success(`Email "${tpl}" poslan!`)}>
-                            📧 {tpl}
+                            ?? {tpl}
                           </button>
                         ))}
                       </div>
@@ -1998,7 +2009,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                         className="w-full flex items-center justify-center gap-2 bg-red-600/20 text-red-400 border border-red-400/30 px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-red-600/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-['Inter']"
                       >
                         <Trash2 size={14} />
-                        Obriši narudžbu
+                        Obri�i narud�bu
                       </button>
                     </div>
                   </div>
@@ -2011,7 +2022,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                   <table className="w-full">
                     <thead>
                       <tr className="border-b border-[#c9a96e]/10">
-                        {['Broj', 'Kupac', 'Datum', 'Plaćanje', 'Status', 'Iznos', ''].map(h => (
+                        {['Broj', 'Kupac', 'Datum', 'Placanje', 'Status', 'Iznos', ''].map(h => (
                           <th key={h} className="text-left text-[#e8d5a3]/30 text-[10px] uppercase tracking-wider font-['Inter'] px-4 py-3">{h}</th>
                         ))}
                       </tr>
@@ -2026,15 +2037,15 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                           </td>
                           <td className="px-4 py-3 text-[#e8d5a3]/40 text-xs font-['Inter']">{order.created_at}</td>
                           <td className="px-4 py-3 text-[#e8d5a3]/40 text-xs font-['Inter']">
-                            {order.nacin_placanja === 'pouzecem' ? '💵 COD' : order.nacin_placanja === 'revolut' ? '💳 Revolut' : '🏦 Bankovno'}
-                          {order.placeno && <span className="ml-1 text-green-400 text-[8px]">✓</span>}
+                            {order.nacin_placanja === 'pouzecem' ? '?? COD' : order.nacin_placanja === 'revolut' ? '?? Revolut' : '?? Bankovno'}
+                          {order.placeno && <span className="ml-1 text-green-400 text-[8px]">?</span>}
                           </td>
                           <td className="px-4 py-3">
                             <span className={`text-[9px] px-2 py-0.5 rounded-full border font-semibold font-['Inter'] ${STATUS_COLORS[order.status] ?? ''}`}>
                               {STATUS_LABELS[order.status]}
                             </span>
                           </td>
-                          <td className="px-4 py-3 text-[#c9a96e] font-['DM_Sans'] font-bold text-sm">{order.ukupno.toFixed(2)}€</td>
+                          <td className="px-4 py-3 text-[#c9a96e] font-['DM_Sans'] font-bold text-sm">{order.ukupno.toFixed(2)}�</td>
                           <td className="px-4 py-3">
                             <button onClick={() => setSelectedOrder(order)} className="text-[#c9a96e]/50 hover:text-[#c9a96e] transition-colors">
                               <Eye size={14} />
@@ -2067,7 +2078,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
               {loading ? (
                 <div className="text-center py-12 bg-[#111111] border border-[#c9a96e]/10 rounded-2xl">
                   <div className="w-8 h-8 border-2 border-[#c9a96e]/20 border-t-[#c9a96e] rounded-full animate-spin mx-auto mb-3" />
-                  <p className="text-[#e8d5a3]/40 font-['Inter']">Učitavanje...</p>
+                  <p className="text-[#e8d5a3]/40 font-['Inter']">Ucitavanje...</p>
                 </div>
               ) : supabaseProducts.length === 0 ? (
                 <div className="text-center py-12 bg-[#111111] border border-[#c9a96e]/10 rounded-2xl">
@@ -2096,7 +2107,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                               <td className="px-4 py-3 text-[#c9a96e] text-xs font-['Inter']">{brandName}</td>
                               <td className="px-4 py-3 text-[#e8d5a3]/50 text-xs font-['Inter']">{p.koncentracija}</td>
                               <td className="px-4 py-3 text-[#e8d5a3]/50 text-xs font-['Inter'] capitalize">{p.spol}</td>
-                              <td className="px-4 py-3 text-[#c9a96e] text-xs font-bold font-['DM_Sans']">{minPrice.toFixed(2)}€</td>
+                              <td className="px-4 py-3 text-[#c9a96e] text-xs font-bold font-['DM_Sans']">{minPrice.toFixed(2)}�</td>
                               <td className="px-4 py-3"><span className={`text-xs font-bold font-['Inter'] ${totalStock < 10 ? 'text-orange-400' : 'text-green-400'}`}>{totalStock} kom</span></td>
                               <td className="px-4 py-3"><span className={`text-[9px] px-2 py-0.5 rounded-full font-bold ${p.active ? 'bg-green-400/15 text-green-400' : 'bg-red-400/15 text-red-400'}`}>{p.active ? 'Da' : 'Ne'}</span></td>
                               <td className="px-4 py-3">
@@ -2104,7 +2115,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                                   <button className="text-[#c9a96e]/50 hover:text-[#c9a96e] transition-colors" onClick={() => handleEditProduct(p)} aria-label="Uredi proizvod">
                                     <Edit size={14} />
                                   </button>
-                                  <button className="text-red-400/50 hover:text-red-400 transition-colors" onClick={() => handleDeleteProduct(p)} aria-label="Obriši proizvod">
+                                  <button className="text-red-400/50 hover:text-red-400 transition-colors" onClick={() => handleDeleteProduct(p)} aria-label="Obri�i proizvod">
                                     <Trash2 size={14} />
                                   </button>
                                 </div>
@@ -2133,7 +2144,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                         )}
                       </div>
                       <div className="flex items-center gap-2">
-                        {/* ONE AI generate button — opens paste modal first */}
+                        {/* ONE AI generate button � opens paste modal first */}
                         <button
                           type="button"
                           onClick={() => {
@@ -2146,7 +2157,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                           }}
                           disabled={saving || aiGenerating || !selectedProduct.naziv || !selectedProduct.brand_id}
                           className="flex items-center gap-2 bg-gradient-to-r from-purple-600/80 to-purple-500/80 hover:from-purple-500 hover:to-purple-400 text-white px-4 py-2 rounded-xl text-xs font-bold tracking-wide uppercase transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-lg shadow-purple-900/30"
-                          title="Generiraj cijeli proizvod pomoću AI"
+                          title="Generiraj cijeli proizvod pomocu AI"
                         >
                           <Sparkles size={14} className={aiGenerating ? 'animate-spin' : ''} />
                           {aiGenerating ? 'Generiram...' : 'AI Generiraj sve'}
@@ -2188,7 +2199,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                         <div className="bg-purple-900/15 border border-purple-500/20 rounded-xl px-4 py-2.5 flex items-center gap-2">
                           <Sparkles size={13} className="text-purple-300 flex-shrink-0" />
                           <p className="text-purple-200/70 text-xs font-['Inter']">
-                            Naziv i brand su uneseni — kliknite <span className="text-purple-200 font-semibold">AI Generiraj sve</span> za automatsko popunjavanje svih polja.
+                            Naziv i brand su uneseni � kliknite <span className="text-purple-200 font-semibold">AI Generiraj sve</span> za automatsko popunjavanje svih polja.
                           </p>
                         </div>
                       )}
@@ -2203,7 +2214,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                             className="w-full bg-[#0a0a0a] border border-[#c9a96e]/20 text-[#e8d5a3] px-4 py-2.5 rounded-xl text-sm font-['Inter'] focus:outline-none focus:border-[#c9a96e] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                           >
                             {supabaseBrands.length === 0 ? (
-                              <option value="">Učitavanje brendova...</option>
+                              <option value="">Ucitavanje brendova...</option>
                             ) : (
                               supabaseBrands.map(b => <option key={b.id} value={b.id}>{b.naziv}</option>)
                             )}
@@ -2235,8 +2246,8 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                             disabled={saving}
                             className="w-full bg-[#0a0a0a] border border-[#c9a96e]/20 text-[#e8d5a3] px-4 py-2.5 rounded-xl text-sm font-['Inter'] focus:outline-none focus:border-[#c9a96e] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                           >
-                            <option value="muški">Muški</option>
-                            <option value="ženski">Ženski</option>
+                            <option value="mu�ki">Mu�ki</option>
+                            <option value="�enski">�enski</option>
                             <option value="unisex">Unisex</option>
                           </select>
                         </div>
@@ -2250,7 +2261,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                             className="w-full bg-[#0a0a0a] border border-[#c9a96e]/20 text-[#e8d5a3] px-4 py-2.5 rounded-xl text-sm font-['Inter'] focus:outline-none focus:border-[#c9a96e] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                           >
                             <option value="sve">Sve sezone</option>
-                            <option value="proljeće">Proljeće</option>
+                            <option value="proljece">Proljece</option>
                             <option value="ljeto">Ljeto</option>
                             <option value="jesen">Jesen</option>
                             <option value="zima">Zima</option>
@@ -2306,7 +2317,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                               value={selectedProduct.note_srca || ''}
                               onChange={e => setSelectedProduct({ ...selectedProduct, note_srca: e.target.value })}
                               disabled={saving}
-                              placeholder="ruža, jasmin..."
+                              placeholder="ru�a, jasmin..."
                               className="w-full bg-[#0a0a0a] border border-[#c9a96e]/20 text-[#e8d5a3] placeholder-[#e8d5a3]/25 px-3 py-2 rounded-lg text-xs font-['Inter'] focus:outline-none focus:border-[#c9a96e] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                             />
                           </div>
@@ -2317,7 +2328,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                               value={selectedProduct.note_baze || ''}
                               onChange={e => setSelectedProduct({ ...selectedProduct, note_baze: e.target.value })}
                               disabled={saving}
-                              placeholder="mošus, sandalovina..."
+                              placeholder="mo�us, sandalovina..."
                               className="w-full bg-[#0a0a0a] border border-[#c9a96e]/20 text-[#e8d5a3] placeholder-[#e8d5a3]/25 px-3 py-2 rounded-lg text-xs font-['Inter'] focus:outline-none focus:border-[#c9a96e] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                             />
                           </div>
@@ -2354,7 +2365,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                     <div className="mb-5 pb-5 border-t border-[#c9a96e]/10 pt-5">
                       <div className="flex items-center justify-between mb-3">
                         <label className="text-[#e8d5a3]/40 text-xs uppercase tracking-wider font-['Inter']">
-                          Veličine i cijene *
+                          Velicine i cijene *
                         </label>
                         <button
                           type="button"
@@ -2365,7 +2376,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                           disabled={saving}
                           className="text-[#c9a96e] hover:text-[#e8d5a3] text-xs font-['Inter'] font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                          + Dodaj veličinu
+                          + Dodaj velicinu
                         </button>
                       </div>
                       <div className="space-y-2">
@@ -2439,7 +2450,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                               }}
                               disabled={saving || selectedProduct.product_sizes.length === 1}
                               className="text-red-400 hover:text-red-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                              title="Obriši veličinu"
+                              title="Obri�i velicinu"
                             >
                               <Trash2 size={16} />
                             </button>
@@ -2455,7 +2466,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                           Slike proizvoda
                         </label>
                         <span className="text-[#e8d5a3]/20 text-[10px] font-['Inter']">
-                          {(selectedProduct.product_images || []).filter((img: any) => img.url).length} slika · max 5MB
+                          {(selectedProduct.product_images || []).filter((img: any) => img.url).length} slika � max 5MB
                         </span>
                       </div>
 
@@ -2505,7 +2516,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                                 {dragOver ? 'Pustite slike ovdje' : 'Povucite slike ovdje'}
                               </p>
                               <p className="text-[#e8d5a3]/25 text-[11px] font-['Inter'] mt-0.5">
-                                ili kliknite za odabir · JPEG, PNG, WebP, GIF
+                                ili kliknite za odabir � JPEG, PNG, WebP, GIF
                               </p>
                             </div>
                           </div>
@@ -2515,7 +2526,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                       {/* Image Preview Grid - drag to reorder */}
                       {(selectedProduct.product_images || []).filter((img: any) => img.url).length > 0 && (
                         <>
-                          <p className="text-[#e8d5a3]/20 text-[10px] font-['Inter'] mb-2">Povucite slike za promjenu redoslijeda · #1 je glavna slika</p>
+                          <p className="text-[#e8d5a3]/20 text-[10px] font-['Inter'] mb-2">Povucite slike za promjenu redoslijeda � #1 je glavna slika</p>
                           <div className="grid grid-cols-3 gap-2">
                             {(selectedProduct.product_images || []).filter((img: any) => img.url).map((img: any, idx: number) => (
                               <div
@@ -2594,7 +2605,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                                   src={img.url} 
                                   alt={img.alt_text || ''} 
                                   className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity pointer-events-none"
-                                  onError={e => { (e.target as HTMLImageElement).src = ''; (e.target as HTMLImageElement).alt = '⚠'; }}
+                                  onError={e => { (e.target as HTMLImageElement).src = ''; (e.target as HTMLImageElement).alt = '?'; }}
                                   draggable={false}
                                 />
                                 {/* Drag handle hint */}
@@ -2619,7 +2630,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                                   }}
                                   disabled={saving || uploadingImages}
                                   className="absolute top-1.5 right-1.5 w-6 h-6 bg-black/70 hover:bg-red-600/80 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all"
-                                  title="Obriši sliku"
+                                  title="Obri�i sliku"
                                 >
                                   <X size={12} className="text-white" />
                                 </button>
@@ -2627,7 +2638,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                                 <div className={`absolute bottom-1.5 left-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded-md font-['Inter'] transition-colors
                                   ${idx === 0 ? 'bg-[#c9a96e]/80 text-black' : 'bg-black/60 text-[#c9a96e]'}
                                 `}>
-                                  {idx === 0 ? '★ Glavna' : `#${idx + 1}`}
+                                  {idx === 0 ? '? Glavna' : `#${idx + 1}`}
                                 </div>
                               </div>
                             ))}
@@ -2699,7 +2710,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                           disabled={saving}
                           className="bg-red-600/20 text-red-400 border border-red-400/30 px-6 py-3 rounded-xl text-sm font-bold hover:bg-red-600/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-['Inter']"
                         >
-                          Obriši
+                          Obri�i
                         </button>
                       )}
                       <button
@@ -2707,7 +2718,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                         disabled={saving}
                         className="px-6 py-3 text-[#e8d5a3]/60 hover:text-[#e8d5a3] text-sm font-['Inter'] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        Otkaži
+                        Otka�i
                       </button>
                     </div>
                   </div>
@@ -2724,18 +2735,18 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                         <Sparkles size={18} className="text-purple-300" />
                       </div>
                       <div>
-                        <p className="text-white font-bold text-base font-['DM_Sans'] mb-0.5">AI Generiraj — {selectedProduct?.naziv}</p>
+                        <p className="text-white font-bold text-base font-['DM_Sans'] mb-0.5">AI Generiraj � {selectedProduct?.naziv}</p>
                         <p className="text-white/50 text-xs font-['Inter'] leading-relaxed">
-                          Za točne note parfema, zalijepite tekst s Fragrantica stranice. Ako preskočite, AI će pokušati sam — ali može pogriješiti.
+                          Za tocne note parfema, zalijepite tekst s Fragrantica stranice. Ako preskocite, AI ce poku�ati sam � ali mo�e pogrije�iti.
                         </p>
                       </div>
                     </div>
 
                     {/* Step instructions */}
                     <div className="bg-[#0a0a0a] border border-purple-500/15 rounded-xl p-4 mb-4">
-                      <p className="text-purple-200/70 text-xs font-['Inter'] font-semibold mb-2">Kako dobiti točne note:</p>
+                      <p className="text-purple-200/70 text-xs font-['Inter'] font-semibold mb-2">Kako dobiti tocne note:</p>
                       <ol className="space-y-1.5 text-white/45 text-xs font-['Inter']">
-                        <li className="flex gap-2"><span className="text-purple-300 font-bold">1.</span> Idite na <a href={`https://www.fragrantica.com/search/?query=${encodeURIComponent((selectedProduct?.naziv || '') + ' ' + (supabaseBrands.find(b => b.id === selectedProduct?.brand_id)?.naziv || ''))}`} target="_blank" rel="noopener noreferrer" className="text-purple-300 underline hover:text-purple-200">fragrantica.com</a> i pronađite parfem</li>
+                        <li className="flex gap-2"><span className="text-purple-300 font-bold">1.</span> Idite na <a href={`https://www.fragrantica.com/search/?query=${encodeURIComponent((selectedProduct?.naziv || '') + ' ' + (supabaseBrands.find(b => b.id === selectedProduct?.brand_id)?.naziv || ''))}`} target="_blank" rel="noopener noreferrer" className="text-purple-300 underline hover:text-purple-200">fragrantica.com</a> i pronadite parfem</li>
                         <li className="flex gap-2"><span className="text-purple-300 font-bold">2.</span> Pritisnite <kbd className="bg-white/10 px-1.5 py-0.5 rounded text-[10px]">Ctrl+A</kbd> pa <kbd className="bg-white/10 px-1.5 py-0.5 rounded text-[10px]">Ctrl+C</kbd> za kopiranje cijele stranice</li>
                         <li className="flex gap-2"><span className="text-purple-300 font-bold">3.</span> Zalijepite ovdje s <kbd className="bg-white/10 px-1.5 py-0.5 rounded text-[10px]">Ctrl+V</kbd></li>
                       </ol>
@@ -2753,7 +2764,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                     {fragranticaInput.trim().length > 0 && (
                       <p className="text-green-400/70 text-[11px] font-['Inter'] mb-3 flex items-center gap-1.5">
                         <span className="w-1.5 h-1.5 rounded-full bg-green-400 flex-shrink-0" />
-                        {fragranticaInput.trim().length.toLocaleString()} znakova — AI će koristiti ove podatke za točne note
+                        {fragranticaInput.trim().length.toLocaleString()} znakova � AI ce koristiti ove podatke za tocne note
                       </p>
                     )}
 
@@ -2787,16 +2798,16 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                       </div>
                       <div className="flex-1">
                         <h3 className="text-[#e8d5a3] font-['Playfair_Display'] font-bold text-lg mb-2">
-                          Obriši proizvod?
+                          Obri�i proizvod?
                         </h3>
                         <p className="text-[#e8d5a3]/60 text-sm font-['Inter'] mb-1">
-                          Jeste li sigurni da želite obrisati proizvod:
+                          Jeste li sigurni da �elite obrisati proizvod:
                         </p>
                         <p className="text-[#c9a96e] font-['Inter'] font-semibold text-sm">
                           "{productToDelete.naziv}"
                         </p>
                         <p className="text-[#e8d5a3]/40 text-xs font-['Inter'] mt-3">
-                          ⚠️ Ova akcija se ne može poništiti. Proizvod će biti trajno obrisan iz baze podataka.
+                          ?? Ova akcija se ne mo�e poni�titi. Proizvod ce biti trajno obrisan iz baze podataka.
                         </p>
                       </div>
                     </div>
@@ -2807,14 +2818,14 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                         disabled={saving}
                         className="flex-1 bg-red-600 text-white px-6 py-3 rounded-xl text-sm font-bold hover:bg-red-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-['Inter']"
                       >
-                        {saving ? 'Brisanje...' : 'Da, obriši'}
+                        {saving ? 'Brisanje...' : 'Da, obri�i'}
                       </button>
                       <button
                         onClick={() => setProductToDelete(null)}
                         disabled={saving}
                         className="flex-1 bg-[#0a0a0a] border border-[#c9a96e]/20 text-[#e8d5a3] px-6 py-3 rounded-xl text-sm font-bold hover:bg-[#1a1a1a] transition-all disabled:opacity-50 disabled:cursor-not-allowed font-['Inter']"
                       >
-                        Otkaži
+                        Otka�i
                       </button>
                     </div>
                   </div>
@@ -2835,7 +2846,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
               {loading ? (
                 <div className="text-center py-12 bg-[#111111] border border-[#c9a96e]/10 rounded-2xl">
                   <div className="w-8 h-8 border-2 border-[#c9a96e]/20 border-t-[#c9a96e] rounded-full animate-spin mx-auto mb-3" />
-                  <p className="text-[#e8d5a3]/40 font-['Inter']">Učitavanje...</p>
+                  <p className="text-[#e8d5a3]/40 font-['Inter']">Ucitavanje...</p>
                 </div>
               ) : supabaseBrands.length === 0 ? (
                 <div className="text-center py-12 bg-[#111111] border border-[#c9a96e]/10 rounded-2xl">
@@ -2853,7 +2864,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                     return (
                       <div key={brand.id} className="bg-[#111111] border border-[#c9a96e]/10 rounded-2xl p-5">
                         <div className="flex items-center justify-between mb-3">
-                          <div className="text-3xl text-[#c9a96e]/40">{brand.logo || '🏷️'}</div>
+                          <div className="text-3xl text-[#c9a96e]/40">{brand.logo || '???'}</div>
                           <div className="flex gap-2">
                             <button 
                               className="text-[#c9a96e]/40 hover:text-[#c9a96e]" 
@@ -2866,7 +2877,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                               className={`${canDelete ? 'text-red-400/40 hover:text-red-400' : 'text-red-400/20 cursor-not-allowed'}`}
                               onClick={() => canDelete && handleDeleteBrand(brand.id)}
                               disabled={!canDelete}
-                              title={canDelete ? 'Obriši brand' : 'Ne može se obrisati - ima proizvode'}
+                              title={canDelete ? 'Obri�i brand' : 'Ne mo�e se obrisati - ima proizvode'}
                             >
                               <X size={14} />
                             </button>
@@ -2880,7 +2891,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                           </p>
                           {!canDelete && (
                             <span className="text-[9px] bg-orange-400/15 text-orange-400 border border-orange-400/30 px-2 py-0.5 rounded-full font-bold">
-                              Zaštićen
+                              Za�ticen
                             </span>
                           )}
                         </div>
@@ -2903,7 +2914,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
               {loading ? (
                 <div className="text-center py-12">
                   <div className="w-8 h-8 border-2 border-[#c9a96e]/20 border-t-[#c9a96e] rounded-full animate-spin mx-auto mb-3" />
-                  <p className="text-[#e8d5a3]/40 font-['Inter']">Učitavanje...</p>
+                  <p className="text-[#e8d5a3]/40 font-['Inter']">Ucitavanje...</p>
                 </div>
               ) : (
                 <table className="w-full">
@@ -2934,16 +2945,16 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
           {/* RECENZIJE */}
           {view === 'recenzije' && (
             <div className="space-y-4">
-              <h2 className="text-[#e8d5a3]/60 text-sm font-['Inter']">Čekaju odobrenje: {pendingReviews.length}</h2>
+              <h2 className="text-[#e8d5a3]/60 text-sm font-['Inter']">Cekaju odobrenje: {pendingReviews.length}</h2>
               {loading ? (
                 <div className="text-center py-12 bg-[#111111] border border-[#c9a96e]/10 rounded-2xl">
                   <div className="w-8 h-8 border-2 border-[#c9a96e]/20 border-t-[#c9a96e] rounded-full animate-spin mx-auto mb-3" />
-                  <p className="text-[#e8d5a3]/40 font-['Inter']">Učitavanje...</p>
+                  <p className="text-[#e8d5a3]/40 font-['Inter']">Ucitavanje...</p>
                 </div>
               ) : pendingReviews.length === 0 ? (
                 <div className="text-center py-12 bg-[#111111] border border-[#c9a96e]/10 rounded-2xl">
                   <Check size={32} className="text-green-400/50 mx-auto mb-3" />
-                  <p className="text-[#e8d5a3]/40 font-['Inter']">Sve recenzije su obrađene</p>
+                  <p className="text-[#e8d5a3]/40 font-['Inter']">Sve recenzije su obradene</p>
                 </div>
               ) : (
                 pendingReviews.map(r => (
@@ -2956,7 +2967,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                           </p>
                           <div className="flex gap-0.5">
                             {[1,2,3,4,5].map(i => (
-                              <span key={i} className={`text-[10px] ${i <= r.ocjena ? 'text-[#c9a96e]' : 'text-[#333]'}`}>★</span>
+                              <span key={i} className={`text-[10px] ${i <= r.ocjena ? 'text-[#c9a96e]' : 'text-[#333]'}`}>?</span>
                             ))}
                           </div>
                         </div>
@@ -2965,7 +2976,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                         )}
                         <p className="text-[#e8d5a3]/60 text-sm font-['Inter'] italic mb-2">"{r.tekst}"</p>
                         <p className="text-[#e8d5a3]/30 text-xs font-['Inter']">
-                          {r.users ? `${r.users.ime} ${r.users.prezime}` : 'Korisnik'} · {new Date(r.created_at).toLocaleDateString('hr-HR')}
+                          {r.users ? `${r.users.ime} ${r.users.prezime}` : 'Korisnik'} � {new Date(r.created_at).toLocaleDateString('hr-HR')}
                         </p>
                       </div>
                       <div className="flex gap-2 flex-shrink-0">
@@ -3005,7 +3016,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
               {loading ? (
                 <div className="text-center py-12 bg-[#111111] border border-[#c9a96e]/10 rounded-2xl">
                   <div className="w-8 h-8 border-2 border-[#c9a96e]/20 border-t-[#c9a96e] rounded-full animate-spin mx-auto mb-3" />
-                  <p className="text-[#e8d5a3]/40 font-['Inter']">Učitavanje...</p>
+                  <p className="text-[#e8d5a3]/40 font-['Inter']">Ucitavanje...</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -3035,12 +3046,12 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                       </div>
                       <div className="space-y-1.5 text-xs font-['Inter']">
                         <div className="flex justify-between"><span className="text-[#e8d5a3]/30">Tip</span><span className="text-[#e8d5a3]/60 capitalize">{c.tip}</span></div>
-                        <div className="flex justify-between"><span className="text-[#e8d5a3]/30">Vrijednost</span><span className="text-[#c9a96e] font-bold">{c.tip === 'postotak' ? `${c.vrijednost}%` : `${c.vrijednost}€`}</span></div>
-                        <div className="flex justify-between"><span className="text-[#e8d5a3]/30">Min. iznos</span><span className="text-[#e8d5a3]/60">{c.min_iznos_narudzbe || c.min_iznos || 0}€</span></div>
-                        {c.max_popust && <div className="flex justify-between"><span className="text-[#e8d5a3]/30">Max. popust</span><span className="text-[#e8d5a3]/60">{c.max_popust}€</span></div>}
+                        <div className="flex justify-between"><span className="text-[#e8d5a3]/30">Vrijednost</span><span className="text-[#c9a96e] font-bold">{c.tip === 'postotak' ? `${c.vrijednost}%` : `${c.vrijednost}�`}</span></div>
+                        <div className="flex justify-between"><span className="text-[#e8d5a3]/30">Min. iznos</span><span className="text-[#e8d5a3]/60">{c.min_iznos_narudzbe || c.min_iznos || 0}�</span></div>
+                        {c.max_popust && <div className="flex justify-between"><span className="text-[#e8d5a3]/30">Max. popust</span><span className="text-[#e8d5a3]/60">{c.max_popust}�</span></div>}
                         {c.broj_koristenja !== undefined && (
                           <div className="flex justify-between">
-                            <span className="text-[#e8d5a3]/30">Korišteno</span>
+                            <span className="text-[#e8d5a3]/30">Kori�teno</span>
                             <span className="text-[#e8d5a3]/60">
                               {c.broj_koristenja}{c.max_koristenja ? `/${c.max_koristenja}` : ''}
                             </span>
@@ -3067,7 +3078,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
               {loading ? (
                 <div className="text-center py-12 bg-[#111111] border border-[#c9a96e]/10 rounded-2xl">
                   <div className="w-8 h-8 border-2 border-[#c9a96e]/20 border-t-[#c9a96e] rounded-full animate-spin mx-auto mb-3" />
-                  <p className="text-[#e8d5a3]/40 font-['Inter']">Učitavanje...</p>
+                  <p className="text-[#e8d5a3]/40 font-['Inter']">Ucitavanje...</p>
                 </div>
               ) : newsletterSubs.length === 0 ? (
                 <div className="text-center py-12 bg-[#111111] border border-[#c9a96e]/10 rounded-2xl">
@@ -3079,7 +3090,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                   <table className="w-full">
                     <thead>
                       <tr className="border-b border-[#c9a96e]/10">
-                        {['Email', 'Pretplaćen od', 'Status'].map(h => (
+                        {['Email', 'Pretplacen od', 'Status'].map(h => (
                           <th key={h} className="text-left text-[#e8d5a3]/30 text-[10px] uppercase tracking-wider font-['Inter'] px-4 py-3">{h}</th>
                         ))}
                       </tr>
@@ -3114,9 +3125,9 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {[
-                  { label: 'Prihod danas', value: '43.49€', period: 'Danas' },
-                  { label: 'Prihod ovaj tjedan', value: '187.97€', period: '7 dana' },
-                  { label: 'Prihod ovaj mjesec', value: `${totalRevenue.toFixed(2)}€`, period: '30 dana' },
+                  { label: 'Prihod danas', value: '43.49�', period: 'Danas' },
+                  { label: 'Prihod ovaj tjedan', value: '187.97�', period: '7 dana' },
+                  { label: 'Prihod ovaj mjesec', value: `${totalRevenue.toFixed(2)}�`, period: '30 dana' },
                 ].map(stat => (
                   <div key={stat.label} className="bg-[#111111] border border-[#c9a96e]/10 rounded-2xl p-5 text-center">
                     <p className="text-[#e8d5a3]/30 text-xs uppercase tracking-wider font-['Inter'] mb-2">{stat.period}</p>
@@ -3146,7 +3157,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                         <div className="flex-1">
                           <div className="flex justify-between mb-1">
                             <span className="text-[#e8d5a3]/60 text-xs font-['Inter'] font-semibold">{brand.naziv}</span>
-                            <span className="text-[#c9a96e] text-xs font-bold font-['DM_Sans']">{rev.toFixed(0)}€</span>
+                            <span className="text-[#c9a96e] text-xs font-bold font-['DM_Sans']">{rev.toFixed(0)}�</span>
                           </div>
                           <div className="bg-[#1a1a1a] rounded-full h-1.5">
                             <div className="bg-[#c9a96e] h-full rounded-full transition-all" style={{ width: `${pct}%` }} />
@@ -3202,7 +3213,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
 
               <div>
                 <label className="text-[#e8d5a3]/40 text-xs uppercase tracking-wider font-['Inter'] mb-1.5 block">
-                  Vrijednost {selectedCoupon.tip === 'postotak' ? '(%)' : '(€)'}
+                  Vrijednost {selectedCoupon.tip === 'postotak' ? '(%)' : '(�)'}
                 </label>
                 <input
                   type="number"
@@ -3214,7 +3225,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
               </div>
 
               <div>
-                <label className="text-[#e8d5a3]/40 text-xs uppercase tracking-wider font-['Inter'] mb-1.5 block">Minimalni iznos narudžbe (€)</label>
+                <label className="text-[#e8d5a3]/40 text-xs uppercase tracking-wider font-['Inter'] mb-1.5 block">Minimalni iznos narud�be (�)</label>
                 <input
                   type="number"
                   value={selectedCoupon.min_iznos_narudzbe}
@@ -3226,24 +3237,24 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
 
               {selectedCoupon.tip === 'postotak' && (
                 <div>
-                  <label className="text-[#e8d5a3]/40 text-xs uppercase tracking-wider font-['Inter'] mb-1.5 block">Maksimalni popust (€)</label>
+                  <label className="text-[#e8d5a3]/40 text-xs uppercase tracking-wider font-['Inter'] mb-1.5 block">Maksimalni popust (�)</label>
                   <input
                     type="number"
                     value={selectedCoupon.max_popust || ''}
                     onChange={e => setSelectedCoupon({ ...selectedCoupon, max_popust: e.target.value })}
-                    placeholder="Neograničeno"
+                    placeholder="Neograniceno"
                     className="w-full bg-[#0a0a0a] border border-[#c9a96e]/20 text-[#e8d5a3] placeholder-[#e8d5a3]/25 px-4 py-2.5 rounded-xl text-sm font-['Inter'] focus:outline-none focus:border-[#c9a96e]"
                   />
                 </div>
               )}
 
               <div>
-                <label className="text-[#e8d5a3]/40 text-xs uppercase tracking-wider font-['Inter'] mb-1.5 block">Maksimalan broj korištenja</label>
+                <label className="text-[#e8d5a3]/40 text-xs uppercase tracking-wider font-['Inter'] mb-1.5 block">Maksimalan broj kori�tenja</label>
                 <input
                   type="number"
                   value={selectedCoupon.max_koristenja || ''}
                   onChange={e => setSelectedCoupon({ ...selectedCoupon, max_koristenja: e.target.value })}
-                  placeholder="Neograničeno"
+                  placeholder="Neograniceno"
                   className="w-full bg-[#0a0a0a] border border-[#c9a96e]/20 text-[#e8d5a3] placeholder-[#e8d5a3]/25 px-4 py-2.5 rounded-xl text-sm font-['Inter'] focus:outline-none focus:border-[#c9a96e]"
                 />
               </div>
@@ -3323,7 +3334,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                     onClick={handleGenerateBrandDescription}
                     disabled={saving || aiGenerating || !selectedBrand.naziv}
                     className="flex items-center gap-1.5 text-[#c9a96e] hover:text-[#e8d5a3] text-xs font-['Inter'] font-semibold transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                    title="Generiraj opis pomoću AI"
+                    title="Generiraj opis pomocu AI"
                   >
                     <Sparkles size={14} />
                     {aiGenerating ? 'Generiram...' : 'AI Generiraj'}
@@ -3463,7 +3474,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                   />
                 </div>
                 <div>
-                  <label className="text-[#e8d5a3]/40 text-xs uppercase tracking-wider font-['Inter'] mb-1.5 block">Poštanski broj</label>
+                  <label className="text-[#e8d5a3]/40 text-xs uppercase tracking-wider font-['Inter'] mb-1.5 block">Po�tanski broj</label>
                   <input
                     type="text"
                     value={selectedCustomer.postanski_broj || ''}

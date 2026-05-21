@@ -184,7 +184,7 @@ export default function TrackingPage({ orders }: TrackingPageProps) {
                 <div className="flex items-center gap-3">
                   <Truck size={16} className="text-[#c9a96e]" />
                   <span className="text-[#c9a96e] font-['Inter'] font-bold text-sm tracking-widest">{result.tracking_broj}</span>
-                  <a href="https://boxnow.hr" target="_blank" rel="noopener noreferrer" className="text-[10px] text-[#c9a96e]/60 border border-[#c9a96e]/25 px-2 py-1 rounded-lg hover:bg-[#c9a96e]/5 transition-all font-['Inter']">
+                  <a href={`https://boxnow.hr/track?parcelId=${result.tracking_broj}`} target="_blank" rel="noopener noreferrer" className="text-[10px] text-[#c9a96e]/60 border border-[#c9a96e]/25 px-2 py-1 rounded-lg hover:bg-[#c9a96e]/5 transition-all font-['Inter']">
                     Prati na BoxNow →
                   </a>
                 </div>
