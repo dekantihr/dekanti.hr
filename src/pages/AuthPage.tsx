@@ -71,7 +71,7 @@ export default function AuthPage({ mode, onLogin }: AuthPageProps) {
         <div className="text-center mb-10">
           <Link to="/" className="inline-block">
             <img
-              src="/logos/mylogo.png"
+              src="/logos/logo_white.png"
               alt="dekantihr.com"
               className="h-14 w-auto object-contain mx-auto"
             />

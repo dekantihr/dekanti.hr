@@ -88,7 +88,7 @@ export default function Navbar({ itemCount, wishlistCount, user, onLogout }: Nav
           {/* Logo */}
           <Link to="/" className="flex items-center group logo-link">
             <img
-              src="/logos/mylogo.png"
+              src="/logos/logo_white.png"
               alt="dekantihr.com"
               className="h-10 md:h-12 w-auto object-contain group-hover:opacity-90 transition-opacity duration-300"
             />

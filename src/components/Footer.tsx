@@ -42,7 +42,7 @@ export default function Footer() {
           <div className="lg:col-span-1">
             <Link to="/" className="inline-block mb-6 group">
               <img
-                src="/logos/mylogo.png"
+                src="/logos/logo_white.png"
                 alt="dekantihr.com"
                 className="h-10 w-auto object-contain group-hover:opacity-80 transition-opacity duration-300"
               />
