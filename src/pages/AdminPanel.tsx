@@ -3261,7 +3261,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
             const brandRevMap: Record<string, number> = {};
             paidOrders.forEach(order => {
               (order.order_items || []).forEach((item: any) => {
-                const brand = item.brand_naziv || 'Nepoznato';
+                const brand = item.brand_naziv || item.naziv_proizvoda?.split(' ')[0] || 'Ostalo';
                 brandRevMap[brand] = (brandRevMap[brand] || 0) + Number(item.cijena) * Number(item.kolicina);
               });
             });
