@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { useCart, useWishlist, useAuth, useOrders } from './store/cartStore';
+import { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -17,6 +18,7 @@ import ProfilePage from './pages/ProfilePage';
 import AdminPanel from './pages/AdminPanel';
 import { AboutPage, NotFoundPage } from './pages/SimplePages';
 import { FAQPage, PrivacyPage, RefundPage, TermsPage, ShippingPage, CookiePage, ContactPage } from './pages/PolicyPages';
+import { api } from './services/api';
 import toast from 'react-hot-toast';
 
 function AppContent() {
@@ -25,8 +27,18 @@ function AppContent() {
   const { wishlist, toggle: toggleWishlist } = useWishlist();
   const { user, login, logout } = useAuth();
   const { orders, addOrder } = useOrders();
+  const [pendingCouponsCount, setPendingCouponsCount] = useState(0);
 
   const isAdminRoute = location.pathname.startsWith('/admin');
+
+  // Fetch pending coupons count when user logs in
+  useEffect(() => {
+    if (!user?.id) {
+      setPendingCouponsCount(0);
+      return;
+    }
+    api.getUserPendingCouponsCount(user.id).then(count => setPendingCouponsCount(count)).catch(() => {});
+  }, [user?.id]);
 
   const handleAddToCart = (product: any, sizeId: number) => {
     const sizes = product.product_sizes || product.sizes || [];
@@ -65,6 +77,7 @@ function AppContent() {
           wishlistCount={wishlist.length}
           user={user}
           onLogout={() => { logout(); toast.success('Uspješno ste se odjavili.'); }}
+          pendingCouponsCount={pendingCouponsCount}
         />
       )}
 
@@ -128,6 +141,8 @@ function AppContent() {
               orders={orders}
               wishlist={wishlist}
               onWishlistToggle={toggleWishlist}
+              pendingCouponsCount={pendingCouponsCount}
+              onCouponsCountChange={setPendingCouponsCount}
             />
           </ProtectedRoute>
         } />

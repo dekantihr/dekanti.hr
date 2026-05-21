@@ -20,7 +20,7 @@ interface AdminPanelProps {
   onLogout: () => void;
 }
 
-type AdminView = 'dashboard' | 'narudzbe' | 'proizvodi' | 'brendovi' | 'kupci' | 'recenzije' | 'kuponi' | 'newsletter' | 'statistike';
+type AdminView = 'dashboard' | 'narudzbe' | 'proizvodi' | 'brendovi' | 'kupci' | 'recenzije' | 'kuponi' | 'kampanje' | 'newsletter' | 'statistike';
 
 const STATUS_COLORS: Record<string, string> = {
   cekanje_uplate: 'bg-purple-500/15 text-purple-300 border-purple-500/30',
@@ -67,6 +67,13 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
   const [dragOver, setDragOver] = useState(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const trackingInputRef = useRef<HTMLInputElement>(null);
+
+  // Campaign state
+  const [campaignCouponId, setCampaignCouponId] = useState<number | ''>('');
+  const [campaignAudience, setCampaignAudience] = useState<'all' | 'newsletter'>('all');
+  const [campaignExpiresAt, setCampaignExpiresAt] = useState('');
+  const [campaignSending, setCampaignSending] = useState(false);
+  const [campaignStats, setCampaignStats] = useState<{ sent: number; total: number } | null>(null);
 
   if (!user || user.role !== 'admin') return <Navigate to="/prijava" replace />;
 
@@ -1547,6 +1554,35 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
   };
 
   // ============================================================
+  // CAMPAIGN HANDLERS
+  // ============================================================
+
+  const handleSendCampaign = async () => {
+    if (!campaignCouponId) {
+      toast.error('Odaberite kupon za kampanju');
+      return;
+    }
+    setCampaignSending(true);
+    try {
+      const result = await api.sendCouponCampaign(
+        campaignCouponId as number,
+        campaignAudience,
+        campaignExpiresAt || null
+      );
+      setCampaignStats(result as { sent: number; total: number });
+      toast.success(`Kampanja poslana ${result.sent} korisnicima!`, {
+        style: { background: '#111111', color: '#e8d5a3', border: '1px solid rgba(201,169,110,0.25)', borderRadius: '12px', fontFamily: 'Inter, sans-serif', fontSize: '13px' },
+        iconTheme: { primary: '#c9a96e', secondary: '#0a0a0a' },
+        duration: 5000,
+      });
+    } catch (error: any) {
+      toast.error(error.message || 'Greška pri slanju kampanje');
+    } finally {
+      setCampaignSending(false);
+    }
+  };
+
+  // ============================================================
   // ORDER HANDLERS
   // ============================================================
 
@@ -1635,6 +1671,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
     { id: 'kupci', label: 'Kupci', icon: <Users size={16} /> },
     { id: 'recenzije', label: 'Recenzije', icon: <Star size={16} />, badge: pendingReviews.length },
     { id: 'kuponi', label: 'Kuponi', icon: <Tag size={16} /> },
+    { id: 'kampanje', label: 'Kampanje', icon: <Mail size={16} /> },
     { id: 'newsletter', label: 'Newsletter', icon: <Mail size={16} /> },
     { id: 'statistike', label: 'Statistike', icon: <BarChart2 size={16} /> },
   ];
@@ -3007,6 +3044,121 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                   ))}
                 </div>
               )}
+            </div>
+          )}
+
+          {/* KAMPANJE */}
+          {view === 'kampanje' && (
+            <div className="space-y-6">
+              {/* Send Campaign Form */}
+              <div className="bg-[#111111] border border-[#c9a96e]/10 rounded-2xl p-6">
+                <h2 className="font-['Playfair_Display'] text-xl font-bold text-[#e8d5a3] mb-6">Pošalji kupon kampanju</h2>
+
+                <div className="space-y-5">
+                  {/* Coupon select */}
+                  <div>
+                    <label className="text-[#e8d5a3]/40 text-xs uppercase tracking-wider font-['Inter'] mb-2 block">Odaberi kupon</label>
+                    <select
+                      value={campaignCouponId}
+                      onChange={e => setCampaignCouponId(e.target.value ? Number(e.target.value) : '')}
+                      className="w-full bg-[#0a0a0a] border border-[#c9a96e]/20 text-[#e8d5a3] px-4 py-3 rounded-xl text-sm font-['Inter'] focus:outline-none focus:border-[#c9a96e]/50"
+                    >
+                      <option value="">-- Odaberi kupon --</option>
+                      {supabaseCoupons.filter(c => c.aktivan).map(c => (
+                        <option key={c.id} value={c.id}>
+                          {c.kod} — {c.tip === 'postotak' ? `${c.vrijednost}%` : `${c.vrijednost}€`} popusta
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Audience */}
+                  <div>
+                    <label className="text-[#e8d5a3]/40 text-xs uppercase tracking-wider font-['Inter'] mb-2 block">Publika</label>
+                    <div className="flex gap-4">
+                      {[
+                        { value: 'all', label: 'Svi korisnici' },
+                        { value: 'newsletter', label: 'Newsletter pretplatnici' },
+                      ].map(opt => (
+                        <label key={opt.value} className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="radio"
+                            name="audience"
+                            value={opt.value}
+                            checked={campaignAudience === opt.value}
+                            onChange={() => setCampaignAudience(opt.value as 'all' | 'newsletter')}
+                            className="accent-[#c9a96e]"
+                          />
+                          <span className="text-[#e8d5a3]/70 text-sm font-['Inter']">{opt.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Expiry date */}
+                  <div>
+                    <label className="text-[#e8d5a3]/40 text-xs uppercase tracking-wider font-['Inter'] mb-2 block">Datum isteka kupona (opcionalno)</label>
+                    <input
+                      type="date"
+                      value={campaignExpiresAt}
+                      onChange={e => setCampaignExpiresAt(e.target.value)}
+                      className="bg-[#0a0a0a] border border-[#c9a96e]/20 text-[#e8d5a3] px-4 py-3 rounded-xl text-sm font-['Inter'] focus:outline-none focus:border-[#c9a96e]/50"
+                    />
+                  </div>
+
+                  {/* Send button */}
+                  <button
+                    onClick={handleSendCampaign}
+                    disabled={campaignSending || !campaignCouponId}
+                    className="flex items-center gap-2 bg-[#c9a96e] text-[#0a0a0a] px-6 py-3 rounded-xl text-sm font-bold hover:bg-[#e8d5a3] transition-all disabled:opacity-50 disabled:cursor-not-allowed font-['Inter']"
+                  >
+                    <Mail size={15} />
+                    {campaignSending ? 'Slanje...' : 'Pošalji kampanju'}
+                  </button>
+
+                  {/* Result */}
+                  {campaignStats && (
+                    <div className="bg-green-400/10 border border-green-400/20 rounded-xl px-5 py-4">
+                      <p className="text-green-400 text-sm font-['Inter'] font-semibold">
+                        ✓ Kampanja poslana! {campaignStats.sent}/{campaignStats.total} emailova isporučeno.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Recent campaigns summary */}
+              <div className="bg-[#111111] border border-[#c9a96e]/10 rounded-2xl p-6">
+                <h3 className="font-['Playfair_Display'] text-lg font-bold text-[#e8d5a3] mb-4">Pregled poslanih kupona</h3>
+                <p className="text-[#e8d5a3]/30 text-xs font-['Inter'] mb-4">Kuponi dodijeljeni korisnicima po kampanjama</p>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-[#c9a96e]/10">
+                        {['Kupon', 'Vrijednost', 'Ukupno dodijeljeno', 'Aktivirano', 'Iskorišteno'].map(h => (
+                          <th key={h} className="text-left text-[#e8d5a3]/30 text-[10px] uppercase tracking-wider font-['Inter'] px-3 py-3">{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {supabaseCoupons.map(c => {
+                        // We show per-coupon stats from the coupons table
+                        return (
+                          <tr key={c.id} className="border-b border-[#c9a96e]/5 hover:bg-[#c9a96e]/3 transition-colors">
+                            <td className="px-3 py-3 text-[#c9a96e] font-['DM_Sans'] font-bold text-sm tracking-widest">{c.kod}</td>
+                            <td className="px-3 py-3 text-[#e8d5a3]/60 text-xs font-['Inter']">
+                              {c.tip === 'postotak' ? `${c.vrijednost}%` : `${c.vrijednost}€`}
+                            </td>
+                            <td className="px-3 py-3 text-[#e8d5a3]/60 text-xs font-['Inter']">—</td>
+                            <td className="px-3 py-3 text-[#e8d5a3]/60 text-xs font-['Inter']">—</td>
+                            <td className="px-3 py-3 text-[#e8d5a3]/60 text-xs font-['Inter']">{c.broj_koristenja || 0}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           )}
 

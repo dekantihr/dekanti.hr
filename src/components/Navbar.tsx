@@ -8,9 +8,10 @@ interface NavbarProps {
   wishlistCount: number;
   user: { ime: string; prezime: string; role: string } | null;
   onLogout: () => void;
+  pendingCouponsCount?: number;
 }
 
-export default function Navbar({ itemCount, wishlistCount, user, onLogout }: NavbarProps) {
+export default function Navbar({ itemCount, wishlistCount, user, onLogout, pendingCouponsCount = 0 }: NavbarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -147,7 +148,12 @@ export default function Navbar({ itemCount, wishlistCount, user, onLogout }: Nav
                   onClick={() => setUserDropdown(!userDropdown)}
                   className="user-dropdown-btn flex items-center gap-2 text-[#e8d5a3]/70 hover:text-[#c9a96e] transition-colors"
                 >
-                  <User size={18} />
+                  <div className="relative">
+                    <User size={18} />
+                    {pendingCouponsCount > 0 && (
+                      <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#c9a96e] rounded-full border border-[#0a0a0a] animate-pulse" />
+                    )}
+                  </div>
                   <span className="text-xs tracking-wider">{user.ime}</span>
                   <ChevronDown size={12} className={`transition-transform ${userDropdown ? 'rotate-180' : ''}`} />
                 </button>
@@ -161,6 +167,12 @@ export default function Navbar({ itemCount, wishlistCount, user, onLogout }: Nav
                     </Link>
                     <Link to="/profil?tab=wishlist" className="dropdown-item block px-4 py-2.5 text-sm text-[#e8d5a3]/80 hover:text-[#c9a96e] hover:bg-[#c9a96e]/5 transition-colors">
                       Wishlist
+                    </Link>
+                    <Link to="/profil?tab=kuponi" className="dropdown-item flex items-center justify-between px-4 py-2.5 text-sm text-[#e8d5a3]/80 hover:text-[#c9a96e] hover:bg-[#c9a96e]/5 transition-colors">
+                      <span>Moji kuponi</span>
+                      {pendingCouponsCount > 0 && (
+                        <span className="bg-[#c9a96e] text-[#0a0a0a] text-[9px] font-bold px-1.5 py-0.5 rounded-full">{pendingCouponsCount}</span>
+                      )}
                     </Link>
                     {user.role === 'admin' && (
                       <Link to="/admin" className="dropdown-item flex items-center gap-2 px-4 py-2.5 text-sm text-[#c9a96e] hover:bg-[#c9a96e]/5 transition-colors border-t border-[#c9a96e]/20 mt-1 pt-3">

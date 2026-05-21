@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, Link, Navigate } from 'react-router-dom';
-import { User, Package, Heart, Lock, Edit3, Check, Truck, CheckCircle, Clock, XCircle } from 'lucide-react';
+import { User, Package, Heart, Lock, Edit3, Check, Truck, CheckCircle, Clock, XCircle, Tag, Copy } from 'lucide-react';
 import { Order } from '../store/cartStore';
 import { api } from '../services/api';
 import toast from 'react-hot-toast';
@@ -11,6 +11,8 @@ interface ProfilePageProps {
   orders: Order[];
   wishlist: number[];
   onWishlistToggle: (id: number) => void;
+  pendingCouponsCount?: number;
+  onCouponsCountChange?: (count: number) => void;
 }
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
@@ -25,7 +27,7 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.
 
 const DEFAULT_STATUS = { label: 'Nepoznato', color: 'text-[#e8d5a3]/40', icon: <Clock size={12} /> };
 
-export default function ProfilePage({ user, orders, wishlist, onWishlistToggle }: ProfilePageProps) {
+export default function ProfilePage({ user, orders, wishlist, onWishlistToggle, pendingCouponsCount = 0, onCouponsCountChange }: ProfilePageProps) {
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') ?? 'profil');
   const [editMode, setEditMode] = useState(false);
@@ -42,6 +44,8 @@ export default function ProfilePage({ user, orders, wishlist, onWishlistToggle }
   const [products, setProducts] = useState<any[]>([]);
   const [dbOrders, setDbOrders] = useState<any[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
+  const [userCoupons, setUserCoupons] = useState<any[]>([]);
+  const [couponsLoading, setCouponsLoading] = useState(false);
 
   useEffect(() => {
     async function loadProducts() {
@@ -73,6 +77,31 @@ export default function ProfilePage({ user, orders, wishlist, onWishlistToggle }
     });
   }, [activeTab, user?.email]);
 
+  // Fetch user coupons when kuponi tab is opened
+  useEffect(() => {
+    if (activeTab !== 'kuponi' || !user?.id) return;
+    setCouponsLoading(true);
+    api.getUserCoupons(user.id)
+      .then(data => setUserCoupons(data))
+      .catch(() => {})
+      .finally(() => setCouponsLoading(false));
+  }, [activeTab, user?.id]);
+
+  const handleActivateCoupon = async (userCouponId: number) => {
+    try {
+      await api.activateUserCoupon(userCouponId);
+      // Refresh list
+      const updated = await api.getUserCoupons(user!.id);
+      setUserCoupons(updated);
+      // Update pending count in parent
+      const newCount = updated.filter((c: any) => c.status === 'pending').length;
+      onCouponsCountChange?.(newCount);
+      toast.success('Kupon aktiviran! Kopirajte kod i koristite ga pri narudžbi.');
+    } catch {
+      toast.error('Greška pri aktivaciji kupona');
+    }
+  };
+
   if (!user) return <Navigate to="/prijava" replace />;
 
   const wishlisted = products.filter(p => wishlist.includes(p.id));
@@ -85,6 +114,12 @@ export default function ProfilePage({ user, orders, wishlist, onWishlistToggle }
     { id: 'profil', label: 'Profil', icon: <User size={15} /> },
     { id: 'narudzbe', label: `Narudžbe (${allOrders.length})`, icon: <Package size={15} /> },
     { id: 'wishlist', label: `Wishlist (${wishlist.length})`, icon: <Heart size={15} /> },
+    {
+      id: 'kuponi',
+      label: pendingCouponsCount > 0 ? `Kuponi (${pendingCouponsCount})` : 'Kuponi',
+      icon: <Tag size={15} />,
+      badge: pendingCouponsCount,
+    },
     { id: 'sigurnost', label: 'Sigurnost', icon: <Lock size={15} /> },
   ];
 
@@ -108,6 +143,21 @@ export default function ProfilePage({ user, orders, wishlist, onWishlistToggle }
           </div>
         </div>
 
+        {/* Pending coupons notification banner */}
+        {pendingCouponsCount > 0 && activeTab !== 'kuponi' && (
+          <div className="mb-6 bg-[#c9a96e]/10 border border-[#c9a96e]/30 rounded-2xl px-5 py-4 flex items-center justify-between gap-4">
+            <p className="text-[#e8d5a3] text-sm font-['Inter']">
+              🎁 Imate <span className="text-[#c9a96e] font-bold">{pendingCouponsCount}</span> neaktiviran{pendingCouponsCount === 1 ? '' : pendingCouponsCount < 5 ? 'a' : 'ih'} kupon{pendingCouponsCount === 1 ? '' : pendingCouponsCount < 5 ? 'a' : 'a'}!
+            </p>
+            <button
+              onClick={() => setActiveTab('kuponi')}
+              className="text-[#c9a96e] text-sm font-['Inter'] font-semibold hover:text-[#e8d5a3] transition-colors whitespace-nowrap"
+            >
+              Pogledaj kupone →
+            </button>
+          </div>
+        )}
+
         {/* Tabs */}
         <div className="flex gap-1 mb-8 bg-[#111111] border border-[#c9a96e]/10 rounded-2xl p-1.5 overflow-x-auto">
           {tabs.map(tab => (
@@ -122,6 +172,11 @@ export default function ProfilePage({ user, orders, wishlist, onWishlistToggle }
             >
               {tab.icon}
               {tab.label}
+              {'badge' in tab && tab.badge > 0 && activeTab !== tab.id && (
+                <span className="bg-[#c9a96e] text-[#0a0a0a] text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                  {tab.badge}
+                </span>
+              )}
             </button>
           ))}
         </div>
@@ -259,6 +314,91 @@ export default function ProfilePage({ user, orders, wishlist, onWishlistToggle }
                   </div>
                 ))}
               </div>
+            )}
+          </div>
+        )}
+
+        {/* Kuponi tab */}
+        {activeTab === 'kuponi' && (
+          <div className="space-y-4">
+            {couponsLoading ? (
+              <div className="text-center py-16">
+                <div className="inline-block w-8 h-8 border-2 border-[#c9a96e]/30 border-t-[#c9a96e] rounded-full animate-spin" />
+                <p className="text-[#e8d5a3]/40 mt-4 font-['Inter']">Učitavanje kupona...</p>
+              </div>
+            ) : userCoupons.length === 0 ? (
+              <div className="text-center py-16 bg-[#111111] border border-[#c9a96e]/10 rounded-2xl">
+                <Tag size={40} className="text-[#c9a96e]/20 mx-auto mb-3" />
+                <p className="text-[#e8d5a3]/40 font-['Playfair_Display'] text-xl mb-2">Nema dostupnih kupona</p>
+                <p className="text-[#e8d5a3]/25 text-sm font-['Inter']">Kuponi će se pojaviti ovdje kada ih admin pošalje</p>
+              </div>
+            ) : (
+              userCoupons.map((uc: any) => {
+                const coupon = uc.coupons;
+                const isPending = uc.status === 'pending';
+                const isActivated = uc.status === 'activated';
+                const isUsed = uc.status === 'used';
+                return (
+                  <div key={uc.id} className={`bg-[#111111] border rounded-2xl p-5 transition-all ${
+                    isActivated ? 'border-[#c9a96e]/40' : isUsed ? 'border-[#e8d5a3]/10 opacity-60' : 'border-[#c9a96e]/15'
+                  }`}>
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Tag size={14} className="text-[#c9a96e]" />
+                          <p className="text-[#c9a96e] text-[10px] tracking-[0.3em] uppercase font-['Inter'] font-semibold">
+                            {coupon?.tip === 'postotak' ? `${coupon?.vrijednost}% popusta` : `${coupon?.vrijednost}€ popusta`}
+                          </p>
+                        </div>
+
+                        {/* Coupon code — blurred if pending, visible if activated */}
+                        <div className={`font-['Playfair_Display'] text-2xl font-bold tracking-[0.2em] mb-2 transition-all ${
+                          isPending ? 'blur-sm select-none text-[#e8d5a3]/50' : isActivated ? 'text-[#c9a96e]' : 'text-[#e8d5a3]/30'
+                        }`}>
+                          {coupon?.kod || '••••••'}
+                        </div>
+
+                        <div className="flex items-center gap-3 text-xs font-['Inter'] text-[#e8d5a3]/40">
+                          {uc.expires_at && (
+                            <span>Vrijedi do: {formatDate(uc.expires_at)}</span>
+                          )}
+                          <span>Dodano: {formatDate(uc.created_at)}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col items-end gap-2">
+                        {isPending && (
+                          <button
+                            onClick={() => handleActivateCoupon(uc.id)}
+                            className="bg-[#c9a96e] text-[#0a0a0a] px-4 py-2 rounded-xl text-xs font-['Inter'] font-bold hover:bg-[#e8d5a3] transition-all"
+                          >
+                            Aktiviraj
+                          </button>
+                        )}
+                        {isActivated && (
+                          <div className="flex flex-col items-end gap-2">
+                            <span className="text-green-400 text-xs font-['Inter'] font-semibold flex items-center gap-1">
+                              <Check size={12} /> Aktiviran
+                            </span>
+                            <button
+                              onClick={() => {
+                                navigator.clipboard.writeText(coupon?.kod || '');
+                                toast.success('Kod kopiran!');
+                              }}
+                              className="flex items-center gap-1.5 border border-[#c9a96e]/30 text-[#c9a96e] px-3 py-1.5 rounded-lg text-xs font-['Inter'] hover:bg-[#c9a96e]/5 transition-all"
+                            >
+                              <Copy size={11} /> Kopiraj kod
+                            </button>
+                          </div>
+                        )}
+                        {isUsed && (
+                          <span className="text-[#e8d5a3]/30 text-xs font-['Inter'] font-semibold">Iskorišten</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
             )}
           </div>
         )}

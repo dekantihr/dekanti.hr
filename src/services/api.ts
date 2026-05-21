@@ -1053,5 +1053,100 @@ export const api = {
       const filePath = imageUrl.replace(storagePrefix, '');
       await supabase.storage.from('product-images').remove([filePath]);
     }
-  }
+  },
+
+  // ============================================================
+  // USER COUPONS & CAMPAIGNS
+  // ============================================================
+
+  /**
+   * Get user's coupons (by user_id)
+   */
+  async getUserCoupons(userId: number) {
+    const { data, error } = await supabase
+      .from('user_coupons')
+      .select('*, coupons(*)')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    return data || [];
+  },
+
+  /**
+   * Activate a user coupon
+   */
+  async activateUserCoupon(userCouponId: number) {
+    const { data, error } = await supabase
+      .from('user_coupons')
+      .update({ status: 'activated', activated_at: new Date().toISOString() })
+      .eq('id', userCouponId)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  /**
+   * Send coupon campaign — creates user_coupons rows + sends emails
+   */
+  async sendCouponCampaign(couponId: number, audience: 'all' | 'newsletter', expiresAt: string | null) {
+    // Fetch target users
+    let query = supabase.from('users').select('id, ime, email');
+    if (audience === 'newsletter') {
+      query = query.eq('newsletter_subscribed', true);
+    }
+    const { data: users, error: usersError } = await query;
+    if (usersError) throw usersError;
+    if (!users || users.length === 0) return { sent: 0 };
+
+    // Fetch coupon details
+    const { data: coupon, error: couponError } = await supabase
+      .from('coupons')
+      .select('*')
+      .eq('id', couponId)
+      .single();
+    if (couponError) throw couponError;
+
+    // Create user_coupon rows (upsert to avoid duplicates)
+    const rows = users.map(u => ({
+      user_id: u.id,
+      coupon_id: couponId,
+      status: 'pending',
+      expires_at: expiresAt || null,
+    }));
+
+    const { error: insertError } = await supabase
+      .from('user_coupons')
+      .upsert(rows, { onConflict: 'user_id,coupon_id', ignoreDuplicates: true });
+    if (insertError) throw insertError;
+
+    // Send emails
+    let sent = 0;
+    for (const user of users) {
+      const html = `<div style="max-width:560px;margin:0 auto;background:#0a0a0a;color:#e8d5a3;font-family:Arial,sans-serif;border-radius:16px;overflow:hidden;border:1px solid rgba(201,169,110,0.2)"><div style="background:#111;padding:24px;text-align:center;border-bottom:1px solid rgba(201,169,110,0.15)"><h1 style="font-family:Georgia,serif;color:#c9a96e;margin:0;font-size:24px;letter-spacing:2px">DEKANTIHR<span style="color:#e8d5a3">.COM</span></h1></div><div style="padding:32px 24px"><h2 style="color:#e8d5a3;font-size:20px;margin:0 0 8px">🎁 Imate novi kupon, ${user.ime}!</h2><p style="color:#e8d5a3;opacity:0.6;margin:0 0 24px;font-size:14px">Pripremili smo za vas posebnu ponudu. Aktivirajte kupon u svom profilu i uštedite na sljedećoj narudžbi.</p><div style="background:#111;border:1px solid rgba(201,169,110,0.3);border-radius:12px;padding:20px;margin-bottom:24px;text-align:center"><p style="color:#e8d5a3;opacity:0.4;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin:0 0 8px">Kod kupona</p><p style="color:#c9a96e;font-size:28px;font-weight:bold;margin:0;font-family:Georgia,serif;letter-spacing:4px">${coupon.kod}</p><p style="color:#e8d5a3;opacity:0.5;font-size:13px;margin:8px 0 0">${coupon.tip === 'postotak' ? coupon.vrijednost + '% popusta' : coupon.vrijednost + '€ popusta'}${expiresAt ? ' · Vrijedi do ' + new Date(expiresAt).toLocaleDateString('hr-HR') : ''}</p></div><a href="https://dekantihr.com/profil?tab=kuponi" style="display:block;background:#c9a96e;color:#0a0a0a;text-align:center;padding:14px 24px;border-radius:12px;font-weight:bold;font-size:14px;text-decoration:none;letter-spacing:1px">Aktiviraj kupon →</a></div><div style="background:#111;padding:16px 24px;text-align:center;border-top:1px solid rgba(201,169,110,0.1)"><p style="color:#e8d5a3;opacity:0.3;font-size:11px;margin:0">dekantihr.com · Hvala na povjerenju!</p></div></div>`;
+      try {
+        await fetch(`${SUPABASE_URL}/functions/v1/send-email`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY },
+          body: JSON.stringify({ to: user.email, subject: `🎁 Novi kupon za vas — ${coupon.kod}`, html }),
+        });
+        sent++;
+      } catch { /* continue */ }
+    }
+
+    return { sent, total: users.length };
+  },
+
+  /**
+   * Check if user has pending coupons (for notification badge)
+   */
+  async getUserPendingCouponsCount(userId: number): Promise<number> {
+    const { count, error } = await supabase
+      .from('user_coupons')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .eq('status', 'pending');
+    if (error) return 0;
+    return count || 0;
+  },
 };
