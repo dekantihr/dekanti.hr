@@ -381,6 +381,47 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
   };
 
   /**
+   * Send a manual email template to the customer
+   */
+  const handleSendEmailTemplate = async (tpl: string) => {
+    if (!selectedOrder?.email) return;
+    setSaving(true);
+    try {
+      let subject = '';
+      let html = '';
+      const o = selectedOrder;
+
+      if (tpl === 'U obradi') {
+        subject = `Narudžba ${o.order_number} — u obradi`;
+        html = `<div style="max-width:560px;margin:0 auto;background:#0a0a0a;color:#e8d5a3;font-family:Arial,sans-serif;border-radius:16px;overflow:hidden;border:1px solid rgba(201,169,110,0.2)"><div style="background:#111;padding:24px;text-align:center;border-bottom:1px solid rgba(201,169,110,0.15)"><h1 style="font-family:Georgia,serif;color:#c9a96e;margin:0;font-size:24px;letter-spacing:2px">DEKANTIHR<span style="color:#e8d5a3">.COM</span></h1></div><div style="padding:32px 24px"><h2 style="color:#e8d5a3;font-size:20px;margin:0 0 8px">📦 Vaša narudžba je u obradi, ${o.ime}!</h2><p style="color:#e8d5a3;opacity:0.6;margin:0 0 24px;font-size:14px">Primili smo vašu uplatu i počeli smo s pripremom paketa.</p><div style="background:#111;border:1px solid rgba(201,169,110,0.15);border-radius:12px;padding:16px;margin-bottom:24px"><p style="color:#e8d5a3;opacity:0.4;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin:0 0 4px">Broj narudžbe</p><p style="color:#c9a96e;font-size:22px;font-weight:bold;margin:0;font-family:Georgia,serif">${o.order_number}</p></div><p style="color:#e8d5a3;opacity:0.5;font-size:13px;margin:0">Pakiramo i šaljemo isti dan (do 14:00). Dobit ćete email s BoxNow kodom za preuzimanje čim pošaljemo paket.</p></div><div style="background:#111;padding:16px 24px;text-align:center;border-top:1px solid rgba(201,169,110,0.1)"><p style="color:#e8d5a3;opacity:0.3;font-size:11px;margin:0">dekantihr.com · Hvala na povjerenju!</p></div></div>`;
+      } else if (tpl === 'Isporučeno') {
+        subject = `Narudžba ${o.order_number} — isporučeno!`;
+        html = `<div style="max-width:560px;margin:0 auto;background:#0a0a0a;color:#e8d5a3;font-family:Arial,sans-serif;border-radius:16px;overflow:hidden;border:1px solid rgba(201,169,110,0.2)"><div style="background:#111;padding:24px;text-align:center;border-bottom:1px solid rgba(201,169,110,0.15)"><h1 style="font-family:Georgia,serif;color:#c9a96e;margin:0;font-size:24px;letter-spacing:2px">DEKANTIHR<span style="color:#e8d5a3">.COM</span></h1></div><div style="padding:32px 24px"><h2 style="color:#e8d5a3;font-size:20px;margin:0 0 8px">✅ Paket isporučen, ${o.ime}!</h2><p style="color:#e8d5a3;opacity:0.6;margin:0 0 24px;font-size:14px">Vaša narudžba <strong>${o.order_number}</strong> je uspješno isporučena. Nadamo se da ste zadovoljni!</p><p style="color:#e8d5a3;opacity:0.5;font-size:13px;margin:0">Ako imate bilo kakvih pitanja ili primjedbi, slobodno nas kontaktirajte na <a href="mailto:info@dekantihr.com" style="color:#c9a96e">info@dekantihr.com</a>.</p></div><div style="background:#111;padding:16px 24px;text-align:center;border-top:1px solid rgba(201,169,110,0.1)"><p style="color:#e8d5a3;opacity:0.3;font-size:11px;margin:0">dekantihr.com · Hvala na povjerenju!</p></div></div>`;
+      } else if (tpl === 'Otkazano') {
+        subject = `Narudžba ${o.order_number} — otkazana`;
+        html = `<div style="max-width:560px;margin:0 auto;background:#0a0a0a;color:#e8d5a3;font-family:Arial,sans-serif;border-radius:16px;overflow:hidden;border:1px solid rgba(201,169,110,0.2)"><div style="background:#111;padding:24px;text-align:center;border-bottom:1px solid rgba(201,169,110,0.15)"><h1 style="font-family:Georgia,serif;color:#c9a96e;margin:0;font-size:24px;letter-spacing:2px">DEKANTIHR<span style="color:#e8d5a3">.COM</span></h1></div><div style="padding:32px 24px"><h2 style="color:#e8d5a3;font-size:20px;margin:0 0 8px">Narudžba otkazana, ${o.ime}</h2><p style="color:#e8d5a3;opacity:0.6;margin:0 0 24px;font-size:14px">Vaša narudžba <strong>${o.order_number}</strong> je otkazana.</p><p style="color:#e8d5a3;opacity:0.5;font-size:13px;margin:0">Ako imate pitanja ili trebate povrat sredstava, kontaktirajte nas na <a href="mailto:info@dekantihr.com" style="color:#c9a96e">info@dekantihr.com</a>.</p></div><div style="background:#111;padding:16px 24px;text-align:center;border-top:1px solid rgba(201,169,110,0.1)"><p style="color:#e8d5a3;opacity:0.3;font-size:11px;margin:0">dekantihr.com · Hvala na povjerenju!</p></div></div>`;
+      } else if (tpl === 'Uplata potvrđena') {
+        subject = `Uplata potvrđena — narudžba ${o.order_number}`;
+        html = `<div style="max-width:560px;margin:0 auto;background:#0a0a0a;color:#e8d5a3;font-family:Arial,sans-serif;border-radius:16px;overflow:hidden;border:1px solid rgba(201,169,110,0.2)"><div style="background:#111;padding:24px;text-align:center;border-bottom:1px solid rgba(201,169,110,0.15)"><h1 style="font-family:Georgia,serif;color:#c9a96e;margin:0;font-size:24px;letter-spacing:2px">DEKANTIHR<span style="color:#e8d5a3">.COM</span></h1></div><div style="padding:32px 24px"><h2 style="color:#e8d5a3;font-size:20px;margin:0 0 8px">✅ Uplata potvrđena, ${o.ime}!</h2><p style="color:#e8d5a3;opacity:0.6;margin:0 0 24px;font-size:14px">Vaša uplata za narudžbu <strong>${o.order_number}</strong> je zaprimljena.</p><div style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:12px;padding:16px;margin-bottom:24px"><p style="color:#4ade80;font-size:13px;font-weight:bold;margin:0 0 4px">💰 Uplaćeno</p><p style="color:#4ade80;font-size:18px;font-weight:bold;margin:0;font-family:Georgia,serif">${o.ukupno.toFixed(2)}€</p></div><p style="color:#e8d5a3;opacity:0.5;font-size:12px;margin:0">Pakiramo i šaljemo isti dan (do 14:00). Dobit ćete tracking čim pošiljka bude predana.</p></div><div style="background:#111;padding:16px 24px;text-align:center;border-top:1px solid rgba(201,169,110,0.1)"><p style="color:#e8d5a3;opacity:0.3;font-size:11px;margin:0">dekantihr.com · Hvala na povjerenju!</p></div></div>`;
+      } else {
+        return;
+      }
+
+      await api.sendEmail(o.email, subject, html);
+      toast.success(`Email "${tpl}" poslan na ${o.email}!`, {
+        style: { background: '#111111', color: '#e8d5a3', border: '1px solid rgba(201,169,110,0.25)', borderRadius: '12px', fontFamily: "'DM Sans', sans-serif", fontSize: '13px' },
+        iconTheme: { primary: '#c9a96e', secondary: '#0a0a0a' },
+      });
+    } catch (error: any) {
+      toast.error(`Greška pri slanju emaila: ${error.message || 'Nepoznata greška'}`, {
+        style: { background: '#111111', color: '#e8d5a3', border: '1px solid rgba(239,68,68,0.25)', borderRadius: '12px', fontFamily: "'DM Sans', sans-serif", fontSize: '13px' },
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  /**
    * Handle review approval
    */
   const handleApproveReview = async (reviewId: number) => {
@@ -2048,12 +2089,20 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                     <div className="mt-4">
                       <label className="text-[#e8d5a3]/40 text-xs uppercase tracking-wider font-['Inter'] mb-1.5 block">Pošalji email kupcu</label>
                       <div className="grid grid-cols-2 gap-2">
-                        {['U obradi', 'Poslano + tracking', 'Isporučeno', 'Otkazano'].map(tpl => (
-                          <button key={tpl} className="text-xs text-[#c9a96e]/60 border border-[#c9a96e]/20 px-2 py-1.5 rounded-lg hover:bg-[#c9a96e]/5 hover:border-[#c9a96e]/40 transition-all font-['Inter'] text-left" onClick={() => toast.success(`Email "${tpl}" poslan!`)}>
+                        {['U obradi', 'Uplata potvrđena', 'Isporučeno', 'Otkazano'].map(tpl => (
+                          <button
+                            key={tpl}
+                            disabled={saving}
+                            className="text-xs text-[#c9a96e]/60 border border-[#c9a96e]/20 px-2 py-1.5 rounded-lg hover:bg-[#c9a96e]/5 hover:border-[#c9a96e]/40 transition-all font-['Inter'] text-left disabled:opacity-40 disabled:cursor-not-allowed"
+                            onClick={() => handleSendEmailTemplate(tpl)}
+                          >
                             📧 {tpl}
                           </button>
                         ))}
                       </div>
+                      <p className="text-[#e8d5a3]/20 text-[10px] font-['Inter'] mt-1.5">
+                        Šalje se na: {selectedOrder.email}
+                      </p>
                     </div>
 
                     {/* Delete Order Button */}
