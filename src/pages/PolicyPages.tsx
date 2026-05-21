@@ -269,7 +269,7 @@ export function TermsPage() {
 
       <Section number={4} title="Dostava">
         <p>
-          Dostavu vršimo isključivo putem BoxNow paketomata širom Hrvatske. Cijena dostave iznosi 4,50 € za sve narudžbe. Besplatna dostava na narudžbe iznad 50 €.
+          Dostavu vršimo isključivo putem BoxNow paketomata širom Hrvatske. Cijena dostave iznosi 2,99 € za sve narudžbe. Besplatna dostava na narudžbe iznad 50 €.
         </p>
         <p>
           Rok isporuke je 1–2 radna dana od trenutka predaje paketa kurirskoj službi. U blagdanskim razdobljima rok isporuke može biti duži.

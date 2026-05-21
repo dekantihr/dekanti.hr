@@ -407,7 +407,7 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
                           {dostava === 0 ? (
                             <div>
                               <p className="text-green-400 font-bold text-sm font-['Inter']">BESPLATNO</p>
-                              <p className="text-[#e8d5a3]/30 text-[10px] font-['Inter'] line-through">4.50€</p>
+                              <p className="text-[#e8d5a3]/30 text-[10px] font-['Inter'] line-through">2.99€</p>
                             </div>
                           ) : (
                             <div>

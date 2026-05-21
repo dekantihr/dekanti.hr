@@ -80,7 +80,7 @@ export function useCart() {
   }, []);
 
   const subtotal = items.reduce((sum, i) => sum + i.cijena * i.kolicina, 0);
-  const dostava = subtotal >= 50 ? 0 : subtotal > 0 ? 4.50 : 0;
+  const dostava = subtotal >= 50 ? 0 : subtotal > 0 ? 2.99 : 0;
   const popust = coupon?.popust_iznos ?? 0;
   const ukupno = Math.max(0, subtotal - popust + dostava);
   const itemCount = items.reduce((sum, i) => sum + i.kolicina, 0);
