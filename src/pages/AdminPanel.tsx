@@ -65,6 +65,8 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
   const [showProductModal, setShowProductModal] = useState(false);
   const [uploadingImages, setUploadingImages] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  const [showFragranticaModal, setShowFragranticaModal] = useState(false);
+  const [fragranticaInput, setFragranticaInput] = useState('');
   const imageInputRef = useRef<HTMLInputElement>(null);
   const trackingInputRef = useRef<HTMLInputElement>(null);
 
@@ -491,6 +493,55 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
       toast.error('Greška pri odbijanju recenzije');
     } finally {
       setSaving(false);
+    }
+  };
+
+  /**
+   * Generate FULL product using AI with optional Fragrantica paste
+   */
+  const handleGenerateFullProduct = async (fragranticaText?: string) => {
+    if (!selectedProduct?.naziv || !selectedProduct?.brand_id) {
+      toast.error('Unesite naziv proizvoda i odaberite brand prije AI generiranja');
+      return;
+    }
+    const brand = supabaseBrands.find(b => b.id === selectedProduct.brand_id);
+    if (!brand) return;
+
+    setShowFragranticaModal(false);
+    setAiGenerating(true);
+    const toastId = toast.loading(`Generiram "${selectedProduct.naziv}"...`, {
+      style: { background: '#111111', color: '#e8d5a3', border: '1px solid rgba(201,169,110,0.3)', borderRadius: '12px', fontFamily: "'DM Sans', sans-serif", fontSize: '13px' },
+    });
+
+    try {
+      const result = await groqService.generateFullProduct(selectedProduct.naziv, brand.naziv, fragranticaText);
+      setSelectedProduct({
+        ...selectedProduct,
+        slug: result.slug,
+        koncentracija: result.koncentracija,
+        spol: result.spol,
+        sezona: result.sezona,
+        opis_kratki: result.opis_kratki,
+        opis_dugi: result.opis_dugi,
+        note_vrha: result.note_vrha,
+        note_srca: result.note_srca,
+        note_baze: result.note_baze,
+        product_sizes: result.product_sizes,
+      });
+      toast.dismiss(toastId);
+      toast.success(fragranticaText ? 'Proizvod generiran iz Fragrantica podataka!' : 'Proizvod generiran. Preporučujemo provjeru nota na Fragrantica.', {
+        duration: 5000,
+        style: { background: '#111111', color: '#e8d5a3', border: '1px solid rgba(201,169,110,0.3)', borderRadius: '12px', fontFamily: "'DM Sans', sans-serif", fontSize: '13px' },
+        iconTheme: { primary: '#c9a96e', secondary: '#0a0a0a' },
+      });
+    } catch (error: any) {
+      toast.dismiss(toastId);
+      toast.error(error.message || 'Greška pri AI generiranju', {
+        style: { background: '#111111', color: '#e8d5a3', border: '1px solid rgba(239,68,68,0.25)', borderRadius: '12px', fontFamily: "'DM Sans', sans-serif", fontSize: '13px' },
+      });
+    } finally {
+      setAiGenerating(false);
+      setFragranticaInput('');
     }
   };
 
@@ -2303,8 +2354,38 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                           <p className="text-[#e8d5a3]/40 text-xs font-['Inter']">ID: {selectedProduct.id}</p>
                         )}
                       </div>
-                      <button onClick={() => setShowProductModal(false)} className="text-[#e8d5a3]/40 hover:text-[#c9a96e]"><X size={18} /></button>
+                      <div className="flex items-center gap-2">
+                        {/* AI generate button */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (!selectedProduct.naziv || !selectedProduct.brand_id) {
+                              toast.error('Unesite naziv i odaberite brand');
+                              return;
+                            }
+                            setFragranticaInput('');
+                            setShowFragranticaModal(true);
+                          }}
+                          disabled={saving || aiGenerating || !selectedProduct.naziv || !selectedProduct.brand_id}
+                          className="flex items-center gap-2 bg-gradient-to-r from-purple-600/80 to-purple-500/80 hover:from-purple-500 hover:to-purple-400 text-white px-4 py-2 rounded-xl text-xs font-bold tracking-wide uppercase transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-lg shadow-purple-900/30"
+                          title="Generiraj cijeli proizvod pomoću AI"
+                        >
+                          <Sparkles size={14} className={aiGenerating ? 'animate-spin' : ''} />
+                          {aiGenerating ? 'Generiram...' : 'AI Generiraj sve'}
+                        </button>
+                        <button onClick={() => setShowProductModal(false)} className="text-[#e8d5a3]/40 hover:text-[#c9a96e]"><X size={18} /></button>
+                      </div>
                     </div>
+
+                    {/* AI hint when naziv + brand filled on new product */}
+                    {!selectedProduct.id && selectedProduct.naziv && selectedProduct.brand_id && (
+                      <div className="bg-purple-900/15 border border-purple-500/20 rounded-xl px-4 py-2.5 flex items-center gap-2 mb-4">
+                        <Sparkles size={13} className="text-purple-300 flex-shrink-0" />
+                        <p className="text-purple-200/70 text-xs font-['Inter']">
+                          Naziv i brand su uneseni — kliknite <span className="text-purple-200 font-semibold">AI Generiraj sve</span> za automatsko popunjavanje svih polja.
+                        </p>
+                      </div>
+                    )}
 
                     {/* Basic Info */}
                     <div className="space-y-4 mb-5">
@@ -2782,6 +2863,67 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                         className="px-6 py-3 text-[#e8d5a3]/60 hover:text-[#e8d5a3] text-sm font-['Inter'] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         Otkaži
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Fragrantica Paste Modal */}
+              {showFragranticaModal && selectedProduct && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+                  <div className="absolute inset-0 bg-black/85" onClick={() => setShowFragranticaModal(false)} />
+                  <div className="relative bg-[#111111] border border-purple-500/30 rounded-2xl p-6 w-full max-w-lg shadow-2xl">
+                    <div className="flex items-start gap-3 mb-4">
+                      <div className="w-10 h-10 rounded-xl bg-purple-500/15 flex items-center justify-center flex-shrink-0">
+                        <Sparkles size={18} className="text-purple-300" />
+                      </div>
+                      <div>
+                        <p className="text-white font-bold text-base font-['DM_Sans'] mb-0.5">AI Generiraj — {selectedProduct.naziv}</p>
+                        <p className="text-white/50 text-xs font-['Inter'] leading-relaxed">
+                          Za točne note parfema, zalijepite tekst s Fragrantica stranice. Ako preskočite, AI će pokušati sam — ali može pogriješiti.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="bg-[#0a0a0a] border border-purple-500/15 rounded-xl p-4 mb-4">
+                      <p className="text-purple-200/70 text-xs font-['Inter'] font-semibold mb-2">Kako dobiti točne note:</p>
+                      <ol className="space-y-1.5 text-white/45 text-xs font-['Inter']">
+                        <li className="flex gap-2"><span className="text-purple-300 font-bold">1.</span> Idite na <a href={`https://www.fragrantica.com/search/?query=${encodeURIComponent((selectedProduct.naziv || '') + ' ' + (supabaseBrands.find((b: any) => b.id === selectedProduct.brand_id)?.naziv || ''))}`} target="_blank" rel="noopener noreferrer" className="text-purple-300 underline hover:text-purple-200">fragrantica.com</a> i pronađite parfem</li>
+                        <li className="flex gap-2"><span className="text-purple-300 font-bold">2.</span> Pritisnite <kbd className="bg-white/10 px-1.5 py-0.5 rounded text-[10px]">Ctrl+A</kbd> pa <kbd className="bg-white/10 px-1.5 py-0.5 rounded text-[10px]">Ctrl+C</kbd></li>
+                        <li className="flex gap-2"><span className="text-purple-300 font-bold">3.</span> Zalijepite ovdje s <kbd className="bg-white/10 px-1.5 py-0.5 rounded text-[10px]">Ctrl+V</kbd></li>
+                      </ol>
+                    </div>
+
+                    <textarea
+                      value={fragranticaInput}
+                      onChange={e => setFragranticaInput(e.target.value)}
+                      placeholder="Zalijepite tekst s Fragrantica stranice ovdje... (ili ostavite prazno za AI bez podataka)"
+                      rows={6}
+                      className="w-full bg-[#0a0a0a] border border-purple-500/20 text-white/80 placeholder-white/20 px-4 py-3 rounded-xl text-xs font-['Inter'] focus:outline-none focus:border-purple-500/50 resize-none mb-4 transition-all"
+                      autoFocus
+                    />
+
+                    {fragranticaInput.trim().length > 0 && (
+                      <p className="text-green-400/70 text-[11px] font-['Inter'] mb-3 flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-green-400 flex-shrink-0" />
+                        {fragranticaInput.trim().length.toLocaleString()} znakova — AI će koristiti ove podatke za točne note
+                      </p>
+                    )}
+
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => handleGenerateFullProduct(fragranticaInput.trim() || undefined)}
+                        className="flex-1 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-purple-900/30"
+                      >
+                        <Sparkles size={14} />
+                        {fragranticaInput.trim() ? 'Generiraj s Fragrantica podacima' : 'Generiraj bez podataka'}
+                      </button>
+                      <button
+                        onClick={() => { setShowFragranticaModal(false); setFragranticaInput(''); }}
+                        className="px-4 py-3 border border-white/10 text-white/50 rounded-xl text-sm hover:border-white/20 hover:text-white/70 transition-all"
+                      >
+                        Odustani
                       </button>
                     </div>
                   </div>
