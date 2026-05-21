@@ -4,6 +4,7 @@ import { Search, Package, Truck, CheckCircle, XCircle, Clock } from 'lucide-reac
 import { Order } from '../store/cartStore';
 import { supabase } from '../utils/supabase';
 import ScrollReveal from '../components/ScrollReveal';
+import { formatDate } from '../utils/validation';
 
 interface TrackingPageProps {
   orders: Order[];
@@ -137,7 +138,7 @@ export default function TrackingPage({ orders }: TrackingPageProps) {
                 <div>
                   <p className="text-[#e8d5a3]/40 text-xs font-['Inter'] uppercase tracking-wider mb-1">Broj narudžbe</p>
                   <p className="text-[#c9a96e] font-['DM_Sans'] text-2xl font-bold">{result.order_number}</p>
-                  <p className="text-[#e8d5a3]/40 text-sm font-['Inter'] mt-1">Naručeno: {result.created_at}</p>
+                  <p className="text-[#e8d5a3]/40 text-sm font-['Inter'] mt-1">Naručeno: {formatDate(result.created_at)}</p>
                 </div>
                 <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-semibold font-['Inter'] ${config.color} ${config.bg}`}>
                   {config.icon}

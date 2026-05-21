@@ -571,7 +571,7 @@ export default function ProductPage({ wishlist, onWishlistToggle, onAddToCart, u
                 <p className="text-[#e8d5a3]/50 text-sm font-['Inter'] font-light leading-relaxed italic mb-3">"{review.tekst}"</p>
                 <div className="flex justify-between">
                   <span className="text-[#e8d5a3]/60 text-xs font-['Inter'] font-semibold">{review.user_name || review.korisnik_id}</span>
-                  <span className="text-[#e8d5a3]/25 text-xs font-['Inter']">{new Date(review.created_at).toLocaleDateString('hr-HR')}</span>
+                  <span className="text-[#e8d5a3]/25 text-xs font-['Inter']">{new Date(review.created_at).toLocaleDateString('hr-HR', { timeZone: 'Europe/Zagreb' })}</span>
                 </div>
               </div>
             ))}

@@ -1,6 +1,42 @@
 /**
- * Validation utilities for dekanti.hr
+ * Validation utilities for dekantihr.com
  */
+
+/**
+ * Format a UTC ISO date string to Croatian local time.
+ * Croatia is Europe/Zagreb (UTC+1 winter, UTC+2 summer).
+ * 
+ * @param dateStr - ISO 8601 string from Supabase (e.g. "2026-05-21T13:42:45.328656+00:00")
+ * @param opts - optional: 'date' (21.05.2026), 'datetime' (21.05.2026. 15:42), 'time' (15:42)
+ */
+export function formatDate(dateStr: string | null | undefined, opts: 'date' | 'datetime' | 'time' = 'datetime'): string {
+  if (!dateStr) return '—';
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+
+    const locale = 'hr-HR';
+    const tz = 'Europe/Zagreb';
+
+    if (opts === 'date') {
+      return d.toLocaleDateString(locale, { timeZone: tz, day: '2-digit', month: '2-digit', year: 'numeric' });
+    }
+    if (opts === 'time') {
+      return d.toLocaleTimeString(locale, { timeZone: tz, hour: '2-digit', minute: '2-digit' });
+    }
+    // datetime
+    return d.toLocaleString(locale, {
+      timeZone: tz,
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  } catch {
+    return dateStr;
+  }
+}
 
 // ============================================================
 // EMAIL VALIDATION

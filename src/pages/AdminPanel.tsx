@@ -10,6 +10,7 @@ import {
 import { Order } from '../store/cartStore';
 import { supabase } from '../utils/supabase';
 import { api } from '../services/api';
+import { formatDate } from '../utils/validation';
 import { groqService } from '../services/groq';
 import toast from 'react-hot-toast';
 
@@ -1523,8 +1524,8 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
   const allOrders = supabaseOrders;
 
   const totalRevenue = allOrders.filter(o => o.status !== 'otkazano').reduce((s, o) => s + o.ukupno, 0);
-  const today = new Date().toISOString().split('T')[0];
-  const todayOrders = allOrders.filter(o => o.created_at?.startsWith(today)).length;
+  const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Zagreb' }); // YYYY-MM-DD in Zagreb
+  const todayOrders = allOrders.filter(o => new Date(o.created_at).toLocaleDateString('sv-SE', { timeZone: 'Europe/Zagreb' }) === today).length;
 
   // Low stock products from Supabase
   const lowStock = supabaseProducts.flatMap(p => 
@@ -1790,7 +1791,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                     <div className="flex justify-between items-start mb-5">
                       <div>
                         <p className="text-[#c9a96e] font-['DM_Sans'] font-bold text-xl">{selectedOrder.order_number}</p>
-                        <p className="text-[#e8d5a3]/40 text-xs font-['Inter']">{selectedOrder.created_at}</p>
+                        <p className="text-[#e8d5a3]/40 text-xs font-['Inter']">{formatDate(selectedOrder.created_at)}</p>
                       </div>
                       <button onClick={() => setSelectedOrder(null)} className="text-[#e8d5a3]/40 hover:text-[#c9a96e]"><X size={18} /></button>
                     </div>
@@ -2035,7 +2036,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                             <p className="text-[#e8d5a3]/70 text-xs font-['Inter'] font-semibold">{order.ime} {order.prezime}</p>
                             <p className="text-[#e8d5a3]/30 text-[10px] font-['Inter']">{order.email}</p>
                           </td>
-                          <td className="px-4 py-3 text-[#e8d5a3]/40 text-xs font-['Inter']">{order.created_at}</td>
+                          <td className="px-4 py-3 text-[#e8d5a3]/40 text-xs font-['Inter']">{formatDate(order.created_at)}</td>
                           <td className="px-4 py-3 text-[#e8d5a3]/40 text-xs font-['Inter']">
                             {order.nacin_placanja === 'pouzecem' ? '?? COD' : order.nacin_placanja === 'revolut' ? '?? Revolut' : '?? Bankovno'}
                           {order.placeno && <span className="ml-1 text-green-400 text-[8px]">?</span>}

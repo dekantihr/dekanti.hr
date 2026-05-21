@@ -4,6 +4,7 @@ import { User, Package, Heart, Lock, Edit3, Check, Truck, CheckCircle, Clock, XC
 import { Order } from '../store/cartStore';
 import { api } from '../services/api';
 import toast from 'react-hot-toast';
+import { formatDate } from '../utils/validation';
 
 interface ProfilePageProps {
   user: { id: number; ime: string; prezime: string; email: string; role: string } | null;
@@ -161,7 +162,7 @@ export default function ProfilePage({ user, orders, wishlist, onWishlistToggle }
                     <div className="flex items-start justify-between mb-4">
                       <div>
                         <p className="text-[#c9a96e] font-['DM_Sans'] font-bold text-lg">{order.order_number}</p>
-                        <p className="text-[#e8d5a3]/35 text-xs font-['Inter'] mt-0.5">{order.created_at}</p>
+                        <p className="text-[#e8d5a3]/35 text-xs font-['Inter'] mt-0.5">{formatDate(order.created_at)}</p>
                       </div>
                       <div className={`flex items-center gap-1.5 text-xs font-['Inter'] font-semibold ${cfg.color}`}>
                         {cfg.icon}
