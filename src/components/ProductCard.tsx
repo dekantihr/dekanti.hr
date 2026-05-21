@@ -13,7 +13,8 @@ interface ProductCardProps {
 export default function ProductCard({ product, isWishlisted, onWishlistToggle, onAddToCart }: ProductCardProps) {
   const sizes = product.product_sizes || product.sizes || [];
   const minPrice = sizes.length > 0 ? Math.min(...sizes.map((s: any) => s.cijena)) : 0;
-  const defaultSize = sizes[0];
+  const defaultSize = sizes.find((s: any) => s.zaliha > 0) || sizes[0];
+  const isSoldOut = sizes.length > 0 && sizes.every((s: any) => s.zaliha === 0);
 
   const spolColors: Record<string, string> = {
     'muški': 'bg-blue-900/40 text-blue-300 border-blue-600/30',
@@ -23,13 +24,13 @@ export default function ProductCard({ product, isWishlisted, onWishlistToggle, o
   const spolColor = spolColors[String(product.spol)] ?? 'bg-[#c9a96e]/10 text-[#c9a96e] border-[#c9a96e]/20';
 
   return (
-    <div className="group relative glass rounded-2xl overflow-hidden hover:border-[#c9a96e]/40 hover-lift hover-glow animate-staggerFadeIn" style={{ transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)' }}>
+    <div className={`group relative glass rounded-2xl overflow-hidden hover:border-[#c9a96e]/40 hover-lift hover-glow animate-staggerFadeIn ${isSoldOut ? 'opacity-75' : ''}`} style={{ transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)' }}>
       {/* Image */}
       <Link to={`/parfemi/${product.slug}`} className="relative overflow-hidden aspect-square bg-gradient-to-br from-[#1a1a1a] to-[#0f0f0f] block">
         <img
           src={product.images && product.images.length > 0 ? product.images[0] : ''}
           alt={`${product.brand?.naziv || product.brand} ${product.naziv}`}
-          className="w-full h-full object-contain object-center transition-all duration-700 group-hover:scale-[1.05] opacity-90 group-hover:opacity-100"
+          className={`w-full h-full object-contain object-center transition-all duration-700 group-hover:scale-[1.05] ${isSoldOut ? 'opacity-40 grayscale' : 'opacity-90 group-hover:opacity-100'}`}
           loading="lazy"
         />
 
@@ -38,15 +39,23 @@ export default function ProductCard({ product, isWishlisted, onWishlistToggle, o
 
         {/* Badges */}
         <div className="absolute top-3 left-3 flex flex-col gap-1.5">
-          {product.featured && (
-            <span className="bg-gradient-to-r from-[#c9a96e] to-[#e8d5a3] text-[#0a0a0a] text-[10px] font-bold tracking-[0.15em] uppercase px-2 py-1 rounded-full shadow-[0_0_16px_rgba(201,169,110,0.5)] animate-pulse font-['Inter']">
-              Featured
+          {isSoldOut ? (
+            <span className="bg-[#1a1a1a]/90 text-[#e8d5a3]/70 text-[10px] font-bold tracking-[0.15em] uppercase px-2.5 py-1 rounded-full border border-[#e8d5a3]/20 backdrop-blur-sm font-['Inter']">
+              Rasprodano
             </span>
-          )}
-          {product.bestseller_rank && product.bestseller_rank <= 5 && (
-            <span className="glass text-[#c9a96e] text-[10px] font-bold tracking-[0.15em] uppercase px-2 py-1 rounded-full border border-[#c9a96e]/30 font-['Inter']">
-              Bestseller
-            </span>
+          ) : (
+            <>
+              {product.featured && (
+                <span className="bg-gradient-to-r from-[#c9a96e] to-[#e8d5a3] text-[#0a0a0a] text-[10px] font-bold tracking-[0.15em] uppercase px-2 py-1 rounded-full shadow-[0_0_16px_rgba(201,169,110,0.5)] animate-pulse font-['Inter']">
+                  Featured
+                </span>
+              )}
+              {product.bestseller_rank && product.bestseller_rank <= 5 && (
+                <span className="glass text-[#c9a96e] text-[10px] font-bold tracking-[0.15em] uppercase px-2 py-1 rounded-full border border-[#c9a96e]/30 font-['Inter']">
+                  Bestseller
+                </span>
+              )}
+            </>
           )}
         </div>
 
@@ -67,26 +76,32 @@ export default function ProductCard({ product, isWishlisted, onWishlistToggle, o
           <HeartIcon size={14} filled={isWishlisted} />
         </button>
 
-        {/* Quick Add */}
+        {/* Quick Add / Sold Out overlay */}
         <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 translate-y-3 group-hover:translate-y-0" style={{ transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)' }}>
-          <button
-            onClick={(e) => { e.preventDefault(); e.stopPropagation(); if (defaultSize) onAddToCart(product, defaultSize.id); }}
-            className="w-full bg-gradient-to-r from-[#c9a96e] to-[#e8d5a3] text-[#0a0a0a] text-xs font-bold tracking-[0.15em] uppercase py-2.5 rounded-xl flex items-center justify-center gap-2 btn-ripple font-['Inter'] active:scale-[0.98]"
-            style={{
-              transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
-              boxShadow: '0 0 0 rgba(201,169,110,0)'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.boxShadow = '0 0 24px rgba(201,169,110,0.6)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.boxShadow = '0 0 0 rgba(201,169,110,0)';
-            }}
-            aria-label={`Dodaj ${product.naziv} u košaricu`}
-          >
-            <ShoppingBagIcon size={14} />
-            Dodaj u košaricu
-          </button>
+          {isSoldOut ? (
+            <div className="w-full bg-[#1a1a1a]/90 text-[#e8d5a3]/50 text-xs font-bold tracking-[0.15em] uppercase py-2.5 rounded-xl flex items-center justify-center gap-2 font-['Inter'] border border-[#e8d5a3]/10 backdrop-blur-sm">
+              Rasprodano
+            </div>
+          ) : (
+            <button
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); if (defaultSize) onAddToCart(product, defaultSize.id); }}
+              className="w-full bg-gradient-to-r from-[#c9a96e] to-[#e8d5a3] text-[#0a0a0a] text-xs font-bold tracking-[0.15em] uppercase py-2.5 rounded-xl flex items-center justify-center gap-2 btn-ripple font-['Inter'] active:scale-[0.98]"
+              style={{
+                transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
+                boxShadow: '0 0 0 rgba(201,169,110,0)'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.boxShadow = '0 0 24px rgba(201,169,110,0.6)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.boxShadow = '0 0 0 rgba(201,169,110,0)';
+              }}
+              aria-label={`Dodaj ${product.naziv} u košaricu`}
+            >
+              <ShoppingBagIcon size={14} />
+              Dodaj u košaricu
+            </button>
+          )}
         </div>
       </Link>
 
@@ -137,14 +152,24 @@ export default function ProductCard({ product, isWishlisted, onWishlistToggle, o
         {/* Price + Sizes */}
         <div className="flex items-end justify-between">
           <div>
-            <span className="text-[9px] text-[#e8d5a3]/35 font-['Inter'] tracking-wider uppercase">od</span>
-            <div className="text-[#c9a96e] font-['DM_Sans'] text-lg font-semibold">
-              {minPrice.toFixed(2)}€
-            </div>
+            {isSoldOut ? (
+              <span className="text-[#e8d5a3]/30 text-xs font-['Inter'] font-semibold uppercase tracking-wider">Rasprodano</span>
+            ) : (
+              <>
+                <span className="text-[9px] text-[#e8d5a3]/35 font-['Inter'] tracking-wider uppercase">od</span>
+                <div className="text-[#c9a96e] font-['DM_Sans'] text-lg font-semibold">
+                  {minPrice.toFixed(2)}€
+                </div>
+              </>
+            )}
           </div>
           <div className="flex gap-1">
             {sizes.slice(0, 3).map((s: any) => (
-              <span key={s.id} className="text-[9px] text-[#e8d5a3]/35 border border-[#e8d5a3]/10 px-1.5 py-0.5 rounded font-['Inter'] hover:border-[#c9a96e]/30 hover:text-[#c9a96e]/60 transition-colors">
+              <span key={s.id} className={`text-[9px] border px-1.5 py-0.5 rounded font-['Inter'] transition-colors ${
+                s.zaliha === 0
+                  ? 'text-[#e8d5a3]/20 border-[#e8d5a3]/8 line-through'
+                  : 'text-[#e8d5a3]/35 border-[#e8d5a3]/10 hover:border-[#c9a96e]/30 hover:text-[#c9a96e]/60'
+              }`}>
                 {s.velicina_ml}ml
               </span>
             ))}
