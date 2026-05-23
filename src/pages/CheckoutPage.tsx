@@ -591,157 +591,149 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
               </div>
             )}
 
-            {/* Revolut Payment Modal — full redesign */}
+            {/* Payment Modal */}
             {showPaymentModal && pendingOrder && (
-              <div className="max-w-2xl mx-auto">
-              <div className="relative overflow-hidden rounded-3xl shadow-2xl">
-                {/* Background gradient */}
-                <div className="absolute inset-0 bg-gradient-to-br from-[#0f0a1e] via-[#120d20] to-[#0a0a0a]" />
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(168,85,247,0.12),transparent_60%)]" />
-                <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-500/40 to-transparent" />
+              <div className="max-w-lg mx-auto">
+                <div className="bg-[#111111] border border-[#c9a96e]/15 rounded-2xl overflow-hidden">
 
-                <div className="relative p-6 md:p-8">
+                  {/* Top accent */}
+                  <div className="h-px bg-gradient-to-r from-transparent via-[#c9a96e]/40 to-transparent" />
+
                   {/* Header */}
-                  <div className="flex items-start justify-between mb-8">
-                    <div>
-                      <div className="flex items-center gap-2 mb-3">
-                        {/* Accepted cards */}
-                        <div className="bg-[#1a1f71] rounded px-2 py-1">
-                          <span className="text-white text-[10px] font-black tracking-tight font-['Inter']">VISA</span>
-                        </div>
-                        <div className="flex items-center -space-x-1">
-                          <div className="w-5 h-5 rounded-full bg-[#eb001b]" />
-                          <div className="w-5 h-5 rounded-full bg-[#f79e1b]" />
-                        </div>
-                        <div className="bg-black border border-white/15 rounded px-2 py-1">
-                          <span className="text-white text-[10px] font-semibold font-['Inter']"> Pay</span>
-                        </div>
-                        <span className="text-white/30 text-[10px] font-['Inter']">+ Google Pay</span>
+                  <div className="px-6 pt-6 pb-5 border-b border-[#c9a96e]/8">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-[#e8d5a3]/35 text-[10px] tracking-[0.25em] uppercase font-['Inter'] mb-1">Narudžba {orderNumber}</p>
+                        <h2 className="font-['Cormorant_Garamond'] text-3xl font-bold text-[#e8d5a3]">
+                          Plaćanje
+                        </h2>
                       </div>
-                      <h2 className="font-['DM_Sans'] text-2xl md:text-3xl font-bold text-white">
-                        Sigurno plaćanje
-                      </h2>
-                      <p className="text-white/40 text-xs font-['Inter'] mt-1">
-                        Ref: <span className="font-mono text-white/60">{orderNumber}</span>
-                      </p>
+                      <div className="text-right">
+                        <p className="text-[#e8d5a3]/30 text-[10px] font-['Inter'] uppercase tracking-wider mb-1">Iznos</p>
+                        <p className="font-['Cormorant_Garamond'] text-3xl font-bold text-[#c9a96e]">
+                          {pendingOrder.ukupno.toFixed(2)}€
+                        </p>
+                      </div>
                     </div>
-                    {/* Amount badge */}
-                    <div className="text-right">
-                      <div className="bg-white/8 border border-white/15 rounded-2xl px-4 py-3">
-                        <p className="text-white/40 text-[9px] uppercase tracking-[0.2em] font-['Inter'] mb-0.5">Za platiti</p>
-                        <p className="text-white font-['DM_Sans'] text-2xl font-bold leading-none">{pendingOrder.ukupno.toFixed(2)}€</p>
+
+                    {/* Accepted methods row */}
+                    <div className="flex items-center gap-2 mt-4">
+                      <div className="bg-[#1a1f71] rounded-md px-2 py-1">
+                        <span className="text-white text-[10px] font-black tracking-tight font-['Inter']">VISA</span>
                       </div>
+                      <div className="flex items-center -space-x-1.5">
+                        <div className="w-5 h-5 rounded-full bg-[#eb001b] border border-[#111]" />
+                        <div className="w-5 h-5 rounded-full bg-[#f79e1b] border border-[#111]" />
+                      </div>
+                      <div className="bg-[#1a1a1a] border border-white/10 rounded-md px-2 py-1">
+                        <span className="text-white text-[10px] font-semibold font-['Inter'] tracking-tight"> Pay</span>
+                      </div>
+                      <div className="bg-[#1a1a1a] border border-white/10 rounded-md px-2 py-1">
+                        <span className="text-white text-[10px] font-semibold font-['Inter'] tracking-tight">G Pay</span>
+                      </div>
+                      <span className="text-[#e8d5a3]/20 text-[10px] font-['Inter'] ml-1">+ Revolut</span>
                     </div>
                   </div>
 
-                  {/* Step-by-step payment flow */}
-                  <div className="space-y-3 mb-6">
-                    {/* Step 1: Open Revolut */}
-                    <div className="bg-white/4 border border-white/8 rounded-2xl p-4">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-7 h-7 rounded-full bg-purple-500/25 border border-purple-500/40 flex items-center justify-center flex-shrink-0">
-                          <span className="text-purple-200 text-xs font-bold">1</span>
+                  <div className="px-6 py-5 space-y-4">
+
+                    {/* Step 1 — Pay button */}
+                    <div>
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="w-5 h-5 rounded-full bg-[#c9a96e]/15 border border-[#c9a96e]/30 flex items-center justify-center flex-shrink-0">
+                          <span className="text-[#c9a96e] text-[10px] font-bold font-['Inter']">1</span>
                         </div>
-                        <p className="text-white/80 text-sm font-semibold font-['Inter']">Platite karticom, Apple Pay ili Revolutom</p>
+                        <p className="text-[#e8d5a3]/60 text-xs font-['Inter'] uppercase tracking-wider">Otvorite stranicu za plaćanje</p>
                       </div>
                       <a
                         href={buildRevolutPayLink(pendingOrder.ukupno)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-2.5 w-full bg-[#c9a96e] hover:bg-[#e8d5a3] text-[#0a0a0a] py-4 rounded-xl font-bold text-sm tracking-wide transition-all shadow-lg group"
+                        className="flex items-center justify-center gap-2 w-full bg-[#c9a96e] hover:bg-[#e8d5a3] text-[#0a0a0a] py-4 rounded-xl font-['Inter'] font-bold text-sm tracking-wide transition-all"
                       >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="group-hover:translate-x-0.5 transition-transform"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
                         Plati karticom ili Apple Pay
                       </a>
-                      <p className="text-white/25 text-[10px] font-['Inter'] mt-2 text-center">
-                        Visa · Mastercard · Apple Pay · Google Pay · Revolut
-                      </p>
                     </div>
 
-                    {/* Step 2: Amount + Reference */}
-                    <div className="bg-white/4 border border-white/8 rounded-2xl p-4">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-7 h-7 rounded-full bg-purple-500/25 border border-purple-500/40 flex items-center justify-center flex-shrink-0">
-                          <span className="text-purple-200 text-xs font-bold">2</span>
+                    {/* Divider */}
+                    <div className="h-px bg-[#c9a96e]/8" />
+
+                    {/* Step 2 — Copy details */}
+                    <div>
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="w-5 h-5 rounded-full bg-[#c9a96e]/15 border border-[#c9a96e]/30 flex items-center justify-center flex-shrink-0">
+                          <span className="text-[#c9a96e] text-[10px] font-bold font-['Inter']">2</span>
                         </div>
-                        <p className="text-white/80 text-sm font-semibold font-['Inter']">Unesite iznos i opis</p>
+                        <p className="text-[#e8d5a3]/60 text-xs font-['Inter'] uppercase tracking-wider">Unesite točan iznos i opis</p>
                       </div>
                       <div className="grid grid-cols-2 gap-2">
-                        {/* Amount copy */}
-                        <div className="bg-black/30 border border-white/8 rounded-xl p-3">
-                          <p className="text-white/35 text-[9px] uppercase tracking-[0.15em] font-['Inter'] mb-1">Iznos (EUR)</p>
-                          <div className="flex items-center justify-between gap-2">
-                            <p className="text-[#c9a96e] font-bold text-lg font-['DM_Sans'] leading-none">{pendingOrder.ukupno.toFixed(2)}</p>
-                            <button
-                              onClick={() => copyToClipboard(pendingOrder.ukupno.toFixed(2))}
-                              className="text-white/40 hover:text-white/80 transition-colors p-1 rounded-lg hover:bg-white/5"
-                              type="button"
-                              title="Kopiraj iznos"
-                            >
+                        <div className="bg-[#0a0a0a] border border-[#c9a96e]/12 rounded-xl p-3">
+                          <p className="text-[#e8d5a3]/30 text-[9px] uppercase tracking-wider font-['Inter'] mb-1.5">Iznos</p>
+                          <div className="flex items-center justify-between">
+                            <span className="text-[#c9a96e] font-['Cormorant_Garamond'] text-xl font-bold">{pendingOrder.ukupno.toFixed(2)}€</span>
+                            <button onClick={() => copyToClipboard(pendingOrder.ukupno.toFixed(2))} className="text-[#e8d5a3]/25 hover:text-[#c9a96e] transition-colors p-1" type="button">
                               <Copy size={13} />
                             </button>
                           </div>
                         </div>
-                        {/* Reference copy */}
-                        <div className="bg-black/30 border border-purple-500/20 rounded-xl p-3">
-                          <p className="text-purple-300/50 text-[9px] uppercase tracking-[0.15em] font-['Inter'] mb-1">Opis uplate</p>
-                          <div className="flex items-center justify-between gap-2">
-                            <p className="text-purple-100 font-mono font-bold text-xs leading-none truncate">{orderNumber}</p>
-                            <button
-                              onClick={() => copyToClipboard(orderNumber)}
-                              className="text-purple-300/50 hover:text-purple-200 transition-colors p-1 rounded-lg hover:bg-purple-500/10 flex-shrink-0"
-                              type="button"
-                              title="Kopiraj opis"
-                            >
+                        <div className="bg-[#0a0a0a] border border-[#c9a96e]/12 rounded-xl p-3">
+                          <p className="text-[#e8d5a3]/30 text-[9px] uppercase tracking-wider font-['Inter'] mb-1.5">Opis uplate</p>
+                          <div className="flex items-center justify-between gap-1">
+                            <span className="text-[#e8d5a3]/70 font-['Inter'] text-xs font-semibold truncate">{orderNumber}</span>
+                            <button onClick={() => copyToClipboard(orderNumber)} className="text-[#e8d5a3]/25 hover:text-[#c9a96e] transition-colors p-1 flex-shrink-0" type="button">
                               <Copy size={13} />
                             </button>
                           </div>
                         </div>
                       </div>
-                      <p className="text-white/30 text-[10px] font-['Inter'] mt-2 leading-relaxed">
-                        ⚠️ Upišite <span className="text-[#c9a96e]">točan iznos</span> i <span className="text-purple-300">broj narudžbe</span> kao opis — bez toga ne možemo identificirati vašu uplatu.
+                      <p className="text-[#e8d5a3]/30 text-[11px] font-['Inter'] mt-2 leading-relaxed">
+                        Unesite <span className="text-[#c9a96e]/80">točan iznos</span> i <span className="text-[#c9a96e]/80">broj narudžbe</span> kao opis — bez toga ne možemo identificirati vašu uplatu.
                       </p>
                     </div>
 
-                    {/* Step 3: Confirm */}
-                    <div className="bg-white/4 border border-white/8 rounded-2xl p-4">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-7 h-7 rounded-full bg-purple-500/25 border border-purple-500/40 flex items-center justify-center flex-shrink-0">
-                          <span className="text-purple-200 text-xs font-bold">3</span>
+                    {/* Divider */}
+                    <div className="h-px bg-[#c9a96e]/8" />
+
+                    {/* Step 3 — Confirm */}
+                    <div>
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="w-5 h-5 rounded-full bg-[#c9a96e]/15 border border-[#c9a96e]/30 flex items-center justify-center flex-shrink-0">
+                          <span className="text-[#c9a96e] text-[10px] font-bold font-['Inter']">3</span>
                         </div>
-                        <p className="text-white/80 text-sm font-semibold font-['Inter']">Potvrdite uplatu ovdje</p>
+                        <p className="text-[#e8d5a3]/60 text-xs font-['Inter'] uppercase tracking-wider">Potvrdite da ste platili</p>
                       </div>
 
-                      {/* Legal checkbox */}
+                      {/* Checkbox */}
                       <button
                         onClick={() => setPaymentTermsAccepted(v => !v)}
-                        className={`w-full flex items-start gap-3 text-left p-3 rounded-xl border transition-all mb-3 ${
+                        className={`w-full flex items-start gap-3 text-left p-3.5 rounded-xl border transition-all mb-3 ${
                           paymentTermsAccepted
-                            ? 'border-[#c9a96e]/40 bg-[#c9a96e]/5'
-                            : 'border-white/10 bg-black/20 hover:border-white/20'
+                            ? 'border-[#c9a96e]/30 bg-[#c9a96e]/5'
+                            : 'border-[#c9a96e]/10 bg-[#0a0a0a] hover:border-[#c9a96e]/20'
                         }`}
                         type="button"
                       >
-                        <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-all ${
-                          paymentTermsAccepted ? 'bg-[#c9a96e] border-[#c9a96e]' : 'border-white/25'
+                        <div className={`w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-all ${
+                          paymentTermsAccepted ? 'bg-[#c9a96e] border-[#c9a96e]' : 'border-[#c9a96e]/30'
                         }`}>
-                          {paymentTermsAccepted && <Check size={11} className="text-[#0a0a0a]" strokeWidth={3} />}
+                          {paymentTermsAccepted && <Check size={10} className="text-[#0a0a0a]" strokeWidth={3} />}
                         </div>
-                        <p className="text-white/55 text-[11px] font-['Inter'] leading-relaxed">
-                          Uplatio/la sam <span className="text-[#c9a96e] font-semibold">{pendingOrder.ukupno.toFixed(2)}€</span> na{' '}
-                          <span className="text-white/80">{revolutHandle}</span> s opisom{' '}
-                          <span className="text-purple-300 font-mono">{orderNumber}</span>. Razumijem da pogrešan iznos znači da narudžba neće biti poslana — sukladno{' '}
-                          <Link to="/uvjeti" target="_blank" onClick={e => e.stopPropagation()} className="text-[#c9a96e]/80 underline underline-offset-2">uvjetima</Link>.
+                        <p className="text-[#e8d5a3]/50 text-[11px] font-['Inter'] leading-relaxed">
+                          Uplatio/la sam <span className="text-[#c9a96e]">{pendingOrder.ukupno.toFixed(2)}€</span> na{' '}
+                          <span className="text-[#e8d5a3]/70">{revolutHandle}</span> s opisom{' '}
+                          <span className="text-[#e8d5a3]/70 font-semibold">{orderNumber}</span>. Razumijem da pogrešan iznos znači da narudžba neće biti poslana — sukladno{' '}
+                          <Link to="/uvjeti" target="_blank" onClick={e => e.stopPropagation()} className="text-[#c9a96e]/70 underline underline-offset-2">uvjetima</Link>.
                         </p>
                       </button>
 
                       <button
                         onClick={handleMarkAsPaid}
                         disabled={isProcessing || !paymentTermsAccepted}
-                        className={`w-full py-4 rounded-xl font-bold text-sm tracking-[0.08em] uppercase transition-all flex items-center justify-center gap-2 ${
+                        className={`w-full py-4 rounded-xl font-['Inter'] font-bold text-sm tracking-wide transition-all flex items-center justify-center gap-2 ${
                           paymentTermsAccepted && !isProcessing
-                            ? 'bg-[#c9a96e] text-[#0a0a0a] hover:bg-[#e8d5a3] shadow-lg shadow-[#c9a96e]/20'
-                            : 'bg-white/8 text-white/30 cursor-not-allowed'
+                            ? 'bg-[#c9a96e] text-[#0a0a0a] hover:bg-[#e8d5a3]'
+                            : 'bg-[#c9a96e]/10 text-[#c9a96e]/25 cursor-not-allowed'
                         }`}
                         type="button"
                       >
@@ -752,29 +744,28 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
                           </>
                         ) : (
                           <>
-                            <Check size={15} />
+                            <Check size={14} />
                             Platio sam — pošalji narudžbu
                           </>
                         )}
                       </button>
-                      {!paymentTermsAccepted && (
-                        <p className="text-white/25 text-[10px] font-['Inter'] text-center mt-2">
-                          Označite potvrdni okvir iznad
-                        </p>
-                      )}
                     </div>
                   </div>
 
-                  <button
-                    onClick={handleCancelPayment}
-                    disabled={isProcessing}
-                    className="w-full text-white/25 py-2 text-xs font-['Inter'] hover:text-white/50 transition-colors disabled:opacity-30"
-                    type="button"
-                  >
-                    Odustani od plaćanja
-                  </button>
+                  {/* Footer */}
+                  <div className="px-6 pb-5">
+                    <button
+                      onClick={handleCancelPayment}
+                      disabled={isProcessing}
+                      className="w-full text-[#e8d5a3]/25 py-2 text-xs font-['Inter'] hover:text-[#e8d5a3]/50 transition-colors disabled:opacity-30"
+                      type="button"
+                    >
+                      Odustani od plaćanja
+                    </button>
+                  </div>
+
+                  <div className="h-px bg-gradient-to-r from-transparent via-[#c9a96e]/15 to-transparent" />
                 </div>
-              </div>
               </div>
             )}
 
