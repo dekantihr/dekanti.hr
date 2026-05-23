@@ -385,64 +385,74 @@ export default function HomePage({ wishlist, onWishlistToggle, onAddToCart }: Ho
 
       {/* HOW IT WORKS */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="text-center mb-14">
-          <p className="text-[#c9a96e] text-xs tracking-[0.25em] uppercase font-medium font-['Inter'] mb-3">Kako funkcionira</p>
+        <div className="text-center mb-16">
+          <p className="text-[#c9a96e] text-xs tracking-[0.3em] uppercase font-['Inter'] mb-4">Kako funkcionira</p>
           <h2 className="font-['Cormorant_Garamond'] text-4xl md:text-5xl font-bold text-[#e8d5a3]">
-            Jednostavno kao <span className="text-[#c9a96e] italic">1, 2, 3</span>
+            Tri koraka do savršenog mirisa
           </h2>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
-          {/* Connector line — desktop only */}
-          <div className="hidden md:block absolute top-10 left-1/3 right-1/3 h-[1px] bg-gradient-to-r from-[#c9a96e]/20 via-[#c9a96e]/40 to-[#c9a96e]/20" />
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-[#c9a96e]/10">
           {[
             {
-              step: '01',
-              icon: '🔍',
+              num: '01',
               title: 'Odaberi miris',
-              desc: 'Pregledaj našu kolekciju premium parfema. Filtriraj po brandu, spolu ili sezoni — pronađi savršen miris za sebe.',
+              desc: 'Pregledaj kolekciju premium parfema. Filtriraj po brandu, spolu ili sezoni i pronađi miris koji te zanima.',
             },
             {
-              step: '02',
-              icon: '💳',
+              num: '02',
               title: 'Naruči i plati',
-              desc: 'Odaberi veličinu (2ml, 5ml ili 10ml), dodaj u košaricu i plati karticom, Apple Pay ili Revolutom. Brzo i sigurno.',
+              desc: 'Odaberi veličinu — 2ml, 5ml ili 10ml. Plati karticom, Apple Pay ili Revolutom. Bez registracije.',
             },
             {
-              step: '03',
-              icon: '📦',
-              title: 'Primi na kućni prag',
-              desc: 'Pakiramo isti dan (do 14h). BoxNow paketomat dostava za 1–2 radna dana. Pratite pošiljku u realnom vremenu.',
+              num: '03',
+              title: 'Primi za 1–2 dana',
+              desc: 'Pakiramo isti dan do 14h. BoxNow paketomat dostava — preuzmi kad ti odgovara, 24/7.',
             },
-          ].map((item) => (
-            <div key={item.step} className="relative bg-[#111111] border border-[#c9a96e]/10 rounded-2xl p-8 hover:border-[#c9a96e]/25 transition-all duration-300 group">
-              {/* Step number */}
-              <div className="absolute -top-4 left-8 bg-[#0a0a0a] border border-[#c9a96e]/20 rounded-full px-3 py-1">
-                <span className="text-[#c9a96e]/60 text-[10px] font-bold tracking-[0.2em] font-['Inter']">{item.step}</span>
-              </div>
-              <div className="text-3xl mb-4 mt-2">{item.icon}</div>
-              <h3 className="font-['Cormorant_Garamond'] text-xl font-bold text-[#e8d5a3] mb-3 group-hover:text-[#c9a96e] transition-colors">{item.title}</h3>
-              <p className="text-[#e8d5a3]/45 text-sm font-['Inter'] leading-relaxed">{item.desc}</p>
+          ].map((item, i) => (
+            <div
+              key={item.num}
+              className={`bg-[#0a0a0a] p-10 md:p-12 group hover:bg-[#111111] transition-colors duration-300 ${
+                i === 0 ? 'md:rounded-l-2xl' : i === 2 ? 'md:rounded-r-2xl' : ''
+              }`}
+            >
+              <span className="block font-['Cormorant_Garamond'] text-6xl font-light text-[#c9a96e]/20 mb-6 leading-none group-hover:text-[#c9a96e]/35 transition-colors duration-300">
+                {item.num}
+              </span>
+              <h3 className="font-['Cormorant_Garamond'] text-2xl font-semibold text-[#e8d5a3] mb-3">
+                {item.title}
+              </h3>
+              <div className="w-8 h-[1px] bg-[#c9a96e]/40 mb-4 group-hover:w-16 transition-all duration-500" />
+              <p className="text-[#e8d5a3]/45 text-sm font-['Inter'] leading-relaxed">
+                {item.desc}
+              </p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* SOCIAL PROOF STATS */}
+      {/* STATS */}
       <section className="bg-[#111111] border-y border-[#c9a96e]/10 py-16">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-[#c9a96e]/10">
             {[
-              { number: '200+', label: 'Parfema u kolekciji', icon: '✦' },
-              { number: '4.9★', label: 'Prosječna ocjena', icon: '★' },
-              { number: '1–2', label: 'Dana dostava', icon: '📦' },
-              { number: '100%', label: 'Originalni parfemi', icon: '🔒' },
-            ].map((stat) => (
-              <div key={stat.label} className="group">
-                <div className="text-[#c9a96e]/40 text-lg mb-1">{stat.icon}</div>
-                <div className="font-['Cormorant_Garamond'] text-4xl md:text-5xl font-bold text-[#c9a96e] mb-2 group-hover:scale-105 transition-transform duration-300">
+              { number: '200+', label: 'Parfema u kolekciji' },
+              { number: '4.9', label: 'Prosječna ocjena' },
+              { number: '1–2', label: 'Dana dostava' },
+              { number: '100%', label: 'Originalni parfemi' },
+            ].map((stat, i) => (
+              <div
+                key={stat.label}
+                className={`bg-[#111111] px-8 py-10 text-center group hover:bg-[#161616] transition-colors duration-300 ${
+                  i === 0 ? 'md:rounded-l-xl' : i === 3 ? 'md:rounded-r-xl' : ''
+                }`}
+              >
+                <div className="font-['Cormorant_Garamond'] text-4xl md:text-5xl font-bold text-[#c9a96e] mb-2 group-hover:scale-105 transition-transform duration-300 origin-bottom">
                   {stat.number}
                 </div>
-                <div className="text-[#e8d5a3]/40 text-xs font-['Inter'] tracking-wide uppercase">{stat.label}</div>
+                <div className="text-[#e8d5a3]/35 text-[11px] font-['Inter'] tracking-[0.15em] uppercase">
+                  {stat.label}
+                </div>
               </div>
             ))}
           </div>
