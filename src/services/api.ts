@@ -758,6 +758,15 @@ export const api = {
         throw error;
       }
 
+      // Send welcome email — fire and forget, don't block success
+      const welcomeHtml = `<div style="max-width:560px;margin:0 auto;background:#0a0a0a;color:#e8d5a3;font-family:Arial,sans-serif;border-radius:16px;overflow:hidden;border:1px solid rgba(201,169,110,0.2)"><div style="background:#111;padding:28px 24px;text-align:center;border-bottom:1px solid rgba(201,169,110,0.15)"><h1 style="font-family:Georgia,serif;color:#c9a96e;margin:0;font-size:26px;letter-spacing:3px;font-weight:400">DEKANTI<span style="color:#e8d5a3">.HR</span></h1><p style="color:#e8d5a3;opacity:0.3;font-size:10px;letter-spacing:3px;text-transform:uppercase;margin:6px 0 0;font-family:Arial,sans-serif">Premium Decant Parfemi</p></div><div style="padding:36px 28px"><h2 style="color:#e8d5a3;font-size:22px;margin:0 0 12px;font-family:Georgia,serif;font-weight:400">Dobrodošli u dekantihr.com</h2><p style="color:#e8d5a3;opacity:0.55;margin:0 0 28px;font-size:14px;line-height:1.7">Hvala na prijavi na naš newsletter. Biti ćete prvi koji saznaju za nove parfeme, ekskluzivne ponude i posebne akcije.</p><div style="background:#111;border:1px solid rgba(201,169,110,0.2);border-radius:12px;padding:20px 24px;margin-bottom:28px;text-align:center"><p style="color:#e8d5a3;opacity:0.4;font-size:10px;text-transform:uppercase;letter-spacing:2px;margin:0 0 8px;font-family:Arial,sans-serif">Vaš kupon za prvu narudžbu</p><p style="color:#c9a96e;font-size:26px;font-weight:700;margin:0;font-family:Georgia,serif;letter-spacing:4px">DOBRODOSLI10</p><p style="color:#e8d5a3;opacity:0.35;font-size:11px;margin:8px 0 0;font-family:Arial,sans-serif">10% popusta · Min. narudžba 15€</p></div><div style="text-align:center"><a href="https://dekantihr.com/parfemi" style="display:inline-block;background:#c9a96e;color:#0a0a0a;padding:14px 32px;border-radius:10px;font-weight:700;font-size:13px;text-decoration:none;letter-spacing:1px;text-transform:uppercase;font-family:Arial,sans-serif">Pregledaj parfeme</a></div></div><div style="background:#111;padding:16px 24px;text-align:center;border-top:1px solid rgba(201,169,110,0.1)"><p style="color:#e8d5a3;opacity:0.25;font-size:11px;margin:0;font-family:Arial,sans-serif">dekantihr.com · <a href="https://dekantihr.com/kolacici" style="color:#c9a96e;opacity:0.6;text-decoration:none">Odjava</a></p></div></div>`;
+
+      api.sendEmail(
+        email.toLowerCase(),
+        'Dobrodošli u dekantihr.com — vaš kupon je spreman',
+        welcomeHtml
+      ).catch(() => {});
+
       return {
         success: true,
         data
