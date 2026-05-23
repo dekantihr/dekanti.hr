@@ -142,7 +142,9 @@ export default function NewsletterPopup() {
                   {/* Header */}
                   <div className="mb-6">
                     <div className="w-12 h-12 rounded-2xl bg-[#c9a96e]/10 border border-[#c9a96e]/20 flex items-center justify-center mb-4">
-                      <span className="text-xl">✉️</span>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-[#c9a96e]">
+                        <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                      </svg>
                     </div>
                     <h2 className="font-['Playfair_Display'] text-2xl font-bold text-[#e8d5a3] mb-2">
                       Ekskluzivne ponude
@@ -197,7 +199,9 @@ export default function NewsletterPopup() {
                 /* Success state */
                 <div className="text-center py-4">
                   <div className="w-16 h-16 rounded-full bg-green-500/10 border-2 border-green-500/30 flex items-center justify-center mx-auto mb-5">
-                    <span className="text-2xl">✅</span>
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-green-400">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/>
+                    </svg>
                   </div>
                   <h3 className="font-['Playfair_Display'] text-xl font-bold text-[#e8d5a3] mb-2">
                     Hvala na prijavi!

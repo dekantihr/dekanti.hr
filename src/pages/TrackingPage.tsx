@@ -204,8 +204,8 @@ export default function TrackingPage({ orders }: TrackingPageProps) {
                 <p className="text-[#e8d5a3]/25 text-[10px] uppercase tracking-wider font-['Inter'] mb-1">Iznos</p>
                 <p className="text-[#c9a96e] font-['DM_Sans'] font-bold text-xl">{result.ukupno.toFixed(2)}€</p>
                 <p className="text-[#e8d5a3]/40 text-xs font-['Inter']">
-                  {result.nacin_placanja === 'revolut' ? '💳 Revolut' : result.nacin_placanja === 'bankovna' ? '🏦 Bankovno' : '💳 Kartica'}
-                  {result.placeno && <span className="text-green-400 ml-1">✓ plaćeno</span>}
+                  {result.nacin_placanja === 'revolut' ? 'Revolut' : result.nacin_placanja === 'bankovna' ? 'Bankovno' : 'Kartica'}
+                  {result.placeno && <span className="text-green-400 ml-1 font-semibold">· plaćeno</span>}
                 </p>
               </div>
             </div>
@@ -215,7 +215,7 @@ export default function TrackingPage({ orders }: TrackingPageProps) {
         {/* Info box */}
         <ScrollReveal animation="fade-up" delay={200}>
           <div className="mt-8 bg-[#111111] border border-[#c9a96e]/10 rounded-2xl p-5">
-            <h3 className="text-[#e8d5a3]/70 text-sm font-semibold font-['Inter'] mb-3">ℹ️ Informacije o dostavi</h3>
+            <h3 className="text-[#e8d5a3]/70 text-sm font-semibold font-['Inter'] mb-3">Informacije o dostavi</h3>
             <ul className="space-y-2 text-xs text-[#e8d5a3]/40 font-['Inter']">
               <li>• Narudžbe primljene do 14:00 pakiramo i šaljemo isti dan</li>
               <li>• BoxNow paketomat dostava: 1-2 radna dana unutar Hrvatske</li>

@@ -306,8 +306,14 @@ export default function CartPage({ items, coupon, onCouponSet, onUpdateQuantity,
               </button>
 
               <div className="flex items-center justify-center gap-4 mt-4">
-                <span className="text-[#e8d5a3]/25 text-[10px] font-['Inter']">🔒 Sigurna kupnja</span>
-                <span className="text-[#e8d5a3]/25 text-[10px] font-['Inter']">💳 Revolut · 🏦 Bankovno</span>
+                <div className="flex items-center gap-1.5 text-[#e8d5a3]/25 text-[10px] font-['Inter']">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-[#c9a96e]/40"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                  Sigurna kupnja
+                </div>
+                <div className="flex items-center gap-1.5 text-[#e8d5a3]/25 text-[10px] font-['Inter']">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-[#c9a96e]/40"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                  Revolut · Bankovno
+                </div>
               </div>
             </div>
           </div>

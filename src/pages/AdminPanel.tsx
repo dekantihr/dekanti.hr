@@ -1937,7 +1937,10 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                 {/* Low stock */}
                 <div className="bg-[#111111] border border-[#c9a96e]/10 rounded-2xl p-5">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-[#e8d5a3]/80 font-['Playfair_Display'] font-bold">⚠️ Niska zaliha</h3>
+                    <h3 className="text-[#e8d5a3]/80 font-['Playfair_Display'] font-bold flex items-center gap-2">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-orange-400"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+                      Niska zaliha
+                    </h3>
                     <span className="text-orange-400 text-xs font-['Inter'] border border-orange-400/30 px-2 py-0.5 rounded-full">
                       {lowStock.length} upozorenja
                     </span>
@@ -2038,7 +2041,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                         <div>
                           <p className="text-[#e8d5a3]/30 text-[10px] uppercase tracking-wider font-['Inter'] mb-0.5">Način plaćanja</p>
                           <p className="text-[#e8d5a3]/70 text-xs font-['Inter']">
-                            {selectedOrder.nacin_placanja === 'pouzecem' ? '💵 Pouzećem' : selectedOrder.nacin_placanja === 'revolut' ? '💳 Revolut' : '🏦 Bankovna transakcija'}
+                            {selectedOrder.nacin_placanja === 'pouzecem' ? 'Pouzećem' : selectedOrder.nacin_placanja === 'revolut' ? 'Revolut' : 'Bankovna transakcija'}
                           </p>
                         </div>
                         <div className="flex items-center gap-2">
@@ -2047,7 +2050,10 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                               <Check size={12} /> Plaćeno
                             </span>
                           ) : (
-                            <span className="text-orange-400 text-xs font-semibold font-['Inter']">⏳ Čeka uplatu</span>
+                            <span className="text-orange-400 text-xs font-semibold font-['Inter'] flex items-center gap-1">
+                              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-orange-400"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                              Čeka uplatu
+                            </span>
                           )}
                           {selectedOrder.nacin_placanja !== 'pouzecem' && !selectedOrder.placeno && (
                             <button
@@ -2221,7 +2227,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                             className="text-xs text-[#c9a96e]/60 border border-[#c9a96e]/20 px-2 py-1.5 rounded-lg hover:bg-[#c9a96e]/5 hover:border-[#c9a96e]/40 transition-all font-['Inter'] text-left disabled:opacity-40 disabled:cursor-not-allowed"
                             onClick={() => handleSendEmailTemplate(tpl)}
                           >
-                            📧 {tpl}
+                            <Mail size={13} /> {tpl}
                           </button>
                         ))}
                       </div>
@@ -2266,8 +2272,8 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                           </td>
                           <td className="px-4 py-3 text-[#e8d5a3]/40 text-xs font-['Inter']">{formatDate(order.created_at)}</td>
                           <td className="px-4 py-3 text-[#e8d5a3]/40 text-xs font-['Inter']">
-                            {order.nacin_placanja === 'pouzecem' ? '💵 COD' : order.nacin_placanja === 'revolut' ? '💳 Revolut' : '🏦 Bankovno'}
-                          {order.placeno && <span className="ml-1 text-green-400 text-[8px]">✓</span>}
+                            {order.nacin_placanja === 'pouzecem' ? 'COD' : order.nacin_placanja === 'revolut' ? 'Revolut' : 'Bankovno'}
+                          {order.placeno && <span className="ml-1 text-green-400 text-[8px] font-bold">✓</span>}
                           </td>
                           <td className="px-4 py-3">
                             <span className={`text-[9px] px-2 py-0.5 rounded-full border font-semibold font-['Inter'] ${STATUS_COLORS[order.status] ?? ''}`}>
@@ -2967,8 +2973,9 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                         <p className="text-[#c9a96e] font-['Inter'] font-semibold text-sm">
                           "{productToDelete.naziv}"
                         </p>
-                        <p className="text-[#e8d5a3]/40 text-xs font-['Inter'] mt-3">
-                          ⚠️ Ova akcija se ne može poništiti. Proizvod će biti trajno obrisan iz baze podataka.
+                        <p className="text-[#e8d5a3]/40 text-xs font-['Inter'] mt-3 flex items-start gap-1.5">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-orange-400 flex-shrink-0 mt-0.5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+                          Ova akcija se ne može poništiti. Proizvod će biti trajno obrisan iz baze podataka.
                         </p>
                       </div>
                     </div>
@@ -3025,7 +3032,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                     return (
                       <div key={brand.id} className="bg-[#111111] border border-[#c9a96e]/10 rounded-2xl p-5">
                         <div className="flex items-center justify-between mb-3">
-                          <div className="text-3xl text-[#c9a96e]/40">{brand.logo || '🏷️'}</div>
+                          <div className="w-10 h-10 rounded-xl bg-[#c9a96e]/10 border border-[#c9a96e]/20 flex items-center justify-center flex-shrink-0">{brand.logo || <Tag size={16} className="text-[#c9a96e]/40" />}</div>
                           <div className="flex gap-2">
                             <button 
                               className="text-[#c9a96e]/40 hover:text-[#c9a96e]" 
@@ -3128,7 +3135,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                           </p>
                           <div className="flex gap-0.5">
                             {[1,2,3,4,5].map(i => (
-                              <span key={i} className={`text-[10px] ${i <= r.ocjena ? 'text-[#c9a96e]' : 'text-[#333]'}`}>★</span>
+                              <Star key={i} size={10} className={i <= r.ocjena ? 'text-[#c9a96e]' : 'text-[#333]'} fill={i <= r.ocjena ? 'currentColor' : 'none'} />
                             ))}
                           </div>
                         </div>
@@ -3520,8 +3527,9 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                   {/* Result */}
                   {campaignStats && (
                     <div className="bg-green-400/10 border border-green-400/20 rounded-xl px-5 py-4">
-                      <p className="text-green-400 text-sm font-['Inter'] font-semibold">
-                        ✓ Kampanja poslana! {campaignStats.sent}/{campaignStats.total} emailova isporučeno.
+                      <p className="text-green-400 text-sm font-['Inter'] font-semibold flex items-center gap-2">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>
+                        Kampanja poslana! {campaignStats.sent}/{campaignStats.total} emailova isporučeno.
                       </p>
                     </div>
                   )}

@@ -94,7 +94,7 @@ export default function AuthPage({ mode, onLogin }: AuthPageProps) {
           </Link>
           <div className="flex items-center gap-3 justify-center mt-4 mb-2">
             <div className="flex-1 h-[1px] bg-[#c9a96e]/20" />
-            <span className="text-[#c9a96e] text-xs">✦</span>
+            <span className="text-[#c9a96e] text-xs">·</span>
             <div className="flex-1 h-[1px] bg-[#c9a96e]/20" />
           </div>
           <h1 className="font-['Playfair_Display'] text-2xl font-bold text-[#e8d5a3]">

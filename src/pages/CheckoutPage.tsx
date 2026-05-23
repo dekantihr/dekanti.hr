@@ -543,9 +543,9 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
                     <div>
                       <p className="text-[#e8d5a3]/30 text-[10px] uppercase tracking-wider font-['Inter'] mb-1">Plaćanje</p>
                       <p className="text-[#e8d5a3]/70 font-['Inter']">
-                        {form.nacin_placanja === 'revolut' ? '💳 Kartica / Apple Pay / Revolut' : '💳 Kartica / Apple Pay / Revolut'}
+                        {form.nacin_placanja === 'revolut' ? 'Kartica / Apple Pay / Revolut' : 'Kartica / Apple Pay / Revolut'}
                       </p>
-                      <p className="text-[#e8d5a3]/50 font-['Inter'] text-xs mt-1">📦 BoxNow paketomat</p>
+                      <p className="text-[#e8d5a3]/50 font-['Inter'] text-xs mt-1">BoxNow paketomat</p>
                     </div>
                   </div>
                 </div>

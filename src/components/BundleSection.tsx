@@ -184,7 +184,7 @@ export default function BundleSection({ onAddToCart }: BundleSectionProps) {
                   >
                     {addingId === bundle.id ? (
                       <>
-                        <span className="text-base">✓</span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-green-400"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>
                         Dodano
                       </>
                     ) : !inStock ? (

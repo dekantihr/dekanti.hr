@@ -260,9 +260,9 @@ export default function ProfilePage({ user, orders, wishlist, onWishlistToggle, 
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="text-sm font-['Inter'] text-[#e8d5a3]/40">
-                        {order.nacin_placanja === 'pouzecem' ? '💵 Pouzećem' : order.nacin_placanja === 'revolut' ? '💳 Revolut' : '🏦 Bankovno'}
-                        {order.placeno && <span className="text-green-400 ml-1">✓ plaćeno</span>}
-                        {' · 🚚 BoxNow paketomat'}
+                        {order.nacin_placanja === 'pouzecem' ? 'Pouzećem' : order.nacin_placanja === 'revolut' ? 'Revolut' : 'Bankovno'}
+                        {order.placeno && <span className="ml-1 text-green-400 text-[8px] font-bold">plaćeno</span>}
+                        {' · BoxNow paketomat'}
                       </div>
                       <div className="flex items-center gap-3">
                         <span className="text-[#c9a96e] font-['DM_Sans'] font-bold text-lg">{Number(order.ukupno).toFixed(2)}€</span>
