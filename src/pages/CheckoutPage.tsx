@@ -441,59 +441,75 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
                   {/* Payment section */}
                   <div className="px-6 pb-6">
                     <p className="text-[#e8d5a3]/40 text-[10px] uppercase tracking-[0.2em] font-['Inter'] mb-3">Način plaćanja</p>
-                    <div className="space-y-3">
-                      {/* Revolut option */}
-                      <button
-                        onClick={() => updateForm('nacin_placanja', 'revolut')}
-                        className={`w-full text-left rounded-2xl border-2 transition-all duration-200 overflow-hidden ${
-                          form.nacin_placanja === 'revolut'
-                            ? 'border-purple-500/60 bg-purple-950/20'
-                            : 'border-[#c9a96e]/12 bg-[#0a0a0a] hover:border-[#c9a96e]/25'
-                        }`}
-                      >
-                        <div className="p-4 flex items-center gap-4">
-                          {/* Revolut logo */}
-                          <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center flex-shrink-0 shadow-md border border-white/5 overflow-hidden p-1.5">
-                            <img src="/logos/revolut.svg" alt="Revolut" className="w-full h-full object-contain" />
+
+                    {/* Single payment option — card/online */}
+                    <div className="bg-[#0a0a0a] border-2 border-[#c9a96e]/30 rounded-2xl overflow-hidden">
+                      {/* Header */}
+                      <div className="p-4 flex items-center gap-3">
+                        <div className="w-5 h-5 rounded-full bg-[#c9a96e] flex items-center justify-center flex-shrink-0">
+                          <Check size={11} className="text-[#0a0a0a]" strokeWidth={3} />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-[#e8d5a3]/90 text-sm font-bold font-['Inter']">Online plaćanje</p>
+                          <p className="text-[#e8d5a3]/40 text-xs font-['Inter']">Sigurno · Brzo · Potvrda unutar 1h</p>
+                        </div>
+                        {/* Accepted methods */}
+                        <div className="flex items-center gap-1.5 flex-shrink-0">
+                          {/* Visa */}
+                          <div className="bg-[#1a1f71] rounded px-1.5 py-0.5 flex items-center">
+                            <span className="text-white text-[9px] font-black tracking-tight font-['Inter']">VISA</span>
                           </div>
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-0.5">
-                              <p className="text-[#e8d5a3]/90 text-sm font-bold font-['Inter']">Revolut link</p>
-                            </div>
-                            <p className="text-[#e8d5a3]/40 text-xs font-['Inter']">Kartica · Apple Pay · Google Pay · Revolut · Potvrda unutar 1h</p>
+                          {/* Mastercard */}
+                          <div className="flex items-center -space-x-1">
+                            <div className="w-4 h-4 rounded-full bg-[#eb001b] opacity-90" />
+                            <div className="w-4 h-4 rounded-full bg-[#f79e1b] opacity-90" />
                           </div>
-                          <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${
-                            form.nacin_placanja === 'revolut' ? 'border-purple-400 bg-purple-400' : 'border-[#c9a96e]/30'
-                          }`}>
-                            {form.nacin_placanja === 'revolut' && <Check size={11} className="text-white" strokeWidth={3} />}
+                          {/* Apple Pay */}
+                          <div className="bg-black border border-white/10 rounded px-1.5 py-0.5">
+                            <span className="text-white text-[9px] font-semibold font-['Inter'] tracking-tight"> Pay</span>
                           </div>
                         </div>
-                        {form.nacin_placanja === 'revolut' && (
-                          <div className="px-4 pb-4 pt-0">
-                            <div className="bg-purple-950/30 border border-purple-500/20 rounded-xl p-3">
-                              <p className="text-purple-200/70 text-[11px] font-['Inter'] leading-relaxed">
-                                Nakon potvrde narudžbe dobivate link za plaćanje. Možete platiti <strong className="text-purple-200/90">karticom (Visa/Mastercard), Apple Pay, Google Pay</strong> ili Revolut računom — ne treba vam Revolut aplikacija. Šaljemo unutar 1 sata od potvrde uplate.
-                              </p>
-                            </div>
-                          </div>
-                        )}
-                      </button>
+                      </div>
 
+                      {/* Info box */}
+                      <div className="mx-4 mb-4 bg-[#111111] border border-[#c9a96e]/10 rounded-xl p-3">
+                        <p className="text-[#e8d5a3]/55 text-[11px] font-['Inter'] leading-relaxed">
+                          Nakon potvrde narudžbe otvorit će se sigurna stranica za plaćanje. Unesite podatke kartice ili platite Apple Pay / Google Pay. <span className="text-[#c9a96e]/80">Ne trebate nikakav račun.</span>
+                        </p>
+                      </div>
+
+                      {/* Trust row */}
+                      <div className="px-4 pb-4 flex items-center gap-4">
+                        <div className="flex items-center gap-1.5 text-[#e8d5a3]/30 text-[10px] font-['Inter']">
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-[#c9a96e]/50"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                          SSL zaštita
+                        </div>
+                        <div className="flex items-center gap-1.5 text-[#e8d5a3]/30 text-[10px] font-['Inter']">
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-[#c9a96e]/50"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                          Sigurno plaćanje
+                        </div>
+                        <div className="flex items-center gap-1.5 text-[#e8d5a3]/30 text-[10px] font-['Inter']">
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-[#c9a96e]/50"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>
+                          Bez registracije
+                        </div>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Security badges */}
-                  <div className="px-6 pb-5 flex items-center gap-4 flex-wrap">
-                    {[
-                      { icon: '🔒', text: 'SSL zaštita' },
-                      { icon: '🛡️', text: 'Sigurna kupnja' },
-                      { icon: '📦', text: 'Praćenje paketa' },
-                    ].map(b => (
-                      <div key={b.text} className="flex items-center gap-1.5">
-                        <span className="text-xs">{b.icon}</span>
-                        <span className="text-[#e8d5a3]/30 text-[10px] font-['Inter']">{b.text}</span>
-                      </div>
-                    ))}
+                  {/* Security badges — removed emojis */}
+                  <div className="px-6 pb-5 flex items-center gap-5 flex-wrap border-t border-[#c9a96e]/8 pt-4">
+                    <div className="flex items-center gap-1.5 text-[#e8d5a3]/25 text-[10px] font-['Inter']">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-[#c9a96e]/30"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                      SSL zaštita
+                    </div>
+                    <div className="flex items-center gap-1.5 text-[#e8d5a3]/25 text-[10px] font-['Inter']">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-[#c9a96e]/30"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                      Sigurna kupnja
+                    </div>
+                    <div className="flex items-center gap-1.5 text-[#e8d5a3]/25 text-[10px] font-['Inter']">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-[#c9a96e]/30"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                      Praćenje paketa
+                    </div>
                   </div>
                 </div>
 
@@ -564,7 +580,12 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
                         <div className="w-4 h-4 border-2 border-[#0a0a0a]/30 border-t-[#0a0a0a] rounded-full animate-spin" />
                         Procesira se...
                       </>
-                    ) : '✓ Potvrdi narudžbu'}
+                    ) : (
+                      <span className="flex items-center gap-2">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>
+                        Potvrdi narudžbu
+                      </span>
+                    )}
                   </button>
                 </div>
               </div>
@@ -580,27 +601,34 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
                 <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-500/40 to-transparent" />
 
                 <div className="relative p-6 md:p-8">
-                  {/* Header with Revolut logo */}
+                  {/* Header */}
                   <div className="flex items-start justify-between mb-8">
                     <div>
-                      <div className="flex items-center gap-3 mb-2">
-                        {/* Revolut wordmark */}
-                        <div className="flex items-center gap-2 bg-white rounded-xl px-3 py-2 shadow-sm">
-                          <img src="/logos/revolut.svg" alt="Revolut" className="h-5 w-auto object-contain" />
+                      <div className="flex items-center gap-2 mb-3">
+                        {/* Accepted cards */}
+                        <div className="bg-[#1a1f71] rounded px-2 py-1">
+                          <span className="text-white text-[10px] font-black tracking-tight font-['Inter']">VISA</span>
                         </div>
-                        <span className="text-purple-300/60 text-xs font-['Inter']">plaćanje</span>
+                        <div className="flex items-center -space-x-1">
+                          <div className="w-5 h-5 rounded-full bg-[#eb001b]" />
+                          <div className="w-5 h-5 rounded-full bg-[#f79e1b]" />
+                        </div>
+                        <div className="bg-black border border-white/15 rounded px-2 py-1">
+                          <span className="text-white text-[10px] font-semibold font-['Inter']"> Pay</span>
+                        </div>
+                        <span className="text-white/30 text-[10px] font-['Inter']">+ Google Pay</span>
                       </div>
                       <h2 className="font-['DM_Sans'] text-2xl md:text-3xl font-bold text-white">
-                        Uplata {pendingOrder.ukupno.toFixed(2)}€
+                        Sigurno plaćanje
                       </h2>
-                      <p className="text-purple-200/50 text-xs font-['Inter'] mt-1">
-                        Ref: <span className="font-mono text-purple-200/80">{orderNumber}</span>
+                      <p className="text-white/40 text-xs font-['Inter'] mt-1">
+                        Ref: <span className="font-mono text-white/60">{orderNumber}</span>
                       </p>
                     </div>
                     {/* Amount badge */}
                     <div className="text-right">
-                      <div className="bg-purple-500/15 border border-purple-500/30 rounded-2xl px-4 py-3">
-                        <p className="text-purple-200/50 text-[9px] uppercase tracking-[0.2em] font-['Inter'] mb-0.5">Iznos</p>
+                      <div className="bg-white/8 border border-white/15 rounded-2xl px-4 py-3">
+                        <p className="text-white/40 text-[9px] uppercase tracking-[0.2em] font-['Inter'] mb-0.5">Za platiti</p>
                         <p className="text-white font-['DM_Sans'] text-2xl font-bold leading-none">{pendingOrder.ukupno.toFixed(2)}€</p>
                       </div>
                     </div>
@@ -620,13 +648,13 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
                         href={buildRevolutPayLink(pendingOrder.ukupno)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-2.5 w-full bg-gradient-to-r from-[#7c3aed] to-[#6d28d9] hover:from-[#8b5cf6] hover:to-[#7c3aed] text-white py-3.5 rounded-xl font-bold text-sm tracking-wide transition-all shadow-lg shadow-purple-900/40 group"
+                        className="flex items-center justify-center gap-2.5 w-full bg-[#c9a96e] hover:bg-[#e8d5a3] text-[#0a0a0a] py-4 rounded-xl font-bold text-sm tracking-wide transition-all shadow-lg group"
                       >
-                        <ExternalLink size={15} className="group-hover:translate-x-0.5 transition-transform" />
-                        Otvori stranicu za plaćanje
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="group-hover:translate-x-0.5 transition-transform"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                        Plati karticom ili Apple Pay
                       </a>
-                      <p className="text-white/30 text-[10px] font-['Inter'] mt-2 text-center">
-                        💳 Visa · Mastercard · Apple Pay · Google Pay · Revolut — nije potrebna Revolut aplikacija
+                      <p className="text-white/25 text-[10px] font-['Inter'] mt-2 text-center">
+                        Visa · Mastercard · Apple Pay · Google Pay · Revolut
                       </p>
                     </div>
 
