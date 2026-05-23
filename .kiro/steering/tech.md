@@ -33,6 +33,23 @@ inclusion: auto
 ## Build & Deployment
 - **Vite production build** — Code-split static assets in `dist/`
 - **ES Modules** — Modern JavaScript modules
+- **Vercel** — Production hosting, auto-deploys on `git push origin main`
+
+## ⚠️ DEPLOY COMMAND — ALWAYS USE THIS
+```bash
+# ALWAYS use npx vercel --prod 2>&1 for production deploys
+# NEVER use just "vercel --prod"
+npx vercel --prod 2>&1
+```
+
+**Deploy workflow (always in this order):**
+```bash
+npm run build                          # 1. Build locally first
+git add -A                             # 2. Stage all changes
+git commit -m "description"           # 3. Commit
+git push origin main                  # 4. Push to GitHub
+npx vercel --prod 2>&1                # 5. Deploy to production
+```
 
 ## Database (Future Backend)
 - **PostgreSQL** — Relational database

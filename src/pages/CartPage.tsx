@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingBag, Trash2, Plus, Minus, Tag, ArrowRight } from 'lucide-react';
+import { ShoppingBag, Trash2, Plus, Minus, Tag, ArrowRight, Package } from 'lucide-react';
 import { CartItem, AppliedCoupon } from '../store/cartStore';
 import { api } from '../services/api';
 import toast from 'react-hot-toast';
@@ -18,9 +18,38 @@ interface CartPageProps {
   ukupno: number;
 }
 
+// Group cart items: bundles become one entry, regular items stay separate
+function groupCartItems(items: CartItem[]) {
+  const bundleMap = new Map<number, CartItem[]>();
+  const regular: CartItem[] = [];
+
+  for (const item of items) {
+    if (item.bundle_id) {
+      const group = bundleMap.get(item.bundle_id) || [];
+      group.push(item);
+      bundleMap.set(item.bundle_id, group);
+    } else {
+      regular.push(item);
+    }
+  }
+
+  // Build ordered list: bundles first (as groups), then regular items
+  const result: Array<{ type: 'bundle'; bundleId: number; items: CartItem[] } | { type: 'item'; item: CartItem }> = [];
+
+  bundleMap.forEach((bundleItems, bundleId) => {
+    result.push({ type: 'bundle', bundleId, items: bundleItems });
+  });
+
+  regular.forEach(item => result.push({ type: 'item', item }));
+
+  return result;
+}
+
 export default function CartPage({ items, coupon, onCouponSet, onUpdateQuantity, onRemoveItem, subtotal, dostava, popust, ukupno }: CartPageProps) {
   const [couponCode, setCouponCode] = useState('');
   const navigate = useNavigate();
+
+  const grouped = groupCartItems(items);
 
   const applyCoupon = async () => {
     const code = couponCode.trim();
@@ -83,51 +112,112 @@ export default function CartPage({ items, coupon, onCouponSet, onUpdateQuantity,
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Cart Items */}
           <div className="lg:col-span-2 space-y-3">
-            {items.map(item => (
-              <div key={item.product_size_id} className="bg-[#111111] border border-[#c9a96e]/10 hover:border-[#c9a96e]/20 rounded-2xl p-4 flex gap-4 transition-all">
-                {/* Image */}
-                <Link to={`/parfemi/${item.slug}`} className="flex-shrink-0">
-                  <div className="w-20 h-20 md:w-24 md:h-24 rounded-xl overflow-hidden bg-[#1a1a1a]">
-                    <img src={item.image} alt={item.naziv} className="w-full h-full object-cover" />
-                  </div>
-                </Link>
+            {grouped.map(entry => {
+              // ── BUNDLE CARD ──────────────────────────────────────────────
+              if (entry.type === 'bundle') {
+                const { bundleId, items: bundleItems } = entry;
+                const bundleName = bundleItems[0]?.bundle_naziv || 'Paket';
+                // Bundle total = sum of allocated prices (already proportional)
+                const bundleTotal = bundleItems.reduce((s, i) => s + i.cijena * i.kolicina, 0);
 
-                {/* Info */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <p className="text-[#c9a96e] text-[9px] tracking-[0.25em] uppercase font-['Inter'] font-semibold">{item.brand}</p>
-                      <Link to={`/parfemi/${item.slug}`} className="text-[#e8d5a3] font-['Playfair_Display'] font-semibold hover:text-[#c9a96e] transition-colors line-clamp-1">
-                        {item.naziv}
-                      </Link>
-                      <p className="text-[#e8d5a3]/40 text-xs font-['Inter'] mt-0.5">{item.ml}ml · {item.cijena.toFixed(2)}€/kom</p>
-                    </div>
-                    <button onClick={() => onRemoveItem(item.product_size_id)} className="text-[#e8d5a3]/25 hover:text-red-400 transition-colors flex-shrink-0 p-1">
-                      <Trash2 size={15} />
-                    </button>
-                  </div>
+                const removeBundle = () => {
+                  bundleItems.forEach(i => onRemoveItem(i.product_size_id));
+                };
 
-                  <div className="flex items-center justify-between mt-3">
-                    {/* Qty */}
-                    <div className="flex items-center gap-2 bg-[#0a0a0a] border border-[#c9a96e]/15 rounded-xl overflow-hidden">
-                      <button onClick={() => onUpdateQuantity(item.product_size_id, item.kolicina - 1)} className="p-2 text-[#e8d5a3]/50 hover:text-[#c9a96e] hover:bg-[#c9a96e]/5 transition-all">
-                        <Minus size={13} />
-                      </button>
-                      <span className="text-[#e8d5a3] text-sm font-['Inter'] font-semibold w-8 text-center">{item.kolicina}</span>
-                      <button onClick={() => onUpdateQuantity(item.product_size_id, item.kolicina + 1)} disabled={item.kolicina >= item.max_zaliha} className="p-2 text-[#e8d5a3]/50 hover:text-[#c9a96e] hover:bg-[#c9a96e]/5 transition-all disabled:opacity-30">
-                        <Plus size={13} />
+                return (
+                  <div key={`bundle-${bundleId}`} className="bg-[#111111] border border-[#c9a96e]/20 rounded-2xl overflow-hidden transition-all hover:border-[#c9a96e]/35">
+                    {/* Bundle header */}
+                    <div className="flex items-center justify-between px-4 py-3 bg-[#c9a96e]/5 border-b border-[#c9a96e]/10">
+                      <div className="flex items-center gap-2">
+                        <Package size={14} className="text-[#c9a96e]" />
+                        <span className="text-[#c9a96e] text-xs font-bold font-['Inter'] tracking-wider uppercase">
+                          {bundleName}
+                        </span>
+                        <span className="text-[#e8d5a3]/25 text-[10px] font-['Inter']">· Tematski paket</span>
+                      </div>
+                      <button
+                        onClick={removeBundle}
+                        className="text-[#e8d5a3]/25 hover:text-red-400 transition-colors p-1"
+                        title="Ukloni paket"
+                      >
+                        <Trash2 size={14} />
                       </button>
                     </div>
-                    {/* Total */}
-                    <span className="text-[#c9a96e] font-['DM_Sans'] font-bold text-lg">
-                      {(item.cijena * item.kolicina).toFixed(2)}€
-                    </span>
+
+                    {/* 3 products inside bundle */}
+                    <div className="divide-y divide-[#c9a96e]/5">
+                      {bundleItems.map((item, idx) => (
+                        <div key={item.product_size_id} className="flex items-center gap-3 px-4 py-3">
+                          {/* Small image */}
+                          <div className="w-10 h-10 rounded-lg overflow-hidden bg-[#1a1a1a] flex-shrink-0">
+                            {item.image
+                              ? <img src={item.image} alt={item.naziv} className="w-full h-full object-cover" />
+                              : <div className="w-full h-full flex items-center justify-center text-[#c9a96e]/20 text-xs font-['Cormorant_Garamond']">{idx + 1}</div>
+                            }
+                          </div>
+                          {/* Info */}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-[#e8d5a3]/70 text-sm font-['Inter'] font-medium truncate">{item.naziv}</p>
+                            <p className="text-[#e8d5a3]/30 text-[11px] font-['Inter']">{item.brand} · {item.ml}ml</p>
+                          </div>
+                          {/* Slot number */}
+                          <span className="text-[#c9a96e]/30 text-[10px] font-['Inter'] flex-shrink-0">{idx + 1}/3</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Bundle footer — total price */}
+                    <div className="flex items-center justify-between px-4 py-3 bg-[#0a0a0a]/50 border-t border-[#c9a96e]/10">
+                      <span className="text-[#e8d5a3]/40 text-xs font-['Inter']">Cijena paketa</span>
+                      <span className="text-[#c9a96e] font-['DM_Sans'] font-bold text-lg">
+                        {bundleTotal.toFixed(2)}€
+                      </span>
+                    </div>
+                  </div>
+                );
+              }
+
+              // ── REGULAR ITEM ─────────────────────────────────────────────
+              const { item } = entry;
+              return (
+                <div key={item.product_size_id} className="bg-[#111111] border border-[#c9a96e]/10 hover:border-[#c9a96e]/20 rounded-2xl p-4 flex gap-4 transition-all">
+                  <Link to={`/parfemi/${item.slug}`} className="flex-shrink-0">
+                    <div className="w-20 h-20 md:w-24 md:h-24 rounded-xl overflow-hidden bg-[#1a1a1a]">
+                      <img src={item.image} alt={item.naziv} className="w-full h-full object-cover" />
+                    </div>
+                  </Link>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <p className="text-[#c9a96e] text-[9px] tracking-[0.25em] uppercase font-['Inter'] font-semibold">{item.brand}</p>
+                        <Link to={`/parfemi/${item.slug}`} className="text-[#e8d5a3] font-['Playfair_Display'] font-semibold hover:text-[#c9a96e] transition-colors line-clamp-1">
+                          {item.naziv}
+                        </Link>
+                        <p className="text-[#e8d5a3]/40 text-xs font-['Inter'] mt-0.5">{item.ml}ml · {item.cijena.toFixed(2)}€/kom</p>
+                      </div>
+                      <button onClick={() => onRemoveItem(item.product_size_id)} className="text-[#e8d5a3]/25 hover:text-red-400 transition-colors flex-shrink-0 p-1">
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
+                    <div className="flex items-center justify-between mt-3">
+                      <div className="flex items-center gap-2 bg-[#0a0a0a] border border-[#c9a96e]/15 rounded-xl overflow-hidden">
+                        <button onClick={() => onUpdateQuantity(item.product_size_id, item.kolicina - 1)} className="p-2 text-[#e8d5a3]/50 hover:text-[#c9a96e] hover:bg-[#c9a96e]/5 transition-all">
+                          <Minus size={13} />
+                        </button>
+                        <span className="text-[#e8d5a3] text-sm font-['Inter'] font-semibold w-8 text-center">{item.kolicina}</span>
+                        <button onClick={() => onUpdateQuantity(item.product_size_id, item.kolicina + 1)} disabled={item.kolicina >= item.max_zaliha} className="p-2 text-[#e8d5a3]/50 hover:text-[#c9a96e] hover:bg-[#c9a96e]/5 transition-all disabled:opacity-30">
+                          <Plus size={13} />
+                        </button>
+                      </div>
+                      <span className="text-[#c9a96e] font-['DM_Sans'] font-bold text-lg">
+                        {(item.cijena * item.kolicina).toFixed(2)}€
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
 
-            {/* Continue shopping */}
             <Link to="/parfemi" className="inline-flex items-center gap-2 text-[#c9a96e]/60 hover:text-[#c9a96e] text-sm font-['Inter'] transition-colors mt-2">
               ← Nastavite kupovinu
             </Link>
@@ -176,7 +266,6 @@ export default function CartPage({ items, coupon, onCouponSet, onUpdateQuantity,
 
               <div className="h-[1px] bg-[#c9a96e]/10 mb-4" />
 
-              {/* Price breakdown */}
               <div className="space-y-3 mb-4">
                 <div className="flex justify-between text-sm font-['Inter']">
                   <span className="text-[#e8d5a3]/50">Međuiznos</span>
@@ -227,3 +316,4 @@ export default function CartPage({ items, coupon, onCouponSet, onUpdateQuantity,
     </div>
   );
 }
+
