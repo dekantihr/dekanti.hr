@@ -7,6 +7,8 @@ import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
 import ErrorBoundary from './components/ErrorBoundary';
 import ScrollToTop from './components/ScrollToTop';
+import CookieBanner from './components/CookieBanner';
+import NewsletterPopup from './components/NewsletterPopup';
 import HomePage from './pages/HomePage';
 import CatalogPage from './pages/CatalogPage';
 import ProductPage from './pages/ProductPage';
@@ -167,6 +169,10 @@ function AppContent() {
       </Routes>
 
       {!isAdminRoute && <Footer />}
+
+      {/* Global popups — not shown in admin */}
+      {!isAdminRoute && <CookieBanner />}
+      {!isAdminRoute && <NewsletterPopup />}
 
       <Toaster
         position="bottom-right"

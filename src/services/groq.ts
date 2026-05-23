@@ -35,12 +35,12 @@ interface GroqResponse {
   }[];
 }
 
-function getCurrentUserEmail(): string | null {
+function getCurrentUserId(): string | null {
   try {
     const stored = localStorage.getItem(USER_KEY);
     if (stored) {
       const user = JSON.parse(stored);
-      return user?.email || null;
+      return user?.id ? String(user.id) : null;
     }
   } catch {
     // ignore
@@ -60,10 +60,10 @@ async function callGroq(messages: GroqMessage[], temperature = 0.7, maxTokens = 
   };
 
   try {
-    const userEmail = getCurrentUserEmail();
+    const userId = getCurrentUserId();
     const headers: Record<string, string> = {};
-    if (userEmail) {
-      headers['x-user-email'] = userEmail;
+    if (userId) {
+      headers['x-user-id'] = userId;
     }
 
     const { data, error } = await supabase.functions.invoke<GroqResponse>('admin-ai', {
@@ -158,10 +158,10 @@ Use the actual documented notes for this perfume. If you are not certain about s
   };
 
   try {
-    const userEmail = getCurrentUserEmail();
+    const userId = getCurrentUserId();
     const headers: Record<string, string> = {};
-    if (userEmail) {
-      headers['x-user-email'] = userEmail;
+    if (userId) {
+      headers['x-user-id'] = userId;
     }
 
     const { data, error } = await supabase.functions.invoke<GroqResponse>('admin-ai', {
@@ -525,10 +525,10 @@ Valid: koncentracija: EDP/EDT/Parfum/EDC | spol: muški/ženski/unisex | sezona:
   };
 
   try {
-    const userEmail = getCurrentUserEmail();
+    const userId = getCurrentUserId();
     const headers: Record<string, string> = {};
-    if (userEmail) {
-      headers['x-user-email'] = userEmail;
+    if (userId) {
+      headers['x-user-id'] = userId;
     }
 
     const { data, error } = await supabase.functions.invoke<GroqResponse>('admin-ai', {

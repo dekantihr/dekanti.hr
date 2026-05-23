@@ -55,10 +55,26 @@ export default function AuthPage({ mode, onLogin }: AuthPageProps) {
 
   const handleForgot = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!form.email) { toast.error('Unesite email adresu'); return; }
     setLoading(true);
-    await new Promise(r => setTimeout(r, 800));
-    toast.success(`Reset link poslan na ${form.email}`);
-    setLoading(false);
+    try {
+      const { supabase } = await import('../utils/supabase');
+      // Generate reset token server-side
+      const { data, error } = await supabase.rpc('request_password_reset', { p_email: form.email });
+      if (!error && data?.token && data?.user_id) {
+        // Send the reset email
+        const resetLink = `${window.location.origin}/reset-lozinka?token=${data.token}`;
+        const html = `<div style="max-width:560px;margin:0 auto;background:#0a0a0a;color:#e8d5a3;font-family:Arial,sans-serif;border-radius:16px;overflow:hidden;border:1px solid rgba(201,169,110,0.2)"><div style="background:#111;padding:24px;text-align:center;border-bottom:1px solid rgba(201,169,110,0.15)"><h1 style="font-family:Georgia,serif;color:#c9a96e;margin:0;font-size:24px;letter-spacing:2px">DEKANTI<span style="color:#e8d5a3">.HR</span></h1></div><div style="padding:32px 24px"><h2 style="color:#e8d5a3;font-size:20px;margin:0 0 8px">Reset lozinke</h2><p style="color:#e8d5a3;opacity:0.6;margin:0 0 24px;font-size:14px">Primili smo zahtjev za reset lozinke za vaš račun. Link vrijedi 1 sat.</p><a href="${resetLink}" style="display:block;background:#c9a96e;color:#0a0a0a;text-align:center;padding:14px 24px;border-radius:12px;font-weight:bold;font-size:14px;text-decoration:none;letter-spacing:1px;margin-bottom:16px">Resetiraj lozinku →</a><p style="color:#e8d5a3;opacity:0.4;font-size:11px;margin:0">Ako niste zatražili reset, ignorirajte ovaj email.</p></div><div style="background:#111;padding:16px 24px;text-align:center;border-top:1px solid rgba(201,169,110,0.1)"><p style="color:#e8d5a3;opacity:0.3;font-size:11px;margin:0">dekantihr.com</p></div></div>`;
+        const { api } = await import('../services/api');
+        await api.sendEmail(form.email, 'Reset lozinke — dekantihr.com', html);
+      }
+      // Always show success to prevent user enumeration
+      toast.success('Ako email postoji u sustavu, poslali smo link za reset lozinke.');
+    } catch {
+      toast.success('Ako email postoji u sustavu, poslali smo link za reset lozinke.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const inputCls = "w-full bg-[#0a0a0a] border border-[#c9a96e]/20 text-[#e8d5a3] placeholder-[#e8d5a3]/25 px-4 py-3.5 rounded-xl text-sm focus:outline-none focus:border-[#c9a96e]/50 font-['Inter']";

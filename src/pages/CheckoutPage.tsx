@@ -29,7 +29,7 @@ interface FormData {
   grad: string;
   postanski_broj: string;
   napomena: string;
-  nacin_placanja: 'bankovna' | 'revolut';
+  nacin_placanja: 'revolut';
 }
 
 export default function CheckoutPage({ items, coupon, subtotal, dostava, popust, ukupno, user, onOrderComplete, onClearCart }: CheckoutPageProps) {
@@ -177,11 +177,21 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
     setIsProcessing(true);
 
     try {
-      // Generate the order number ahead of time so it can be reused as the
-      // Revolut payment reference (customer types it in the description).
-      const year = new Date().getFullYear();
-      const random = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
-      const futureOrderNumber = `HR-${year}-${random}`;
+      // Generate the order number server-side to avoid collisions.
+      // This number is also used as the Revolut payment reference.
+      const { supabase } = await import('../utils/supabase');
+      let futureOrderNumber: string;
+      try {
+        const { data: generatedNumber, error: genError } = await supabase
+          .rpc('generate_order_number');
+        if (genError || !generatedNumber) throw genError;
+        futureOrderNumber = generatedNumber as string;
+      } catch {
+        // Fallback to client-side generation
+        const year = new Date().getFullYear();
+        const random = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
+        futureOrderNumber = `HR-${year}-${random}`;
+      }
 
       const snapshot = {
         items: [...items],
@@ -448,10 +458,9 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
                           </div>
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-0.5">
-                              <p className="text-[#e8d5a3]/90 text-sm font-bold font-['Inter']">Revolut</p>
-                              <span className="text-[9px] bg-purple-500/15 text-purple-300 border border-purple-500/25 px-1.5 py-0.5 rounded-full font-['Inter'] font-semibold">Preporučeno</span>
+                              <p className="text-[#e8d5a3]/90 text-sm font-bold font-['Inter']">Revolut link</p>
                             </div>
-                            <p className="text-[#e8d5a3]/40 text-xs font-['Inter']">Brzo plaćanje · Potvrda unutar 1h</p>
+                            <p className="text-[#e8d5a3]/40 text-xs font-['Inter']">Kartica · Apple Pay · Google Pay · Revolut · Potvrda unutar 1h</p>
                           </div>
                           <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${
                             form.nacin_placanja === 'revolut' ? 'border-purple-400 bg-purple-400' : 'border-[#c9a96e]/30'
@@ -463,65 +472,13 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
                           <div className="px-4 pb-4 pt-0">
                             <div className="bg-purple-950/30 border border-purple-500/20 rounded-xl p-3">
                               <p className="text-purple-200/70 text-[11px] font-['Inter'] leading-relaxed">
-                                Nakon potvrde narudžbe dobivate detalje za uplatu: Revolut handle, točan iznos i referentni broj. Uplatu vršite sami u Revolut aplikaciji. Šaljemo unutar 1 sata od potvrde uplate.
+                                Nakon potvrde narudžbe dobivate link za plaćanje. Možete platiti <strong className="text-purple-200/90">karticom (Visa/Mastercard), Apple Pay, Google Pay</strong> ili Revolut računom — ne treba vam Revolut aplikacija. Šaljemo unutar 1 sata od potvrde uplate.
                               </p>
                             </div>
                           </div>
                         )}
                       </button>
 
-                      {/* Bank transfer option */}
-                      <button
-                        onClick={() => updateForm('nacin_placanja', 'bankovna')}
-                        className={`w-full text-left rounded-2xl border-2 transition-all duration-200 overflow-hidden ${
-                          form.nacin_placanja === 'bankovna'
-                            ? 'border-blue-500/50 bg-blue-950/15'
-                            : 'border-[#c9a96e]/12 bg-[#0a0a0a] hover:border-[#c9a96e]/25'
-                        }`}
-                      >
-                        <div className="p-4 flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-xl bg-[#0d1b2a] flex items-center justify-center flex-shrink-0 shadow-md border border-blue-500/15">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                              <rect x="2" y="11" width="20" height="2" rx="1" fill="#60a5fa"/>
-                              <rect x="4" y="13" width="2" height="6" rx="0.5" fill="#60a5fa" opacity="0.7"/>
-                              <rect x="8" y="13" width="2" height="6" rx="0.5" fill="#60a5fa" opacity="0.7"/>
-                              <rect x="12" y="13" width="2" height="6" rx="0.5" fill="#60a5fa" opacity="0.7"/>
-                              <rect x="16" y="13" width="2" height="6" rx="0.5" fill="#60a5fa" opacity="0.7"/>
-                              <rect x="2" y="19" width="20" height="2" rx="1" fill="#60a5fa"/>
-                              <path d="M12 3L22 9H2L12 3Z" fill="#60a5fa"/>
-                            </svg>
-                          </div>
-                          <div className="flex-1">
-                            <p className="text-[#e8d5a3]/90 text-sm font-bold font-['Inter'] mb-0.5">Bankovna transakcija</p>
-                            <p className="text-[#e8d5a3]/40 text-xs font-['Inter']">IBAN uplata · Podaci u emailu</p>
-                          </div>
-                          <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${
-                            form.nacin_placanja === 'bankovna' ? 'border-blue-400 bg-blue-400' : 'border-[#c9a96e]/30'
-                          }`}>
-                            {form.nacin_placanja === 'bankovna' && <Check size={11} className="text-white" strokeWidth={3} />}
-                          </div>
-                        </div>
-                        {form.nacin_placanja === 'bankovna' && (
-                          <div className="px-4 pb-4 pt-0">
-                            <div className="bg-blue-950/25 border border-blue-500/20 rounded-xl p-3 space-y-1">
-                              <p className="text-blue-300/80 text-[11px] font-['Inter'] font-semibold mb-1.5">Podaci za uplatu:</p>
-                              {[
-                                ['IBAN', 'HR12 1234 5678 9012 3456 7'],
-                                ['Primatelj', 'dekantihr.com'],
-                                ['Opis', 'Broj narudžbe (dobit ćete emailom)'],
-                              ].map(([k, v]) => (
-                                <div key={k} className="flex gap-2 text-[11px] font-['Inter']">
-                                  <span className="text-blue-300/50 w-16 flex-shrink-0">{k}:</span>
-                                  <span className="text-blue-200/80">{v}</span>
-                                </div>
-                              ))}
-                              <p className="text-blue-300/45 text-[10px] font-['Inter'] mt-2 pt-2 border-t border-blue-500/15">
-                                * Pošiljka se šalje nakon potvrde uplate (1–2 radna dana)
-                              </p>
-                            </div>
-                          </div>
-                        )}
-                      </button>
                     </div>
                   </div>
 
@@ -586,7 +543,7 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
                     <div>
                       <p className="text-[#e8d5a3]/30 text-[10px] uppercase tracking-wider font-['Inter'] mb-1">Plaćanje</p>
                       <p className="text-[#e8d5a3]/70 font-['Inter']">
-                        {form.nacin_placanja === 'revolut' ? '💳 Revolut' : '🏦 Bankovna transakcija'}
+                        {form.nacin_placanja === 'revolut' ? '💳 Kartica / Apple Pay / Revolut' : '💳 Kartica / Apple Pay / Revolut'}
                       </p>
                       <p className="text-[#e8d5a3]/50 font-['Inter'] text-xs mt-1">📦 BoxNow paketomat</p>
                     </div>
@@ -657,7 +614,7 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
                         <div className="w-7 h-7 rounded-full bg-purple-500/25 border border-purple-500/40 flex items-center justify-center flex-shrink-0">
                           <span className="text-purple-200 text-xs font-bold">1</span>
                         </div>
-                        <p className="text-white/80 text-sm font-semibold font-['Inter']">Otvorite Revolut aplikaciju</p>
+                        <p className="text-white/80 text-sm font-semibold font-['Inter']">Platite karticom, Apple Pay ili Revolutom</p>
                       </div>
                       <a
                         href={buildRevolutPayLink(pendingOrder.ukupno)}
@@ -666,8 +623,11 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
                         className="flex items-center justify-center gap-2.5 w-full bg-gradient-to-r from-[#7c3aed] to-[#6d28d9] hover:from-[#8b5cf6] hover:to-[#7c3aed] text-white py-3.5 rounded-xl font-bold text-sm tracking-wide transition-all shadow-lg shadow-purple-900/40 group"
                       >
                         <ExternalLink size={15} className="group-hover:translate-x-0.5 transition-transform" />
-                        Otvori Revolut · {revolutHandle}
+                        Otvori stranicu za plaćanje
                       </a>
+                      <p className="text-white/30 text-[10px] font-['Inter'] mt-2 text-center">
+                        💳 Visa · Mastercard · Apple Pay · Google Pay · Revolut — nije potrebna Revolut aplikacija
+                      </p>
                     </div>
 
                     {/* Step 2: Amount + Reference */}
@@ -915,33 +875,6 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
                       <div>
                         <p className="text-green-300/90 text-sm font-semibold font-['Inter'] mb-1">Uplata potvrđena</p>
                         <p className="text-green-300/55 text-xs font-['Inter']">Vaša uplata je zabilježena. Narudžba ide u pripremu i šaljemo je isti dan.</p>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Bank transfer info */}
-                  {form.nacin_placanja === 'bankovna' && (
-                    <div className="bg-[#111111] border border-blue-500/20 rounded-2xl p-5">
-                      <div className="flex items-start gap-3 mb-3">
-                        <div className="w-8 h-8 rounded-xl bg-blue-500/15 flex items-center justify-center flex-shrink-0">
-                          <span className="text-blue-300 text-sm">🏦</span>
-                        </div>
-                        <div>
-                          <p className="text-blue-200/80 text-sm font-semibold font-['Inter'] mb-0.5">Podaci za uplatu</p>
-                          <p className="text-blue-200/45 text-xs font-['Inter']">Poslani su i na vaš email</p>
-                        </div>
-                      </div>
-                      <div className="bg-black/30 border border-blue-500/15 rounded-xl p-3 space-y-1.5">
-                        {[
-                          ['IBAN', 'HR12 1234 5678 9012 3456 7'],
-                          ['Primatelj', 'dekantihr.com'],
-                          ['Poziv na broj', orderNumber],
-                        ].map(([k, v]) => (
-                          <div key={k} className="flex justify-between text-xs font-['Inter']">
-                            <span className="text-white/30">{k}</span>
-                            <span className="text-blue-200/80 font-mono">{v}</span>
-                          </div>
-                        ))}
                       </div>
                     </div>
                   )}

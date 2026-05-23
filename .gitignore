@@ -55,3 +55,6 @@ Thumbs.db
 *.tsbuildinfo
 .vercel
 .env*.local
+
+# Supabase temp files (contain project ref and internal state)
+supabase/.temp/

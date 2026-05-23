@@ -81,7 +81,14 @@ export function useCart() {
 
   const subtotal = items.reduce((sum, i) => sum + i.cijena * i.kolicina, 0);
   const dostava = subtotal >= 50 ? 0 : subtotal > 0 ? 2.99 : 0;
-  const popust = coupon?.popust_iznos ?? 0;
+
+  // Recalculate discount live against current subtotal so it stays correct when cart changes
+  const popust = coupon
+    ? coupon.tip === 'postotak'
+      ? Math.min(parseFloat((subtotal * coupon.vrijednost / 100).toFixed(2)), subtotal)
+      : Math.min(coupon.vrijednost, subtotal)
+    : 0;
+
   const ukupno = Math.max(0, subtotal - popust + dostava);
   const itemCount = items.reduce((sum, i) => sum + i.kolicina, 0);
 

@@ -1,4 +1,7 @@
 project_id = "rfstxhlbnsdsiovtrroj"
 
+# admin-ai: verify_jwt is false because this app uses custom auth (not Supabase Auth).
+# Authentication is handled inside the function itself via x-user-id header + DB role check.
+# TODO: Migrate to Supabase Auth to enable proper JWT verification.
 [functions.admin-ai]
 verify_jwt = false

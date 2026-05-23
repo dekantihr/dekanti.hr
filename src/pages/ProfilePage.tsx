@@ -63,18 +63,21 @@ export default function ProfilePage({ user, orders, wishlist, onWishlistToggle, 
   useEffect(() => {
     if (activeTab !== 'narudzbe' || !user?.email) return;
     setOrdersLoading(true);
-    import('../utils/supabase').then(({ supabase }) => {
-      supabase
-        .from('orders')
-        .select('*')
-        .eq('email', user.email)
-        .order('created_at', { ascending: false })
-        .then(({ data }) => {
-          if (data) setDbOrders(data);
-          setOrdersLoading(false);
-        })
-        .catch(() => setOrdersLoading(false));
-    });
+    (async () => {
+      try {
+        const { supabase } = await import('../utils/supabase');
+        const { data } = await supabase
+          .from('orders')
+          .select('*')
+          .eq('email', user.email)
+          .order('created_at', { ascending: false });
+        if (data) setDbOrders(data);
+      } catch {
+        // ignore
+      } finally {
+        setOrdersLoading(false);
+      }
+    })();
   }, [activeTab, user?.email]);
 
   // Fetch user coupons when kuponi tab is opened
@@ -172,7 +175,7 @@ export default function ProfilePage({ user, orders, wishlist, onWishlistToggle, 
             >
               {tab.icon}
               {tab.label}
-              {'badge' in tab && tab.badge > 0 && activeTab !== tab.id && (
+              {'badge' in tab && (tab.badge ?? 0) > 0 && activeTab !== tab.id && (
                 <span className="bg-[#c9a96e] text-[#0a0a0a] text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
                   {tab.badge}
                 </span>

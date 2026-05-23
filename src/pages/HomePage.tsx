@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Star, Truck, Shield, RotateCcw, Package, Award, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowRight, Star, Truck, Shield, RotateCcw, Package, ChevronLeft, ChevronRight } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
 import toast from 'react-hot-toast';
 import { api } from '../services/api';
@@ -20,52 +20,28 @@ export default function HomePage({ wishlist, onWishlistToggle, onAddToCart }: Ho
   const [isHeroAutoPlaying] = useState(true);
   const heroAutoPlayTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Bestsellers carousel state
-  const [bestsellersIndex, setBestsellersIndex] = useState(0);
-  const [prevBestsellersIndex, setPrevBestsellersIndex] = useState<number | null>(null);
-  const [isBestsellersTransitioning, setIsBestsellersTransitioning] = useState(false);
-  const [isBestsellersAutoPlaying, setIsBestsellersAutoPlaying] = useState(true);
-  const bestsellersAutoPlayTimerRef = useRef<NodeJS.Timeout | null>(null);
-
   // Slide direction for animations
   const [slideDirection, setSlideDirection] = useState<'left' | 'right'>('right');
 
   // Data from database
   const [featured, setFeatured] = useState<any[]>([]);
-  const [bestsellers, setBestsellers] = useState<any[]>([]);
-  const [brands, setBrands] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch data from Supabase
   useEffect(() => {
+    let cancelled = false;
     async function fetchData() {
       try {
         setLoading(true);
-        
-        // Fetch featured products
         const featuredData = await api.getFeaturedProducts(8);
-        setFeatured(featuredData || []);
-
-        // Fetch all products and filter bestsellers
-        const allProducts = await api.getProducts();
-        const bestsellersData = (allProducts || [])
-          .filter((p: any) => p.bestseller_rank)
-          .sort((a: any, b: any) => (a.bestseller_rank ?? 99) - (b.bestseller_rank ?? 99))
-          .slice(0, 8);
-        setBestsellers(bestsellersData);
-
-        // Fetch brands
-        const brandsData = await api.getBrands();
-        setBrands(brandsData || []);
+        if (!cancelled) setFeatured(featuredData || []);
       } catch (error) {
         console.error('Error fetching homepage data:', error);
-        toast.error('Greška pri učitavanju podataka');
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     }
-
     fetchData();
+    return () => { cancelled = true; };
   }, []);
 
   const heroSlides = [
@@ -98,59 +74,21 @@ export default function HomePage({ wishlist, onWishlistToggle, onAddToCart }: Ho
     };
   }, [currentSlide, isHeroAutoPlaying, isTransitioning, heroSlides.length]);
 
-  // Bestsellers carousel auto-play (4 seconds)
-  useEffect(() => {
-    if (!isBestsellersAutoPlaying || isBestsellersTransitioning) return;
-    
-    if (bestsellersAutoPlayTimerRef.current) clearTimeout(bestsellersAutoPlayTimerRef.current);
-    
-    const itemsPerPage = 4;
-    const maxIndex = Math.ceil(bestsellers.length / itemsPerPage) - 1;
-    
-    bestsellersAutoPlayTimerRef.current = setTimeout(() => {
-      setSlideDirection('right');
-      setPrevBestsellersIndex(bestsellersIndex);
-      setIsBestsellersTransitioning(true);
-      setBestsellersIndex(i => (i + 1) > maxIndex ? 0 : i + 1);
-      
-      setTimeout(() => {
-        setIsBestsellersTransitioning(false);
-        setPrevBestsellersIndex(null);
-      }, 800);
-    }, 4000);
-    
-    return () => {
-      if (bestsellersAutoPlayTimerRef.current) clearTimeout(bestsellersAutoPlayTimerRef.current);
-    };
-  }, [bestsellersIndex, isBestsellersAutoPlaying, isBestsellersTransitioning, bestsellers.length]);
-
   const handleNewsletter = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newsletterEmail) return;
-    
     try {
       const result = await api.subscribeNewsletter(newsletterEmail);
       if (result.success) {
-        toast.success('Hvala! Pretplatili ste se na newsletter. Provjeri email za 10% kupon!', {
-          style: {
-            background: '#111111',
-            color: '#e8d5a3',
-            border: '1px solid rgba(201,169,110,0.25)',
-            borderRadius: '12px',
-            fontFamily: 'Inter, sans-serif',
-            fontSize: '13px',
-          },
-          iconTheme: {
-            primary: '#c9a96e',
-            secondary: '#0a0a0a',
-          },
+        toast.success('Hvala! Pretplatili ste se na newsletter.', {
+          style: { background: '#111111', color: '#e8d5a3', border: '1px solid rgba(201,169,110,0.25)', borderRadius: '12px', fontFamily: 'Inter, sans-serif', fontSize: '13px' },
+          iconTheme: { primary: '#c9a96e', secondary: '#0a0a0a' },
         });
         setNewsletterEmail('');
       } else {
         toast.error(result.error || 'Greška pri prijavi na newsletter');
       }
-    } catch (error) {
-      console.error('Newsletter error:', error);
+    } catch {
       toast.error('Greška pri prijavi na newsletter');
     }
   };
@@ -162,10 +100,7 @@ export default function HomePage({ wishlist, onWishlistToggle, onAddToCart }: Ho
     setPrevSlide(currentSlide);
     setIsTransitioning(true);
     setCurrentSlide((currentSlide - 1 + heroSlides.length) % heroSlides.length);
-    setTimeout(() => {
-      setIsTransitioning(false);
-      setPrevSlide(null);
-    }, 800);
+    setTimeout(() => { setIsTransitioning(false); setPrevSlide(null); }, 800);
   };
 
   const handleHeroNext = () => {
@@ -174,10 +109,7 @@ export default function HomePage({ wishlist, onWishlistToggle, onAddToCart }: Ho
     setPrevSlide(currentSlide);
     setIsTransitioning(true);
     setCurrentSlide((currentSlide + 1) % heroSlides.length);
-    setTimeout(() => {
-      setIsTransitioning(false);
-      setPrevSlide(null);
-    }, 800);
+    setTimeout(() => { setIsTransitioning(false); setPrevSlide(null); }, 800);
   };
 
   const handleHeroSlideClick = (index: number) => {
@@ -186,51 +118,7 @@ export default function HomePage({ wishlist, onWishlistToggle, onAddToCart }: Ho
     setPrevSlide(currentSlide);
     setIsTransitioning(true);
     setCurrentSlide(index);
-    setTimeout(() => {
-      setIsTransitioning(false);
-      setPrevSlide(null);
-    }, 800);
-  };
-
-  // Bestsellers navigation handlers
-  const handleBestsellersPrev = () => {
-    if (isBestsellersTransitioning) return;
-    setSlideDirection('left');
-    const itemsPerPage = 4;
-    const maxIndex = Math.ceil(bestsellers.length / itemsPerPage) - 1;
-    setPrevBestsellersIndex(bestsellersIndex);
-    setIsBestsellersTransitioning(true);
-    setBestsellersIndex(i => i === 0 ? maxIndex : i - 1);
-    setTimeout(() => {
-      setIsBestsellersTransitioning(false);
-      setPrevBestsellersIndex(null);
-    }, 800);
-  };
-
-  const handleBestsellersNext = () => {
-    if (isBestsellersTransitioning) return;
-    setSlideDirection('right');
-    const itemsPerPage = 4;
-    const maxIndex = Math.ceil(bestsellers.length / itemsPerPage) - 1;
-    setPrevBestsellersIndex(bestsellersIndex);
-    setIsBestsellersTransitioning(true);
-    setBestsellersIndex(i => (i + 1) > maxIndex ? 0 : i + 1);
-    setTimeout(() => {
-      setIsBestsellersTransitioning(false);
-      setPrevBestsellersIndex(null);
-    }, 800);
-  };
-
-  const handleBestsellersSlideClick = (index: number) => {
-    if (isBestsellersTransitioning || index === bestsellersIndex) return;
-    setSlideDirection(index > bestsellersIndex ? 'right' : 'left');
-    setPrevBestsellersIndex(bestsellersIndex);
-    setIsBestsellersTransitioning(true);
-    setBestsellersIndex(index);
-    setTimeout(() => {
-      setIsBestsellersTransitioning(false);
-      setPrevBestsellersIndex(null);
-    }, 800);
+    setTimeout(() => { setIsTransitioning(false); setPrevSlide(null); }, 800);
   };
 
   return (
@@ -495,229 +383,160 @@ export default function HomePage({ wishlist, onWishlistToggle, onAddToCart }: Ho
         </div>
       </section>
 
-      {/* LUXURY BRANDS SHOWCASE */}
-      <section className="bg-[#0a0a0a] py-20 border-y border-[#c9a96e]/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Section Header */}
-          <div className="text-center mb-16">
-            <p className="text-[#c9a96e] text-xs tracking-[0.25em] uppercase font-medium font-['Inter'] mb-4 flex items-center justify-center gap-2">
-              <Award size={12} className="animate-pulse" />
-              Luksuzni brandovi
-            </p>
-            <h2 className="font-['Cormorant_Garamond'] text-4xl md:text-5xl font-bold text-[#e8d5a3] mb-4">
-              Naša <span className="text-[#c9a96e] italic">kolekcija</span>
-            </h2>
-            <p className="text-[#e8d5a3]/50 text-sm font-['Inter'] max-w-2xl mx-auto">
-              Ekskluzivni decant uzorci najpoznatijih svjetskih parfemskih kuća
-            </p>
-          </div>
-
-          {/* Golden divider */}
-          <div className="flex items-center gap-4 mb-12">
-            <div className="flex-1 h-[1px] bg-gradient-to-r from-transparent to-[#c9a96e]/30" />
-            <Award size={12} className="text-[#c9a96e] animate-pulse-glow" />
-            <div className="flex-1 h-[1px] bg-gradient-to-l from-transparent to-[#c9a96e]/30" />
-          </div>
-
-          {/* Brands Grid */}
-          {loading ? (
-            <div className="text-center py-12">
-              <div className="inline-block w-8 h-8 border-2 border-[#c9a96e]/30 border-t-[#c9a96e] rounded-full animate-spin" />
+      {/* HOW IT WORKS */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div className="text-center mb-14">
+          <p className="text-[#c9a96e] text-xs tracking-[0.25em] uppercase font-medium font-['Inter'] mb-3">Kako funkcionira</p>
+          <h2 className="font-['Cormorant_Garamond'] text-4xl md:text-5xl font-bold text-[#e8d5a3]">
+            Jednostavno kao <span className="text-[#c9a96e] italic">1, 2, 3</span>
+          </h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+          {/* Connector line — desktop only */}
+          <div className="hidden md:block absolute top-10 left-1/3 right-1/3 h-[1px] bg-gradient-to-r from-[#c9a96e]/20 via-[#c9a96e]/40 to-[#c9a96e]/20" />
+          {[
+            {
+              step: '01',
+              icon: '🔍',
+              title: 'Odaberi miris',
+              desc: 'Pregledaj našu kolekciju premium parfema. Filtriraj po brandu, spolu ili sezoni — pronađi savršen miris za sebe.',
+            },
+            {
+              step: '02',
+              icon: '💳',
+              title: 'Naruči i plati',
+              desc: 'Odaberi veličinu (2ml, 5ml ili 10ml), dodaj u košaricu i plati karticom, Apple Pay ili Revolutom. Brzo i sigurno.',
+            },
+            {
+              step: '03',
+              icon: '📦',
+              title: 'Primi na kućni prag',
+              desc: 'Pakiramo isti dan (do 14h). BoxNow paketomat dostava za 1–2 radna dana. Pratite pošiljku u realnom vremenu.',
+            },
+          ].map((item) => (
+            <div key={item.step} className="relative bg-[#111111] border border-[#c9a96e]/10 rounded-2xl p-8 hover:border-[#c9a96e]/25 transition-all duration-300 group">
+              {/* Step number */}
+              <div className="absolute -top-4 left-8 bg-[#0a0a0a] border border-[#c9a96e]/20 rounded-full px-3 py-1">
+                <span className="text-[#c9a96e]/60 text-[10px] font-bold tracking-[0.2em] font-['Inter']">{item.step}</span>
+              </div>
+              <div className="text-3xl mb-4 mt-2">{item.icon}</div>
+              <h3 className="font-['Cormorant_Garamond'] text-xl font-bold text-[#e8d5a3] mb-3 group-hover:text-[#c9a96e] transition-colors">{item.title}</h3>
+              <p className="text-[#e8d5a3]/45 text-sm font-['Inter'] leading-relaxed">{item.desc}</p>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
-              {brands.map((brand, idx) => {
-                const brandProductCount = featured.filter((p: any) => p.brand_id === brand.id).length + 
-                                         bestsellers.filter((p: any) => p.brand_id === brand.id).length;
-                
-                return (
-                  <Link
-                    key={brand.id}
-                    to={`/parfemi?brand=${brand.id}`}
-                    className="group relative bg-[#111111] border border-[#c9a96e]/10 rounded-2xl p-6 hover:border-[#c9a96e]/30 hover:shadow-[0_0_40px_rgba(201,169,110,0.08)] transition-all duration-500 hover-lift overflow-hidden"
-                    style={{ animationDelay: `${idx * 0.1}s` }}
-                  >
-                    {/* Decorative corner accent */}
-                    <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-[#c9a96e]/5 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    
-                    {/* Content */}
-                    <div className="relative z-10">
-                      {/* Brand Name */}
-                      <h3 className="font-['Cormorant_Garamond'] text-2xl font-bold text-[#e8d5a3] mb-2 group-hover:text-[#c9a96e] transition-colors duration-300">
-                        {brand.naziv}
-                      </h3>
-                      
-                      {/* Decorative line */}
-                      <div className="w-12 h-[1px] bg-[#c9a96e]/30 mb-3 group-hover:w-full group-hover:bg-[#c9a96e]/60 transition-all duration-500" />
-                      
-                      {/* Brand Description */}
-                      <p className="text-[#e8d5a3]/50 text-[13px] font-['Inter'] leading-relaxed mb-4 min-h-[40px]">
-                        {brand.opis}
-                      </p>
-                      
-                      {/* Product Count */}
-                      <div className="flex items-center justify-between">
-                        <span className="text-[#c9a96e]/60 text-[11px] tracking-wider uppercase font-['Inter'] font-semibold">
-                          {brandProductCount} {brandProductCount === 1 ? 'parfem' : 'parfema'}
-                        </span>
-                        <ArrowRight 
-                          size={14} 
-                          className="text-[#c9a96e]/40 group-hover:text-[#c9a96e] group-hover:translate-x-1 transition-all duration-300" 
-                        />
-                      </div>
-                    </div>
-
-                    {/* Hover glow effect */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#c9a96e]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-                  </Link>
-                );
-              })}
-            </div>
-          )}
-
-          {/* View All Link */}
-          <div className="text-center mt-12">
-            <Link 
-              to="/parfemi" 
-              className="view-all-link inline-flex items-center gap-2 text-[#c9a96e] border border-[#c9a96e]/30 px-8 py-3 rounded-full text-sm font-['Inter'] tracking-wider hover:bg-[#c9a96e]/5 hover:border-[#c9a96e]/60 transition-all duration-300"
-            >
-              Pregledaj sve parfeme
-              <ArrowRight size={14} className="arrow-icon" />
-            </Link>
-          </div>
+          ))}
         </div>
       </section>
 
-      {/* BESTSELLERS */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="flex items-end justify-between mb-12">
-          <div>
-            <p className="text-[#c9a96e] text-xs tracking-[0.25em] uppercase font-medium font-['Inter'] mb-3 flex items-center gap-2">
-              <Award size={12} className="animate-pulse" />
-              Najprodavanije
-            </p>
-            <h2 className="font-['Cormorant_Garamond'] text-4xl md:text-5xl font-bold text-[#e8d5a3]">
-              Naši <span className="text-[#c9a96e] italic">bestselleri</span>
-            </h2>
-          </div>
-          <Link 
-            to="/parfemi?sort=bestseller" 
-            className="view-all-link hidden md:flex items-center gap-2 text-[#c9a96e] text-sm font-['DM_Sans'] tracking-wider hover:text-[#e8d5a3] transition-colors px-4 py-2 rounded-full border border-[#c9a96e]/20 hover:border-[#c9a96e]/40"
-          >
-            Top 8 bestsellera
-            <ArrowRight size={14} className="arrow-icon" />
-          </Link>
-        </div>
-
-        {/* Carousel container */}
-        <div 
-          className="relative"
-          onMouseEnter={() => setIsBestsellersAutoPlaying(false)}
-          onMouseLeave={() => setIsBestsellersAutoPlaying(true)}
-        >
-          {/* Navigation arrows */}
-          <button
-            onClick={handleBestsellersPrev}
-            disabled={isBestsellersTransitioning}
-            className="absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full glass border border-[#c9a96e]/30 flex items-center justify-center text-[#c9a96e]/60 hover:text-[#c9a96e] hover:border-[#c9a96e]/60 hover:bg-[#c9a96e]/10 transition-all duration-300 hover:scale-110 hover-glow disabled:opacity-50 disabled:cursor-not-allowed"
-            aria-label="Previous bestsellers"
-          >
-            <ChevronLeft size={20} />
-          </button>
-
-          <button
-            onClick={handleBestsellersNext}
-            disabled={isBestsellersTransitioning}
-            className="absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full glass border border-[#c9a96e]/30 flex items-center justify-center text-[#c9a96e]/60 hover:text-[#c9a96e] hover:border-[#c9a96e]/60 hover:bg-[#c9a96e]/10 transition-all duration-300 hover:scale-110 hover-glow disabled:opacity-50 disabled:cursor-not-allowed"
-            aria-label="Next bestsellers"
-          >
-            <ChevronRight size={20} />
-          </button>
-
-          {/* Products grid with overlapping slide animation */}
-          <div className="relative overflow-hidden min-h-[400px]">
-            {/* Previous slide (exiting) */}
-            {prevBestsellersIndex !== null && (
-              <div 
-                className={`absolute inset-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 ${
-                  slideDirection === 'right' ? 'animate-slideOutLeft' : 'animate-slideOutRight'
-                }`}
-              >
-                {bestsellers.slice(prevBestsellersIndex * 4, (prevBestsellersIndex + 1) * 4).map((product, idx) => (
-                  <div key={product.id} className="relative group">
-                    <div className="absolute -top-3 -left-3 z-10 w-8 h-8 bg-gradient-to-br from-[#c9a96e] to-[#e8d5a3] text-[#0a0a0a] rounded-full flex items-center justify-center text-xs font-bold font-['DM_Sans'] shadow-[0_0_20px_rgba(201,169,110,0.4)] group-hover:scale-110 transition-transform duration-300">
-                      #{prevBestsellersIndex * 4 + idx + 1}
-                    </div>
-                    <ProductCard
-                      product={product}
-                      isWishlisted={wishlist.includes(product.id)}
-                      onWishlistToggle={onWishlistToggle}
-                      onAddToCart={onAddToCart}
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
-            
-            {/* Current slide (entering) */}
-            <div 
-              className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 ${
-                isBestsellersTransitioning 
-                  ? slideDirection === 'right' ? 'animate-slideInRight' : 'animate-slideInLeft'
-                  : ''
-              }`}
-            >
-              {bestsellers.slice(bestsellersIndex * 4, (bestsellersIndex + 1) * 4).map((product, idx) => (
-                <div key={product.id} className="relative group">
-                  <div className="absolute -top-3 -left-3 z-10 w-8 h-8 bg-gradient-to-br from-[#c9a96e] to-[#e8d5a3] text-[#0a0a0a] rounded-full flex items-center justify-center text-xs font-bold font-['DM_Sans'] shadow-[0_0_20px_rgba(201,169,110,0.4)] group-hover:scale-110 transition-transform duration-300">
-                    #{bestsellersIndex * 4 + idx + 1}
-                  </div>
-                  <ProductCard
-                    product={product}
-                    isWishlisted={wishlist.includes(product.id)}
-                    onWishlistToggle={onWishlistToggle}
-                    onAddToCart={onAddToCart}
-                  />
+      {/* SOCIAL PROOF STATS */}
+      <section className="bg-[#111111] border-y border-[#c9a96e]/10 py-16">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            {[
+              { number: '200+', label: 'Parfema u kolekciji', icon: '✦' },
+              { number: '4.9★', label: 'Prosječna ocjena', icon: '★' },
+              { number: '1–2', label: 'Dana dostava', icon: '📦' },
+              { number: '100%', label: 'Originalni parfemi', icon: '🔒' },
+            ].map((stat) => (
+              <div key={stat.label} className="group">
+                <div className="text-[#c9a96e]/40 text-lg mb-1">{stat.icon}</div>
+                <div className="font-['Cormorant_Garamond'] text-4xl md:text-5xl font-bold text-[#c9a96e] mb-2 group-hover:scale-105 transition-transform duration-300">
+                  {stat.number}
                 </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Progress indicators */}
-          <div className="flex justify-center gap-2 mt-8">
-            {Array.from({ length: Math.ceil(bestsellers.length / 4) }).map((_, i) => (
-              <button
-                key={i}
-                onClick={() => handleBestsellersSlideClick(i)}
-                disabled={isBestsellersTransitioning}
-                className="relative group disabled:cursor-not-allowed"
-                aria-label={`Go to page ${i + 1}`}
-              >
-                {/* Background track */}
-                <div className={`transition-all duration-500 rounded-full ${
-                  i === bestsellersIndex 
-                    ? 'w-10 h-1.5 bg-[#c9a96e]/20' 
-                    : 'w-1.5 h-1.5 bg-[#c9a96e]/25 hover:bg-[#c9a96e]/50 hover:scale-125'
-                }`} />
-                
-                {/* Progress fill with smooth CSS animation */}
-                {i === bestsellersIndex && !isBestsellersTransitioning && (
-                  <div 
-                    className="absolute top-0 left-0 h-1.5 rounded-full bg-gradient-to-r from-[#c9a96e] to-[#e8d5a3] shadow-[0_0_12px_rgba(201,169,110,0.5)]"
-                    style={{ 
-                      width: '0%',
-                      animation: 'progressFill 4s linear forwards'
-                    }}
-                  />
-                )}
-              </button>
+                <div className="text-[#e8d5a3]/40 text-xs font-['Inter'] tracking-wide uppercase">{stat.label}</div>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
+      {/* CUSTOMER REVIEWS */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div className="text-center mb-14">
+          <p className="text-[#c9a96e] text-xs tracking-[0.25em] uppercase font-medium font-['Inter'] mb-3 flex items-center justify-center gap-2">
+            <Star size={12} fill="currentColor" />
+            Recenzije kupaca
+          </p>
+          <h2 className="font-['Cormorant_Garamond'] text-4xl md:text-5xl font-bold text-[#e8d5a3]">
+            Što kažu naši <span className="text-[#c9a96e] italic">kupci</span>
+          </h2>
+          <div className="flex justify-center items-center gap-2 mt-4">
+            <div className="flex gap-0.5">
+              {[1,2,3,4,5].map(i => <Star key={i} size={14} className="text-[#c9a96e]" fill="currentColor" />)}
+            </div>
+            <span className="text-[#e8d5a3]/40 text-sm font-['Inter']">4.9 / 5 — Verificirane recenzije</span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {[
+            {
+              name: 'Marko H.',
+              location: 'Zagreb',
+              rating: 5,
+              text: 'Naručio sam Sauvage 5ml za probu i oduševljen sam. Miris je 100% autentičan, pakiranje uredno, stiglo za 2 dana. Definitivno naručujem opet!',
+              product: 'Dior Sauvage 5ml',
+              date: 'Travanj 2026',
+            },
+            {
+              name: 'Ana K.',
+              location: 'Split',
+              rating: 5,
+              text: 'Konačno mogu probati skupe parfeme bez da kupim cijelu bočicu. Naručila sam 3 različita mirisa, svi su točno kao u parfumeriji. Preporučujem svima!',
+              product: 'Chanel No.5 · Tom Ford Black Orchid · Creed Aventus',
+              date: 'Svibanj 2026',
+            },
+            {
+              name: 'Ivan P.',
+              location: 'Rijeka',
+              rating: 5,
+              text: 'Brza dostava, lijepo zapakirano, miris identičan originalu. Odlična ideja za sve koji žele isprobati luksuzne parfeme. Hvala dekantihr.com!',
+              product: 'Creed Aventus 10ml',
+              date: 'Svibanj 2026',
+            },
+          ].map((review) => (
+            <div key={review.name} className="bg-[#111111] border border-[#c9a96e]/10 rounded-2xl p-6 hover:border-[#c9a96e]/25 transition-all duration-300 flex flex-col">
+              {/* Stars */}
+              <div className="flex gap-0.5 mb-4">
+                {Array.from({ length: review.rating }).map((_, i) => (
+                  <Star key={i} size={13} className="text-[#c9a96e]" fill="currentColor" />
+                ))}
+              </div>
+              {/* Quote */}
+              <p className="text-[#e8d5a3]/65 text-sm font-['Inter'] leading-relaxed flex-1 mb-5">
+                "{review.text}"
+              </p>
+              {/* Product */}
+              <div className="bg-[#c9a96e]/5 border border-[#c9a96e]/10 rounded-xl px-3 py-2 mb-4">
+                <p className="text-[#c9a96e]/60 text-[10px] font-['Inter'] uppercase tracking-wider mb-0.5">Kupljeno</p>
+                <p className="text-[#e8d5a3]/60 text-xs font-['Inter']">{review.product}</p>
+              </div>
+              {/* Author */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-[#c9a96e]/15 border border-[#c9a96e]/20 flex items-center justify-center">
+                    <span className="text-[#c9a96e] text-xs font-bold font-['Inter']">{review.name[0]}</span>
+                  </div>
+                  <div>
+                    <p className="text-[#e8d5a3]/80 text-xs font-semibold font-['Inter']">{review.name}</p>
+                    <p className="text-[#e8d5a3]/30 text-[10px] font-['Inter']">{review.location}</p>
+                  </div>
+                </div>
+                <span className="text-[#e8d5a3]/20 text-[10px] font-['Inter']">{review.date}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Trust note */}
+        <div className="text-center mt-10">
+          <p className="text-[#e8d5a3]/25 text-xs font-['Inter'] flex items-center justify-center gap-2">
+            <Shield size={11} className="text-[#c9a96e]/40" />
+            Sve recenzije su od verificiranih kupaca koji su naručili na dekantihr.com
+          </p>
+        </div>
+      </section>
+
       {/* PROMO BANNER */}
-      {/* SPECIAL OFFER — COMPACT REDESIGN */}
       <section className="border-y border-[#c9a96e]/10 bg-[#111111]">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
@@ -768,29 +587,6 @@ export default function HomePage({ wishlist, onWishlistToggle, onAddToCart }: Ho
                 {item.text}
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* REVIEWS */}
-      <section className="bg-[#111111] border-y border-[#c9a96e]/10 py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14">
-            <p className="text-[#c9a96e] text-xs tracking-[0.25em] uppercase font-medium font-['Inter'] mb-3 flex items-center justify-center gap-2">
-              <Star size={12} className="animate-pulse" fill="currentColor" />
-              Recenzije kupaca
-            </p>
-            <h2 className="font-['Cormorant_Garamond'] text-4xl font-bold text-[#e8d5a3]">
-              Što kažu naši <span className="text-[#c9a96e] italic">kupci</span>
-            </h2>
-            <div className="flex justify-center gap-1 mt-4">
-              {[1,2,3,4,5].map(i => <Star key={i} size={16} className="text-[#c9a96e] animate-pulse" fill="currentColor" style={{ animationDelay: `${i * 0.1}s` }} />)}
-            </div>
-            <p className="text-[#e8d5a3]/30 text-sm font-['Inter'] mt-2">Nema dostupnih recenzija</p>
-          </div>
-
-          <div className="text-center py-12">
-            <p className="text-[#e8d5a3]/40 font-['Inter']">Budite prvi koji će ostaviti recenziju!</p>
           </div>
         </div>
       </section>

@@ -98,21 +98,33 @@ export default function CatalogPage({ wishlist, onWishlistToggle, onAddToCart }:
       return minPrice >= priceMin && minPrice <= priceMax;
     });
 
+    const totalStock = (p: any) =>
+      Array.isArray(p.product_sizes) && p.product_sizes.length > 0
+        ? p.product_sizes.reduce((sum: number, s: any) => sum + (s.zaliha ?? 0), 0)
+        : 0;
+
+    const soldOutLast = (arr: any[]) =>
+      [...arr].sort((a, b) => {
+        const aOut = totalStock(a) === 0 ? 1 : 0;
+        const bOut = totalStock(b) === 0 ? 1 : 0;
+        return aOut - bOut;
+      });
+
     switch (sort) {
-      case 'cijena_asc': return [...result].sort((a, b) => {
+      case 'cijena_asc': return soldOutLast([...result].sort((a, b) => {
         const minA = Array.isArray(a.product_sizes) && a.product_sizes.length > 0 ? Math.min(...a.product_sizes.map((s: any) => s.cijena)) : 0;
         const minB = Array.isArray(b.product_sizes) && b.product_sizes.length > 0 ? Math.min(...b.product_sizes.map((s: any) => s.cijena)) : 0;
         return minA - minB;
-      });
-      case 'cijena_desc': return [...result].sort((a, b) => {
+      }));
+      case 'cijena_desc': return soldOutLast([...result].sort((a, b) => {
         const minA = Array.isArray(a.product_sizes) && a.product_sizes.length > 0 ? Math.min(...a.product_sizes.map((s: any) => s.cijena)) : 0;
         const minB = Array.isArray(b.product_sizes) && b.product_sizes.length > 0 ? Math.min(...b.product_sizes.map((s: any) => s.cijena)) : 0;
         return minB - minA;
-      });
-      case 'bestseller': return [...result].sort((a, b) => (a.bestseller_rank ?? 999) - (b.bestseller_rank ?? 999));
-      case 'ocjena': return [...result].sort((a, b) => (b.avg_ocjena || 0) - (a.avg_ocjena || 0));
-      case 'novo': return [...result].reverse();
-      default: return [...result].sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
+      }));
+      case 'bestseller': return soldOutLast([...result].sort((a, b) => (a.bestseller_rank ?? 999) - (b.bestseller_rank ?? 999)));
+      case 'ocjena': return soldOutLast([...result].sort((a, b) => (b.avg_ocjena || 0) - (a.avg_ocjena || 0)));
+      case 'novo': return soldOutLast([...result].reverse());
+      default: return soldOutLast([...result].sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0)));
     }
   }, [products, search, selectedBrands, selectedSpol, selectedSezona, selectedNotes, priceMin, priceMax, sort, searchParams]);
 

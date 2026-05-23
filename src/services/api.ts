@@ -324,14 +324,24 @@ export const api = {
     }>;
   }) {
     try {
-      // Use the supplied payment reference as the order number if given
-      // (so the Revolut payment description matches the order_number),
-      // otherwise generate a fresh one.
-      let order_number = orderData.payment_reference;
-      if (!order_number) {
+      // Generate order number server-side to avoid collisions
+      let order_number: string;
+      try {
+        const { data: generatedNumber, error: genError } = await supabase
+          .rpc('generate_order_number');
+        if (genError || !generatedNumber) throw genError;
+        order_number = generatedNumber as string;
+      } catch {
+        // Fallback: client-side generation (still has collision risk but rare)
         const year = new Date().getFullYear();
         const random = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
         order_number = `HR-${year}-${random}`;
+      }
+
+      // Use the supplied payment reference as the order number if given
+      // (so the Revolut payment description matches the order_number)
+      if (orderData.payment_reference) {
+        order_number = orderData.payment_reference;
       }
 
       // Create order
@@ -942,11 +952,23 @@ export const api = {
     try {
       const res = await fetch(`${SUPABASE_URL}/functions/v1/send-email`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        },
         body: JSON.stringify({ to, subject, html }),
       });
-      return res.ok ? await res.json() : null;
-    } catch { return null; }
+      const data = await res.json();
+      if (!res.ok) {
+        console.error('sendEmail failed:', data);
+        throw new Error(data?.error || 'Email nije poslan');
+      }
+      return data;
+    } catch (err) {
+      console.error('sendEmail error:', err);
+      throw err;
+    }
   },
 
   // ============================================================

@@ -29,6 +29,7 @@ const STATUS_COLORS: Record<string, string> = {
   poslano: 'bg-purple-400/15 text-purple-400 border-purple-400/30',
   isporuceno: 'bg-green-400/15 text-green-400 border-green-400/30',
   otkazano: 'bg-red-400/15 text-red-400 border-red-400/30',
+  povrat: 'bg-orange-400/15 text-orange-400 border-orange-400/30',
 };
 
 const STATUS_LABELS: Record<string, string> = {
@@ -38,6 +39,7 @@ const STATUS_LABELS: Record<string, string> = {
   poslano: 'Poslano',
   isporuceno: 'Isporučeno',
   otkazano: 'Otkazano',
+  povrat: 'Povrat',
 };
 
 export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
@@ -81,6 +83,8 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
 
   // Fetch real orders, reviews, and newsletter from Supabase
   useEffect(() => {
+    let cancelled = false;
+
     async function fetchData() {
       try {
         // Fetch orders
@@ -99,15 +103,15 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
           .order('created_at', { ascending: false });
 
         if (ordersError) throw ordersError;
-        setSupabaseOrders(ordersData || []);
+        if (!cancelled) setSupabaseOrders(ordersData || []);
 
         // Fetch pending reviews
         const reviewsData = await api.getPendingReviews();
-        setPendingReviews(reviewsData || []);
+        if (!cancelled) setPendingReviews(reviewsData || []);
 
         // Fetch newsletter subscribers
         const newsletterData = await api.getNewsletterSubscribers();
-        setNewsletterSubs(newsletterData || []);
+        if (!cancelled) setNewsletterSubs(newsletterData || []);
 
         // Fetch coupons
         const { data: couponsData, error: couponsError } = await supabase
@@ -116,7 +120,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
           .order('created_at', { ascending: false });
         
         if (couponsError) throw couponsError;
-        setSupabaseCoupons(couponsData || []);
+        if (!cancelled) setSupabaseCoupons(couponsData || []);
 
         // Fetch brands
         const { data: brandsData, error: brandsError } = await supabase
@@ -125,16 +129,19 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
           .order('naziv');
         
         if (brandsError) throw brandsError;
-        setSupabaseBrands(brandsData || []);
+        if (!cancelled) setSupabaseBrands(brandsData || []);
 
-        // Fetch customers
-        const { data: customersData, error: customersError } = await supabase
+        // Fetch customers — NOTE: requires service role or admin RLS policy
+        // Currently blocked by RLS fix (no anon SELECT on users).
+        // Admin panel fetches customers via the anon key which now lacks SELECT.
+        // This is intentional — customer data should only be accessible via
+        // a server-side admin endpoint. For now we gracefully handle the empty result.
+        const { data: customersData } = await supabase
           .from('users')
           .select('id, ime, prezime, email, telefon, grad, role, created_at')
           .order('created_at', { ascending: false });
         
-        if (customersError) throw customersError;
-        setSupabaseCustomers(customersData || []);
+        if (!cancelled) setSupabaseCustomers(customersData || []);
 
         // Fetch products
         const { data: productsData, error: productsError } = await supabase
@@ -148,26 +155,29 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
           .order('created_at', { ascending: false });
         
         if (productsError) throw productsError;
-        setSupabaseProducts(productsData || []);
+        if (!cancelled) setSupabaseProducts(productsData || []);
 
       } catch (error) {
         console.error('Error fetching data:', error);
-        toast.error('Greška pri učitavanju podataka', {
-          style: {
-            background: '#111111',
-            color: '#e8d5a3',
-            border: '1px solid rgba(239,68,68,0.25)',
-            borderRadius: '12px',
-            fontFamily: 'Inter, sans-serif',
-            fontSize: '13px',
-          },
-        });
+        if (!cancelled) {
+          toast.error('Greška pri učitavanju podataka', {
+            style: {
+              background: '#111111',
+              color: '#e8d5a3',
+              border: '1px solid rgba(239,68,68,0.25)',
+              borderRadius: '12px',
+              fontFamily: 'Inter, sans-serif',
+              fontSize: '13px',
+            },
+          });
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     }
 
     fetchData();
+    return () => { cancelled = true; };
   }, []);
 
   // ============================================================
