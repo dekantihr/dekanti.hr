@@ -11,6 +11,11 @@ export interface CartItem {
   image: string;
   slug: string;
   max_zaliha: number;
+  // Bundle support — set when item is part of a bundle
+  bundle_id?: number;
+  bundle_naziv?: string;
+  bundle_cijena?: number; // total bundle price (set only on first item)
+  bundle_item_index?: 1 | 2 | 3; // which slot in the bundle
 }
 
 export interface AppliedCoupon {

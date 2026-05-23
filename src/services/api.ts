@@ -17,6 +17,37 @@ function mapProductImages(product: any) {
   return product;
 }
 
+// Helper: normalize bundle data from Supabase join
+function mapBundle(raw: any) {
+  const getImage = (sizeData: any) => {
+    const imgs = sizeData?.products?.product_images || [];
+    const sorted = [...imgs].sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+    return sorted[0]?.url || '';
+  };
+  return {
+    id: raw.id,
+    naziv: raw.naziv,
+    opis: raw.opis,
+    cijena: parseFloat(raw.cijena),
+    aktivan: raw.aktivan,
+    created_at: raw.created_at,
+    product_size_id_1: raw.product_size_id_1,
+    product_size_id_2: raw.product_size_id_2,
+    product_size_id_3: raw.product_size_id_3,
+    items: [raw.size1, raw.size2, raw.size3].map((s: any) => ({
+      product_size_id: s?.id,
+      product_id: s?.products?.id,
+      naziv: s?.products?.naziv || '',
+      brand: s?.products?.brands?.naziv || '',
+      ml: s?.velicina_ml,
+      cijena: parseFloat(s?.cijena || '0'),
+      zaliha: s?.zaliha ?? 0,
+      slug: s?.products?.slug || '',
+      image: getImage(s),
+    })),
+  };
+}
+
 // ============================================================
 // API SERVICE LAYER
 // ============================================================
@@ -1179,5 +1210,114 @@ export const api = {
       .eq('status', 'pending');
     if (error) return 0;
     return count || 0;
+  },
+
+  // ============================================================
+  // BUNDLES (Tematski paketi)
+  // ============================================================
+
+  /**
+   * Get all active bundles with full product/size details
+   */
+  async getBundles() {
+    const { data, error } = await supabase
+      .from('bundles')
+      .select(`
+        *,
+        size1:product_size_id_1 (
+          id, velicina_ml, cijena, zaliha,
+          products ( id, naziv, slug, brands (naziv), product_images (url, sort_order) )
+        ),
+        size2:product_size_id_2 (
+          id, velicina_ml, cijena, zaliha,
+          products ( id, naziv, slug, brands (naziv), product_images (url, sort_order) )
+        ),
+        size3:product_size_id_3 (
+          id, velicina_ml, cijena, zaliha,
+          products ( id, naziv, slug, brands (naziv), product_images (url, sort_order) )
+        )
+      `)
+      .eq('aktivan', true)
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    return (data || []).map(mapBundle);
+  },
+
+  /**
+   * Get all bundles (admin — includes inactive)
+   */
+  async getAllBundles() {
+    const { data, error } = await supabase
+      .from('bundles')
+      .select(`
+        *,
+        size1:product_size_id_1 (
+          id, velicina_ml, cijena, zaliha,
+          products ( id, naziv, slug, brands (naziv), product_images (url, sort_order) )
+        ),
+        size2:product_size_id_2 (
+          id, velicina_ml, cijena, zaliha,
+          products ( id, naziv, slug, brands (naziv), product_images (url, sort_order) )
+        ),
+        size3:product_size_id_3 (
+          id, velicina_ml, cijena, zaliha,
+          products ( id, naziv, slug, brands (naziv), product_images (url, sort_order) )
+        )
+      `)
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    return (data || []).map(mapBundle);
+  },
+
+  /**
+   * Create a bundle (admin)
+   */
+  async createBundle(bundle: {
+    naziv: string;
+    opis?: string;
+    cijena: number;
+    product_size_id_1: number;
+    product_size_id_2: number;
+    product_size_id_3: number;
+    aktivan?: boolean;
+  }) {
+    const { data, error } = await supabase
+      .from('bundles')
+      .insert({ ...bundle, aktivan: bundle.aktivan ?? true })
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  /**
+   * Update a bundle (admin)
+   */
+  async updateBundle(id: number, updates: Partial<{
+    naziv: string;
+    opis: string;
+    cijena: number;
+    product_size_id_1: number;
+    product_size_id_2: number;
+    product_size_id_3: number;
+    aktivan: boolean;
+  }>) {
+    const { data, error } = await supabase
+      .from('bundles')
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  /**
+   * Delete a bundle (admin)
+   */
+  async deleteBundle(id: number) {
+    const { error } = await supabase.from('bundles').delete().eq('id', id);
+    if (error) throw error;
+    return true;
   },
 };

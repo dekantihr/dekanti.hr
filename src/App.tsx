@@ -89,6 +89,14 @@ function AppContent() {
             wishlist={wishlist}
             onWishlistToggle={toggleWishlist}
             onAddToCart={handleAddToCart}
+            onAddBundleToCart={(bundleItems) => {
+              bundleItems.forEach(item => addItem(item));
+              const bundleName = bundleItems[0]?.bundle_naziv || 'Paket';
+              toast.success(`${bundleName} dodan u košaricu!`, {
+                style: { background: '#111111', color: '#e8d5a3', border: '1px solid rgba(201,169,110,0.3)' },
+                iconTheme: { primary: '#c9a96e', secondary: '#0a0a0a' },
+              });
+            }}
           />
         } />
         <Route path="/parfemi" element={

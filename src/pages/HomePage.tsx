@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Star, Truck, Shield, RotateCcw, Package, ChevronLeft, ChevronRight } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
+import BundleSection from '../components/BundleSection';
 import toast from 'react-hot-toast';
 import { api } from '../services/api';
 
@@ -9,9 +10,10 @@ interface HomePageProps {
   wishlist: number[];
   onWishlistToggle: (id: number) => void;
   onAddToCart: (product: any, sizeId: number) => void;
+  onAddBundleToCart: (items: import('../store/cartStore').CartItem[]) => void;
 }
 
-export default function HomePage({ wishlist, onWishlistToggle, onAddToCart }: HomePageProps) {
+export default function HomePage({ wishlist, onWishlistToggle, onAddToCart, onAddBundleToCart }: HomePageProps) {
   // Hero carousel state
   const [currentSlide, setCurrentSlide] = useState(0);
   const [prevSlide, setPrevSlide] = useState<number | null>(null);
@@ -382,6 +384,9 @@ export default function HomePage({ wishlist, onWishlistToggle, onAddToCart }: Ho
           </Link>
         </div>
       </section>
+
+      {/* BUNDLES */}
+      <BundleSection onAddToCart={onAddBundleToCart} />
 
       {/* HOW IT WORKS */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">

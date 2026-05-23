@@ -20,7 +20,7 @@ interface AdminPanelProps {
   onLogout: () => void;
 }
 
-type AdminView = 'dashboard' | 'narudzbe' | 'proizvodi' | 'brendovi' | 'kupci' | 'recenzije' | 'kuponi' | 'kampanje' | 'newsletter' | 'statistike';
+type AdminView = 'dashboard' | 'narudzbe' | 'proizvodi' | 'brendovi' | 'kupci' | 'recenzije' | 'kuponi' | 'kampanje' | 'newsletter' | 'statistike' | 'paketi';
 
 const STATUS_COLORS: Record<string, string> = {
   cekanje_uplate: 'bg-purple-500/15 text-purple-300 border-purple-500/30',
@@ -58,6 +58,9 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
   const [supabaseBrands, setSupabaseBrands] = useState<any[]>([]);
   const [supabaseCustomers, setSupabaseCustomers] = useState<any[]>([]);
   const [supabaseProducts, setSupabaseProducts] = useState<any[]>([]);
+  const [supabaseBundles, setSupabaseBundles] = useState<any[]>([]);
+  const [selectedBundle, setSelectedBundle] = useState<any | null>(null);
+  const [showBundleModal, setShowBundleModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [aiGenerating, setAiGenerating] = useState(false);
@@ -156,6 +159,10 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
         
         if (productsError) throw productsError;
         if (!cancelled) setSupabaseProducts(productsData || []);
+
+        // Fetch bundles
+        const bundlesData = await api.getAllBundles();
+        if (!cancelled) setSupabaseBundles(bundlesData || []);
 
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -1732,6 +1739,7 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
     { id: 'kupci', label: 'Kupci', icon: <Users size={16} /> },
     { id: 'recenzije', label: 'Recenzije', icon: <Star size={16} />, badge: pendingReviews.length },
     { id: 'kuponi', label: 'Kuponi', icon: <Tag size={16} /> },
+    { id: 'paketi', label: 'Paketi', icon: <Package size={16} /> },
     { id: 'kampanje', label: 'Kampanje', icon: <Mail size={16} /> },
     { id: 'newsletter', label: 'Newsletter', icon: <Mail size={16} /> },
     { id: 'statistike', label: 'Statistike', icon: <BarChart2 size={16} /> },
@@ -3213,6 +3221,228 @@ export default function AdminPanel({ user, onLogout }: AdminPanelProps) {
                       </div>
                     </div>
                   ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* PAKETI */}
+          {view === 'paketi' && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="font-['Cormorant_Garamond'] text-3xl font-bold text-[#e8d5a3]">Tematski paketi</h2>
+                <button
+                  onClick={() => {
+                    setSelectedBundle({ naziv: '', opis: '', cijena: '', product_size_id_1: '', product_size_id_2: '', product_size_id_3: '', aktivan: true });
+                    setShowBundleModal(true);
+                  }}
+                  className="flex items-center gap-2 bg-[#c9a96e] text-[#0a0a0a] px-4 py-2 rounded-xl text-sm font-bold font-['Inter'] hover:bg-[#e8d5a3] transition-colors"
+                >
+                  + Novi paket
+                </button>
+              </div>
+
+              {loading ? (
+                <div className="text-center py-12"><div className="inline-block w-8 h-8 border-2 border-[#c9a96e]/30 border-t-[#c9a96e] rounded-full animate-spin" /></div>
+              ) : supabaseBundles.length === 0 ? (
+                <div className="text-center py-16 bg-[#111111] border border-[#c9a96e]/10 rounded-2xl">
+                  <Package size={32} className="text-[#c9a96e]/30 mx-auto mb-3" />
+                  <p className="text-[#e8d5a3]/40 font-['Inter'] text-sm">Nema paketa. Kreiraj prvi paket.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  {supabaseBundles.map(bundle => (
+                    <div key={bundle.id} className="bg-[#111111] border border-[#c9a96e]/10 rounded-2xl p-5">
+                      <div className="flex items-start justify-between mb-3">
+                        <div>
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="font-['Cormorant_Garamond'] text-xl font-bold text-[#e8d5a3]">{bundle.naziv}</h3>
+                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-['Inter'] font-semibold ${bundle.aktivan ? 'bg-green-500/15 text-green-400' : 'bg-red-500/15 text-red-400'}`}>
+                              {bundle.aktivan ? 'Aktivan' : 'Neaktivan'}
+                            </span>
+                          </div>
+                          {bundle.opis && <p className="text-[#e8d5a3]/40 text-xs font-['Inter']">{bundle.opis}</p>}
+                        </div>
+                        <span className="font-['Cormorant_Garamond'] text-2xl font-bold text-[#c9a96e]">{bundle.cijena.toFixed(2)}€</span>
+                      </div>
+                      <div className="space-y-1.5 mb-4">
+                        {bundle.items.map((item: any, i: number) => (
+                          <div key={i} className="flex items-center gap-2 text-xs font-['Inter']">
+                            <span className="text-[#c9a96e]/50 w-4">{i + 1}.</span>
+                            <span className="text-[#e8d5a3]/60">{item.naziv}</span>
+                            <span className="text-[#e8d5a3]/30">·</span>
+                            <span className="text-[#e8d5a3]/40">{item.brand}</span>
+                            <span className="text-[#e8d5a3]/30">·</span>
+                            <span className="text-[#e8d5a3]/40">{item.ml}ml</span>
+                            <span className={`ml-auto ${item.zaliha > 0 ? 'text-green-400/60' : 'text-red-400/60'}`}>
+                              {item.zaliha > 0 ? `${item.zaliha} kom` : 'Rasprodano'}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => { setSelectedBundle({ ...bundle, product_size_id_1: bundle.product_size_id_1, product_size_id_2: bundle.product_size_id_2, product_size_id_3: bundle.product_size_id_3 }); setShowBundleModal(true); }}
+                          className="flex-1 border border-[#c9a96e]/20 text-[#c9a96e]/70 py-2 rounded-xl text-xs font-['Inter'] hover:border-[#c9a96e]/40 hover:text-[#c9a96e] transition-all flex items-center justify-center gap-1"
+                        >
+                          <Edit size={12} /> Uredi
+                        </button>
+                        <button
+                          onClick={async () => {
+                            if (!confirm(`Obriši paket "${bundle.naziv}"?`)) return;
+                            try {
+                              await api.deleteBundle(bundle.id);
+                              setSupabaseBundles(prev => prev.filter(b => b.id !== bundle.id));
+                              toast.success('Paket obrisan');
+                            } catch { toast.error('Greška pri brisanju'); }
+                          }}
+                          className="border border-red-500/20 text-red-400/60 py-2 px-3 rounded-xl text-xs font-['Inter'] hover:border-red-500/40 hover:text-red-400 transition-all"
+                        >
+                          <Trash2 size={12} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Bundle Modal */}
+              {showBundleModal && selectedBundle && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+                  <div className="bg-[#111111] border border-[#c9a96e]/20 rounded-2xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
+                    <div className="flex items-center justify-between mb-6">
+                      <h3 className="font-['Cormorant_Garamond'] text-2xl font-bold text-[#e8d5a3]">
+                        {selectedBundle.id ? 'Uredi paket' : 'Novi paket'}
+                      </h3>
+                      <button onClick={() => setShowBundleModal(false)} className="text-[#e8d5a3]/40 hover:text-[#e8d5a3] transition-colors"><X size={18} /></button>
+                    </div>
+
+                    <div className="space-y-4">
+                      {/* Naziv */}
+                      <div>
+                        <label className="text-[#e8d5a3]/40 text-xs uppercase tracking-wider font-['Inter'] block mb-1.5">Naziv paketa *</label>
+                        <input
+                          type="text"
+                          value={selectedBundle.naziv}
+                          onChange={e => setSelectedBundle({ ...selectedBundle, naziv: e.target.value })}
+                          placeholder="npr. Summer Vibes Pack"
+                          className="w-full bg-[#0a0a0a] border border-[#c9a96e]/20 text-[#e8d5a3] placeholder-[#e8d5a3]/25 px-4 py-3 rounded-xl text-sm font-['Inter'] focus:outline-none focus:border-[#c9a96e]/50"
+                        />
+                      </div>
+
+                      {/* Opis */}
+                      <div>
+                        <label className="text-[#e8d5a3]/40 text-xs uppercase tracking-wider font-['Inter'] block mb-1.5">Kratki opis</label>
+                        <textarea
+                          value={selectedBundle.opis || ''}
+                          onChange={e => setSelectedBundle({ ...selectedBundle, opis: e.target.value })}
+                          placeholder="Opis paketa..."
+                          rows={2}
+                          className="w-full bg-[#0a0a0a] border border-[#c9a96e]/20 text-[#e8d5a3] placeholder-[#e8d5a3]/25 px-4 py-3 rounded-xl text-sm font-['Inter'] focus:outline-none focus:border-[#c9a96e]/50 resize-none"
+                        />
+                      </div>
+
+                      {/* Cijena */}
+                      <div>
+                        <label className="text-[#e8d5a3]/40 text-xs uppercase tracking-wider font-['Inter'] block mb-1.5">Cijena paketa (€) *</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          value={selectedBundle.cijena}
+                          onChange={e => setSelectedBundle({ ...selectedBundle, cijena: e.target.value })}
+                          placeholder="0.00"
+                          className="w-full bg-[#0a0a0a] border border-[#c9a96e]/20 text-[#e8d5a3] placeholder-[#e8d5a3]/25 px-4 py-3 rounded-xl text-sm font-['Inter'] focus:outline-none focus:border-[#c9a96e]/50"
+                        />
+                      </div>
+
+                      {/* 3 product size selectors */}
+                      {[1, 2, 3].map(slot => {
+                        const key = `product_size_id_${slot}` as 'product_size_id_1' | 'product_size_id_2' | 'product_size_id_3';
+                        return (
+                          <div key={slot}>
+                            <label className="text-[#e8d5a3]/40 text-xs uppercase tracking-wider font-['Inter'] block mb-1.5">
+                              Parfem {slot} *
+                            </label>
+                            <select
+                              value={selectedBundle[key] || ''}
+                              onChange={e => setSelectedBundle({ ...selectedBundle, [key]: parseInt(e.target.value) || '' })}
+                              className="w-full bg-[#0a0a0a] border border-[#c9a96e]/20 text-[#e8d5a3] px-4 py-3 rounded-xl text-sm font-['Inter'] focus:outline-none focus:border-[#c9a96e]/50"
+                            >
+                              <option value="">— Odaberi parfem i veličinu —</option>
+                              {supabaseProducts.map((p: any) =>
+                                (p.product_sizes || []).map((s: any) => (
+                                  <option key={s.id} value={s.id}>
+                                    {p.naziv} — {s.velicina_ml}ml — {parseFloat(s.cijena).toFixed(2)}€ (zaliha: {s.zaliha})
+                                  </option>
+                                ))
+                              )}
+                            </select>
+                          </div>
+                        );
+                      })}
+
+                      {/* Aktivan toggle */}
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="checkbox"
+                          id="bundle-aktivan"
+                          checked={selectedBundle.aktivan}
+                          onChange={e => setSelectedBundle({ ...selectedBundle, aktivan: e.target.checked })}
+                          className="accent-[#c9a96e] w-4 h-4"
+                        />
+                        <label htmlFor="bundle-aktivan" className="text-[#e8d5a3]/60 text-sm font-['Inter'] cursor-pointer">
+                          Aktivan (vidljiv na stranici)
+                        </label>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3 mt-6">
+                      <button
+                        onClick={() => setShowBundleModal(false)}
+                        className="flex-1 border border-[#c9a96e]/20 text-[#c9a96e]/70 py-3 rounded-xl text-sm font-['Inter'] hover:border-[#c9a96e]/40 transition-all"
+                      >
+                        Odustani
+                      </button>
+                      <button
+                        disabled={saving}
+                        onClick={async () => {
+                          if (!selectedBundle.naziv || !selectedBundle.cijena || !selectedBundle.product_size_id_1 || !selectedBundle.product_size_id_2 || !selectedBundle.product_size_id_3) {
+                            toast.error('Ispunite sva obavezna polja');
+                            return;
+                          }
+                          setSaving(true);
+                          try {
+                            const payload = {
+                              naziv: selectedBundle.naziv,
+                              opis: selectedBundle.opis || null,
+                              cijena: parseFloat(selectedBundle.cijena),
+                              product_size_id_1: parseInt(selectedBundle.product_size_id_1),
+                              product_size_id_2: parseInt(selectedBundle.product_size_id_2),
+                              product_size_id_3: parseInt(selectedBundle.product_size_id_3),
+                              aktivan: selectedBundle.aktivan,
+                            };
+                            if (selectedBundle.id) {
+                              await api.updateBundle(selectedBundle.id, payload);
+                            } else {
+                              await api.createBundle(payload);
+                            }
+                            const fresh = await api.getAllBundles();
+                            setSupabaseBundles(fresh);
+                            setShowBundleModal(false);
+                            toast.success(selectedBundle.id ? 'Paket ažuriran!' : 'Paket kreiran!');
+                          } catch (err: any) {
+                            toast.error(err.message || 'Greška pri spremanju');
+                          } finally {
+                            setSaving(false);
+                          }
+                        }}
+                        className="flex-1 bg-[#c9a96e] text-[#0a0a0a] py-3 rounded-xl text-sm font-bold font-['Inter'] hover:bg-[#e8d5a3] transition-colors disabled:opacity-60"
+                      >
+                        {saving ? 'Sprema...' : selectedBundle.id ? 'Spremi promjene' : 'Kreiraj paket'}
+                      </button>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
