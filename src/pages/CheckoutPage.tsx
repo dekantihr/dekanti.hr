@@ -604,13 +604,13 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-[#e8d5a3]/35 text-[10px] tracking-[0.25em] uppercase font-['Inter'] mb-1">Narudžba {orderNumber}</p>
-                        <h2 className="font-['Cormorant_Garamond'] text-3xl font-bold text-[#e8d5a3]">
+                        <h2 className="font-['Inter'] text-2xl font-bold text-[#e8d5a3] tracking-tight">
                           Plaćanje
                         </h2>
                       </div>
                       <div className="text-right">
                         <p className="text-[#e8d5a3]/30 text-[10px] font-['Inter'] uppercase tracking-wider mb-1">Iznos</p>
-                        <p className="font-['Cormorant_Garamond'] text-3xl font-bold text-[#c9a96e]">
+                        <p className="font-['DM_Sans'] text-3xl font-bold text-[#c9a96e] tracking-tight">
                           {pendingOrder.ukupno.toFixed(2)}€
                         </p>
                       </div>
@@ -671,7 +671,7 @@ export default function CheckoutPage({ items, coupon, subtotal, dostava, popust,
                         <div className="bg-[#0a0a0a] border border-[#c9a96e]/12 rounded-xl p-3">
                           <p className="text-[#e8d5a3]/30 text-[9px] uppercase tracking-wider font-['Inter'] mb-1.5">Iznos</p>
                           <div className="flex items-center justify-between">
-                            <span className="text-[#c9a96e] font-['Cormorant_Garamond'] text-xl font-bold">{pendingOrder.ukupno.toFixed(2)}€</span>
+                            <span className="text-[#c9a96e] font-['DM_Sans'] font-bold text-lg tracking-tight">{pendingOrder.ukupno.toFixed(2)}€</span>
                             <button onClick={() => copyToClipboard(pendingOrder.ukupno.toFixed(2))} className="text-[#e8d5a3]/25 hover:text-[#c9a96e] transition-colors p-1" type="button">
                               <Copy size={13} />
                             </button>
